@@ -24,7 +24,8 @@ localization, security, and hosting.
   - `Persistence`
   - `Security`
 - **Samples**
-  - `CapabilityCentricSample` - example application that exercises the packages together
+  - `CapabilityCentricSample` - capability-centric layout in a single application assembly
+  - `CleanArchitectureSample` - layered clean architecture with generic `ICommandDbContext` and `IQueryDbContext`
 - **Templates**
   - reserved for starter templates
 
@@ -74,16 +75,18 @@ Restore:
 dotnet restore
 ```
 
-Build the sample API:
+Build a sample API:
 
 ```powershell
 dotnet build "Samples/CapabilityCentricSample/src/CapabilityCentricSample.Hosting.API/CapabilityCentricSample.Hosting.API.csproj" -c Release
+dotnet build "Samples/CleanArchitectureSample/src/Hosting/CleanArchitectureSample.Hosting.API/CleanArchitectureSample.Hosting.API.csproj" -c Release
 ```
 
-Run the sample API:
+Run a sample API:
 
 ```powershell
 dotnet run --project "Samples/CapabilityCentricSample/src/CapabilityCentricSample.Hosting.API/CapabilityCentricSample.Hosting.API.csproj"
+dotnet run --project "Samples/CleanArchitectureSample/src/Hosting/CleanArchitectureSample.Hosting.API/CleanArchitectureSample.Hosting.API.csproj"
 ```
 
 ## Current status

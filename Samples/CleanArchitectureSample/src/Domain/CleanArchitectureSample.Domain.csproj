@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<Description>Domain layer for CleanArchitectureSample.</Description>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="RaccoonLand.Core.Domain" />
+	</ItemGroup>
+
+</Project>
