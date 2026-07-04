@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Hassan Soleimani",
+  "classifications": [ "Web", "API", "RaccoonLand", "Clean-Architecture", "Clean Architecture" ],
+  "identity": "RaccoonLand.Templates.CleanArchitecture",
+  "name": "RaccoonLand Clean Architecture Template",
+  "shortName": "raccoonland-clean-architecture",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "CleanArchitectureTemplate",
+  "preferNameDirectory": true,
+  "symbols": {
+    "ProjectNameSafe": {
+      "type": "generated",
+      "generator": "regex",
+      "parameters": {
+        "source": "name",
+        "steps": [
+          {
+            "regex": "[^a-zA-Z0-9_]",
+            "replacement": ""
+          }
+        ]
+      },
+      "replaces": "TemplateApp"
+    },
+    "CommandDbContextName": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "description": "Command-side DbContext class name. Defaults to {ProjectName}CommandDbContext when omitted."
+    },
+    "QueryDbContextName": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "description": "Query-side DbContext class name. Defaults to {ProjectName}QueryDbContext when omitted."
+    },
+    "CommandDbContextDefaultName": {
+      "type": "generated",
+      "generator": "join",
+      "parameters": {
+        "separator": "",
+        "symbols": [
+          { "type": "ref", "value": "ProjectNameSafe" },
+          { "type": "const", "value": "CommandDbContext" }
+        ]
+      }
+    },
+    "QueryDbContextDefaultName": {
+      "type": "generated",
+      "generator": "join",
+      "parameters": {
+        "separator": "",
+        "symbols": [
+          { "type": "ref", "value": "ProjectNameSafe" },
+          { "type": "const", "value": "QueryDbContext" }
+        ]
+      }
+    },
+    "CommandDbContextResolved": {
+      "type": "generated",
+      "generator": "coalesce",
+      "parameters": {
+        "sourceVariableName": "CommandDbContextName",
+        "fallbackVariableName": "CommandDbContextDefaultName"
+      },
+      "replaces": "TemplateCommandDbContext",
+      "fileRename": "TemplateCommandDbContext"
+    },
+    "QueryDbContextResolved": {
+      "type": "generated",
+      "generator": "coalesce",
+      "parameters": {
+        "sourceVariableName": "QueryDbContextName",
+        "fallbackVariableName": "QueryDbContextDefaultName"
+      },
+      "replaces": "TemplateQueryDbContext",
+      "fileRename": "TemplateQueryDbContext"
+    }
+  },
+  "sources": [
+    {
+      "source": "./",
+      "exclude": [
+        "**/bin/**",
+        "**/obj/**",
+        "**/.vs/**",
+        "**/.template.config/**"
+      ]
+    }
+  ]
+}

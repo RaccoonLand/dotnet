@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<Description>Command-side persistence for CleanArchitectureTemplate.</Description>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\Application\CleanArchitectureTemplate.Application.csproj" />
+		<ProjectReference Include="..\..\..\..\Domain\CleanArchitectureTemplate.Domain.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="RaccoonLand.Core.ExecutionContext.Abstractions" />
+		<PackageReference Include="RaccoonLand.Modules.Persistence.EntityFrameworkCore" />
+		<PackageReference Include="RaccoonLand.Modules.Persistence.SqlServer.Commands" />
+	</ItemGroup>
+
+</Project>

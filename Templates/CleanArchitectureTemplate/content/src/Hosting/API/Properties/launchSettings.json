@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "CleanArchitectureTemplate.Hosting.API": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "scalar/v1",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:4962;http://localhost:4963"
+    }
+  }
+}

@@ -27,7 +27,8 @@ localization, security, and hosting.
   - `CapabilityCentricSample` - capability-centric layout in a single application assembly
   - `CleanArchitectureSample` - layered clean architecture with generic `ICommandDbContext` and `IQueryDbContext`
 - **Templates**
-  - reserved for starter templates
+  - `CapabilityCentricTemplate` - capability-centric starter with Create, GetById, and Search for People
+  - `CleanArchitectureTemplate` - layered clean architecture with `ICommandDbContext` and `IQueryDbContext`
 
 ## Repository structure
 
