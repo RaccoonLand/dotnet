@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.FluentValidationMiddleware.md" />
+    <File Path="docs/2.Registration.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.Middlewares.FluentValidationMiddleware.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

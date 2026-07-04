@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.OpenApiDocumentGeneration.md" />
+    <File Path="docs/2.BearerSecurityScheme.md" />
+    <File Path="docs/3.Registration.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.OpenApi.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

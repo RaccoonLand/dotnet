@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.IMessageLocalization.md" />
+    <File Path="docs/2.ICurrentCultureProvider.md" />
+    <File Path="docs/3.RawValue.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.MessageLocalization.Abstraction.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

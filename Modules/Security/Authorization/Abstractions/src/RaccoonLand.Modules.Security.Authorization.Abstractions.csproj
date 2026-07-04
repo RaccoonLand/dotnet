@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RaccoonLand authorization abstractions: host-independent contracts for deciding whether the current caller may execute a request, keyed by the request type's full name. Defines IAuthorizationProvider, AuthorizationContext, AuthorizationDecision (status only — providers do not produce messages) and AuthorizationStatus. No dependency on ASP.NET Core or any provider; reference this from the authorization middleware and provider packages.</Description>
+  </PropertyGroup>
+
+</Project>

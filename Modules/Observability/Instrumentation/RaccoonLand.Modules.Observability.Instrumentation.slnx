@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.RaccoonLandTelemetry.md" />
+    <File Path="docs/2.PipelineInstrumentationMiddleware.md" />
+    <File Path="docs/3.Registration.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.Observability.Instrumentation.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

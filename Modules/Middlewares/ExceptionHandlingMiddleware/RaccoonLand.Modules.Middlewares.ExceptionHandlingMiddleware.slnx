@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.ExceptionHandlingMiddleware.md" />
+    <File Path="docs/2.ExceptionHandlingOptions.md" />
+    <File Path="docs/3.Registration.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.Middlewares.ExceptionHandlingMiddleware.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

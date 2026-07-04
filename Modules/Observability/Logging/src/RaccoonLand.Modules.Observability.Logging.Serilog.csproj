@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RaccoonLand Serilog integration: configures Serilog from IConfiguration (appsettings, environment variables, user secrets, and other providers) with sensible default enrichments (ApplicationName, EnvironmentName, MachineName, TraceId). Does not reference any sinks; consumers install sink packages separately.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Serilog.AspNetCore" />
+    <PackageReference Include="Serilog.Settings.Configuration" />
+  </ItemGroup>
+
+</Project>

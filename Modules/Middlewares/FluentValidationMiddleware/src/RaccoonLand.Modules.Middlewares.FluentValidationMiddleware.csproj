@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RaccoonLand pipeline middleware that runs FluentValidation validators registered for the current request type and, on failure, short-circuits with a PipelineResponse error envelope (one PipelineMessage per failure). Host-independent — no dependency on ASP.NET Core; works in an API or a worker via IPipelineMiddleware. Message localization is the validator author's responsibility. Middleware is registered as a singleton (stateless; validators resolved from PipelineContext.RequestServices).</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="RaccoonLand.Core.RequestProcessing.Abstractions" />
+  </ItemGroup>
+
+</Project>

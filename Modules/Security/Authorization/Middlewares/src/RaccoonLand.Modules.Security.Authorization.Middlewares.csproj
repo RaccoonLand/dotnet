@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RaccoonLand authorization pipeline middleware: resolves the active IAuthorizationProvider and authorizes each request by its full type name, short-circuiting the pipeline with a PipelineResponse error envelope (StatusHint 401 for unauthenticated, 403 for denied). The middleware — not the provider — owns the response: it picks the stable code/template and localizes the message via IMessageLocalization when available. Host-independent — no dependency on ASP.NET Core; works in an API or a worker via IPipelineMiddleware. The middleware holds no security options; the provider is the single source of truth.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="RaccoonLand.Core.RequestProcessing.Abstractions" />
+    <PackageReference Include="RaccoonLand.Modules.MessageLocalization.Abstraction" />
+    <PackageReference Include="RaccoonLand.Modules.Security.Authorization.Abstractions" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.AuthenticationOptions.md" />
+    <File Path="docs/2.SchemeOptions.md" />
+    <File Path="docs/3.Registration.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.Security.Authentication.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

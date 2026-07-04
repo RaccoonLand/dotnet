@@ -1,0 +1,38 @@
+<Project>
+
+  <!-- Shared compiler settings for every project in the framework and all modules. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <!-- NuGet package metadata shared by every packable project. -->
+  <!-- The whole framework and each module ship as NuGet packages; PackageId defaults to the assembly name. -->
+  <PropertyGroup>
+    <Authors>Hassan Soleimani</Authors>
+    <Company>RaccoonLand</Company>
+    <Product>RaccoonLand</Product>
+    <Version>1.0.0</Version>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+
+    <!-- Shared package icon (a <=1MB, 512x512 copy of icon.png; stored under assets/icons). -->
+    <PackageIcon>nuget-icon.png</PackageIcon>
+
+    <!-- Ship XML docs and a symbol package for a good consumer experience. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <!-- Do not fail the build for public members that are not yet documented. -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <!-- Pack the shared icon into every RaccoonLand package. -->
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)assets\icons\nuget-icon.png" Pack="true" PackagePath="" Visible="false" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RaccoonLand OpenAPI core: configuration-driven OpenAPI document generation on top of Microsoft.AspNetCore.OpenApi (.NET 10), with document info and optional JWT bearer security scheme. Serves the OpenAPI JSON document; add a UI provider package (Swagger UI or Scalar) to render a UI.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <!-- Pin Microsoft.OpenApi above the vulnerable 2.0.0 that Microsoft.AspNetCore.OpenApi 10.0.9 pulls in
+         transitively (GHSA-v5pm-xwqc-g5wc). Version is centralized in Directory.Packages.props. -->
+    <PackageReference Include="Microsoft.OpenApi" />
+    <PackageReference Include="RaccoonLand.Modules.OpenApi.Abstractions" />
+  </ItemGroup>
+
+</Project>

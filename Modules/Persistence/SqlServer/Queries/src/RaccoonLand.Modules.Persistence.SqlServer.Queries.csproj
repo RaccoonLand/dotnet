@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RaccoonLand query-side SQL Server persistence: a read-only, no-tracking base query DbContext that blocks SaveChanges, a query aggregate-root base (plain POCO) carrying audit timestamps and the optimistic-concurrency token for read models, and IQueryable pagination extensions (PagedList, ToPagedListAsync).</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+  </ItemGroup>
+
+</Project>

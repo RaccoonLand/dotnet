@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.PipelineBuilder.md" />
+    <File Path="docs/2.CommandAndQueryPipelineBuilders.md" />
+    <File Path="docs/3.EndpointInvokerRegistry.md" />
+    <File Path="docs/4.CompiledPipelines.md" />
+    <File Path="docs/5.RequestDispatcher.md" />
+    <File Path="docs/6.Registration.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Core.RequestProcessing.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

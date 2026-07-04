@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.IClaimsPrincipalAccessor.md" />
+    <File Path="docs/2.ClaimAuthorizationOptions.md" />
+    <File Path="docs/3.ClaimAuthorizationProvider.md" />
+    <File Path="docs/4.Registration.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.Security.Authorization.Claims.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

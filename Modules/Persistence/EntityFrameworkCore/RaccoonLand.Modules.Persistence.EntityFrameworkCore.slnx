@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.Overview.md" />
+    <File Path="docs/2.ICommandEntityConfiguration.md" />
+    <File Path="docs/3.IQueryEntityConfiguration.md" />
+    <File Path="docs/4.ApplyConfigurationsFromAssembly.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.Persistence.EntityFrameworkCore.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.BaseCommandDbContext.md" />
+    <File Path="docs/2.AuditSaveChangesInterceptor.md" />
+    <File Path="docs/3.OutboxSaveChangesInterceptor.md" />
+    <File Path="docs/4.OutboxChannelOptions.md" />
+    <File Path="docs/5.IOutboxChannelRegistry.md" />
+    <File Path="docs/6.OutboxWriterSaveChangesInterceptor.md" />
+    <File Path="docs/7.Registration.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.Persistence.SqlServer.Commands.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

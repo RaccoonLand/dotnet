@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageType>Template</PackageType>
+    <PackageId>RaccoonLand.Templates.CapabilityCentric</PackageId>
+    <Title>RaccoonLand Capability-Centric Template</Title>
+    <Description>dotnet new template for RaccoonLand capability-centric applications with configurable project and DbContext names.</Description>
+    <PackageTags>dotnet-new;template;RaccoonLand;capability-centric;clean-architecture</PackageTags>
+    <IncludeContentInPack>true</IncludeContentInPack>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IncludeSymbols>false</IncludeSymbols>
+    <ContentTargetFolders>content</ContentTargetFolders>
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <TemplateContentRoot>$(MSBuildProjectDirectory)\content</TemplateContentRoot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="content\**\*"
+             Exclude="content\**\bin\**;content\**\obj\**;content\**\.vs\**;content\**\*.user"
+             Pack="true"
+             PackagePath="content/$([MSBuild]::MakeRelative('$(TemplateContentRoot)\', '%(FullPath)').Replace('\', '/'))" />
+    <Compile Remove="**\*" />
+  </ItemGroup>
+
+</Project>

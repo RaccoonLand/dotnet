@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.ICurrentExecutionContext.md" />
+    <File Path="docs/2.NullCurrentExecutionContext.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Core.ExecutionContext.Abstractions.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

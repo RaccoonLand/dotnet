@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.Entity.md" />
+    <File Path="docs/2.AggregateRoot.md" />
+    <File Path="docs/3.ValueObject.md" />
+    <File Path="docs/4.DomainEvent.md" />
+    <File Path="docs/5.ServiceEvent.md" />
+    <File Path="docs/6.DomainException.md" />
+    <File Path="docs/7.DomainError.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Core.Domain.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

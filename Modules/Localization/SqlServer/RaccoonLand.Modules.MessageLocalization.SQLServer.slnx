@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.SqlServerOptions.md" />
+    <File Path="docs/2.Registration.md" />
+    <File Path="docs/3.MessageResolution.md" />
+    <File Path="docs/4.Storage.md" />
+    <File Path="docs/5.Repository.md" />
+    <File Path="docs/6.RefreshService.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.MessageLocalization.SQLServer.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

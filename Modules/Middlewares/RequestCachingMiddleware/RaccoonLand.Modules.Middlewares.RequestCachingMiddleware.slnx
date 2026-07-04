@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.ICacheableRequest.md" />
+    <File Path="docs/2.RequestCachingMiddleware.md" />
+    <File Path="docs/3.RequestCachingOptions.md" />
+    <File Path="docs/4.Registration.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Abstraction/RaccoonLand.Modules.Middlewares.RequestCaching.Abstraction.csproj" />
+    <Project Path="src/RaccoonLand.Modules.Middlewares.RequestCachingMiddleware.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.IAuthorizationProvider.md" />
+    <File Path="docs/2.AuthorizationContext.md" />
+    <File Path="docs/3.AuthorizationDecision.md" />
+    <File Path="docs/4.AuthorizationStatus.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.Security.Authorization.Abstractions.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

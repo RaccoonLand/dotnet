@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RaccoonLand OpenAPI abstractions: host-independent options (document info + optional JWT bearer security) shared by the OpenAPI core and the Swagger UI / Scalar UI provider packages. No ASP.NET Core or OpenAPI library dependency.</Description>
+  </PropertyGroup>
+
+</Project>

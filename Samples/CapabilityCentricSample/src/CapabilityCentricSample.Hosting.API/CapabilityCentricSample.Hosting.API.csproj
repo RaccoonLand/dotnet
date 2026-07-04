@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<Description>HTTP host for CapabilityCentricSample.</Description>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="OpenTelemetry.Exporter.Console" />
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+		<PackageReference Include="RaccoonLand.Modules.MessageLocalization.SQLServer" />
+		<PackageReference Include="RaccoonLand.Core.Hosting.AspNetCore" />
+		<PackageReference Include="RaccoonLand.Core.RequestProcessing" />
+		<PackageReference Include="RaccoonLand.Modules.Middlewares.ExceptionHandlingMiddleware" />
+		<PackageReference Include="RaccoonLand.Modules.Middlewares.FluentValidationMiddleware" />
+		<PackageReference Include="RaccoonLand.Modules.Middlewares.RequestCachingMiddleware" />
+		<PackageReference Include="RaccoonLand.Modules.Observability.Instrumentation" />
+		<PackageReference Include="RaccoonLand.Modules.Observability.Logging.Serilog" />
+		<PackageReference Include="RaccoonLand.Modules.OpenApi" />
+		<PackageReference Include="RaccoonLand.Modules.OpenApi.Scalar" />
+		<PackageReference Include="RaccoonLand.Modules.OpenApi.Swagger" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\CapabilityCentricSample\CapabilityCentricSample.csproj" />
+	</ItemGroup>
+
+</Project>

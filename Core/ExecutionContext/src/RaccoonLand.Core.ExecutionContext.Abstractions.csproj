@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RaccoonLand ExecutionContext abstractions: host-independent contract for reading the current execution scope (user, tenant, correlation id). The same accessor works whether the scope originated from an HTTP request, a message consumer, a background job, or any other host. Includes NullCurrentExecutionContext for environments where no context is present.</Description>
+  </PropertyGroup>
+
+</Project>

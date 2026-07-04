@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.Scalar.md" />
+    <File Path="docs/2.Registration.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.OpenApi.Scalar.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

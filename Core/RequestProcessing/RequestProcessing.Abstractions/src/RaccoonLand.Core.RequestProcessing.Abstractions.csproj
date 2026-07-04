@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RaccoonLand RequestProcessing abstractions: host-independent contracts for authoring CQRS requests/endpoints and request pipelines with custom middleware (IRequestBase/IRequest/ICommand/IQuery, IEndpoint, IRequestDispatcher, PipelineContext, IPipelineMiddleware, IPipelineBuilder, PipelineResponse). No dependency on ASP.NET Core, so the same pipeline works in an API or a worker. Reference this from custom-middleware packages.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.Cqrs.md" />
+    <File Path="docs/2.Result.md" />
+    <File Path="docs/3.PipelineContext.md" />
+    <File Path="docs/4.PipelineDelegate.md" />
+    <File Path="docs/5.IPipelineBuilder.md" />
+    <File Path="docs/6.PipelineBuilderExtensions.md" />
+    <File Path="docs/7.PipelineResponse.md" />
+    <File Path="docs/8.IRequestDispatcher.md" />
+    <File Path="docs/9.Pagination.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Core.RequestProcessing.Abstractions.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

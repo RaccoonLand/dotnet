@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.IOutbox.md" />
+    <File Path="docs/2.IOutboxWriter.md" />
+    <File Path="docs/3.OutboxEnqueueOptions.md" />
+    <File Path="docs/4.OutboxPendingMessage.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.Persistence.Outbox.Abstraction.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RaccoonLand Entity Framework Core shared primitives: marker interfaces that tag command-side or query-side IEntityTypeConfiguration implementations and a ModelBuilder extension that applies only the configurations matching the chosen marker from an assembly.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+  </ItemGroup>
+
+</Project>

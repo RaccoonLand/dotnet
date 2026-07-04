@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RaccoonLand OpenAPI Scalar UI provider: renders the Scalar API reference for the OpenAPI document produced by RaccoonLand.Modules.OpenApi, using the shared OpenApiDocumentOptions for the document route and title. UI only — does not generate the document.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RaccoonLand.Modules.OpenApi.Abstractions" />
+    <PackageReference Include="Scalar.AspNetCore" />
+  </ItemGroup>
+
+</Project>

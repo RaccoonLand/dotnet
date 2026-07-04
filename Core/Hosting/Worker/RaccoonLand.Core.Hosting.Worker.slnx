@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.RaccoonLandBackgroundService.md" />
+    <File Path="docs/2.WorkerRequestDispatcher.md" />
+    <File Path="docs/3.WorkerExecutionContext.md" />
+    <File Path="docs/4.PipelineResponseHandler.md" />
+    <File Path="docs/5.Registration.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Core.Hosting.Worker.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

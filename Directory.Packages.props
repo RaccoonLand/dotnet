@@ -1,0 +1,66 @@
+<Project>
+  <!-- Central Package Management (CPM) for the whole repository.
+       Individual projects reference packages WITHOUT a Version attribute; the single
+       source of truth for every version lives here. This keeps versions consistent,
+       prevents drift, and makes transitive CVE pinning a one-line change. -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+  <!-- Third-party packages. -->
+  <ItemGroup>
+    <PackageVersion Include="Dapper" Version="2.1.79" />
+    <PackageVersion Include="FluentValidation" Version="12.1.1" />
+    <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="7.0.1" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.9" />
+    <!-- Pin Microsoft.OpenApi above the vulnerable 2.0.0 that Microsoft.AspNetCore.OpenApi 10.0.9
+         pulls in transitively (GHSA-v5pm-xwqc-g5wc). Transitive pinning is enabled above. -->
+    <PackageVersion Include="Microsoft.OpenApi" Version="2.9.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.16.0" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.16.0" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.16.6" />
+    <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
+    <PackageVersion Include="Serilog.Settings.Configuration" Version="10.0.1" />
+    <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.2.3" />
+  </ItemGroup>
+  <!-- RaccoonLand inter-package references. All packages ship as 1.0.0 and are resolved
+       from the local feed (see nuget.config packageSourceMapping). -->
+  <ItemGroup>
+    <PackageVersion Include="RaccoonLand.Core.Domain" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Core.ExecutionContext.Abstractions" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Core.RequestProcessing" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Core.RequestProcessing.Abstractions" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Core.Hosting.AspNetCore" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.MessageLocalization.Abstraction" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.MessageLocalization.SQLServer" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.Middlewares.ExceptionHandlingMiddleware" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.Middlewares.FluentValidationMiddleware" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.Middlewares.RequestCaching.Abstraction" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.Middlewares.RequestCachingMiddleware" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.Observability.Instrumentation" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.Observability.Logging.Serilog" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.OpenApi" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.OpenApi.Abstractions" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.OpenApi.Scalar" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.OpenApi.Swagger" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.Persistence.EntityFrameworkCore" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.Persistence.Outbox.Abstraction" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.Persistence.SqlServer.Commands" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.Persistence.SqlServer.Queries" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.Security.Authorization.Abstractions" Version="1.0.0" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>RaccoonLand.Modules.Security.Authorization.Claims</PackageId>
+    <Description>RaccoonLand claim-based authorization provider: an IAuthorizationProvider that decides access (status only) from externally supplied rules — anonymous requests, per-request claim requirements, and custom assertions — against the current caller's ClaimsPrincipal. Deny-by-default. Options can be configured in code or bound from IConfiguration. Includes IClaimsPrincipalAccessor and a default ASP.NET Core implementation backed by IHttpContextAccessor. One of the RaccoonLand.Modules.Security.Authorization providers.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RaccoonLand.Modules.Security.Authorization.Abstractions" />
+  </ItemGroup>
+
+</Project>

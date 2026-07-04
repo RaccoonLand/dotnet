@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Marker interface for CQRS requests whose responses can be cached by RequestCachingMiddleware. Reference this package from feature modules that define cacheable queries — no pipeline or caching infrastructure dependencies.</Description>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CapabilityCentricSample/CapabilityCentricSample.csproj" />
+    <Project Path="src/CapabilityCentricSample.Hosting.API/CapabilityCentricSample.Hosting.API.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+</Solution>

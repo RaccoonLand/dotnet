@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.BaseQueryDbContext.md" />
+    <File Path="docs/2.QueryAggregateRoot.md" />
+    <File Path="docs/3.Pagination.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.Persistence.SqlServer.Queries.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<Description>Capability-centric starter template: People capability with colocated domain, application, and persistence.</Description>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="FluentValidation" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+		<PackageReference Include="RaccoonLand.Core.ExecutionContext.Abstractions" />
+		<PackageReference Include="RaccoonLand.Core.Domain" />
+		<PackageReference Include="RaccoonLand.Core.RequestProcessing.Abstractions" />
+		<PackageReference Include="RaccoonLand.Modules.MessageLocalization.Abstraction" />
+		<PackageReference Include="RaccoonLand.Modules.Middlewares.RequestCaching.Abstraction" />
+		<PackageReference Include="RaccoonLand.Modules.Persistence.EntityFrameworkCore" />
+		<PackageReference Include="RaccoonLand.Modules.Persistence.SqlServer.Commands" />
+		<PackageReference Include="RaccoonLand.Modules.Persistence.SqlServer.Queries" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RaccoonLand pipeline middleware that adds read-through caching for requests implementing ICacheableRequest, backed by IDistributedCache, with per-category (namespace + request name) lifetimes. Host-independent — works in an API or a worker via IPipelineMiddleware.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Abstraction\**" />
+    <EmbeddedResource Remove="Abstraction\**" />
+    <None Remove="Abstraction\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <PackageReference Include="RaccoonLand.Core.RequestProcessing.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="Abstraction\RaccoonLand.Modules.Middlewares.RequestCaching.Abstraction.csproj" />
+  </ItemGroup>
+
+</Project>

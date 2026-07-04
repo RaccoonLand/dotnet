@@ -1,0 +1,26 @@
+<Solution>
+
+  <Folder Name="/docs/">
+
+    <File Path="docs/1.RaccoonLandController.md" />
+
+    <File Path="docs/2.PipelineResponseMapper.md" />
+
+    <File Path="docs/3.HttpExecutionContext.md" />
+
+    <File Path="docs/4.ExceptionHandling.md" />
+
+    <File Path="docs/5.Registration.md" />
+
+  </Folder>
+
+  <Folder Name="/src/">
+
+    <Project Path="src/RaccoonLand.Core.Hosting.AspNetCore.csproj" />
+
+  </Folder>
+
+  <Folder Name="/test/" />
+
+</Solution>
+

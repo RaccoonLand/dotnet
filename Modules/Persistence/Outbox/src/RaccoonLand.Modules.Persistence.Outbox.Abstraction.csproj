@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RaccoonLand storage-agnostic outbox abstractions: marker channels (IOutbox), the request-scoped IOutboxWriter for enqueueing messages, enqueue metadata, and the pending-message envelope. Per-channel storage configuration and the channel registry are intentionally left to the implementation (for example the SQL Server Commands module).</Description>
+  </PropertyGroup>
+
+</Project>

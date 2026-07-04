@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.OpenApiDocumentOptions.md" />
+    <File Path="docs/2.OpenApiSecurityOptions.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.OpenApi.Abstractions.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.ApiAuthorizationOptions.md" />
+    <File Path="docs/2.ApiAuthorizationProvider.md" />
+    <File Path="docs/3.Registration.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.Security.Authorization.Api.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>
