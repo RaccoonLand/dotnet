@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.ServiceAttribute.md" />
+    <File Path="docs/2.Enums.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.DependencyInjection.Abstractions.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

@@ -1,26 +1,52 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <PackageType>Template</PackageType>
-    <PackageId>RaccoonLand.Templates.CleanArchitecture</PackageId>
-    <Title>RaccoonLand Clean Architecture Template</Title>
-    <Description>dotnet new template for RaccoonLand layered clean architecture applications with ICommandDbContext and IQueryDbContext abstractions.</Description>
-    <PackageTags>dotnet-new;template;RaccoonLand;clean-architecture;cqrs</PackageTags>
-    <IncludeContentInPack>true</IncludeContentInPack>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
-    <IncludeSymbols>false</IncludeSymbols>
-    <ContentTargetFolders>content</ContentTargetFolders>
-    <NoDefaultExcludes>true</NoDefaultExcludes>
-    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
-    <TemplateContentRoot>$(MSBuildProjectDirectory)\content</TemplateContentRoot>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <Content Include="content\**\*"
-             Exclude="content\**\bin\**;content\**\obj\**;content\**\.vs\**;content\**\*.user"
-             Pack="true"
-             PackagePath="content/$([MSBuild]::MakeRelative('$(TemplateContentRoot)\', '%(FullPath)').Replace('\', '/'))" />
-    <Compile Remove="**\*" />
-  </ItemGroup>
-
-</Project>
+<Project Sdk="Microsoft.NET.Sdk">
+
+
+
+  <PropertyGroup>
+
+    <PackageType>Template</PackageType>
+
+    <PackageId>RaccoonLand.Templates.CleanArchitecture</PackageId>
+
+    <Title>RaccoonLand Clean Architecture Template</Title>
+
+    <Description>dotnet new template for RaccoonLand layered clean architecture applications with ICommandDbContext and IQueryDbContext abstractions.</Description>
+
+    <PackageTags>dotnet-new;template;RaccoonLand;clean-architecture;cqrs</PackageTags>
+
+    <IncludeContentInPack>true</IncludeContentInPack>
+
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+
+    <IncludeSymbols>false</IncludeSymbols>
+
+    <ContentTargetFolders>content</ContentTargetFolders>
+
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+
+    <TemplateContentRoot>$(MSBuildProjectDirectory)\content</TemplateContentRoot>
+
+  </PropertyGroup>
+
+
+
+  <ItemGroup>
+
+    <Content Include="content\**\*"
+
+             Exclude="content\**\bin\**;content\**\obj\**;content\**\.vs\**;content\**\*.user"
+
+             Pack="true"
+
+             PackagePath="content/$([MSBuild]::MakeRelative('$(TemplateContentRoot)\', '%(FullPath)').Replace('\', '/'))" />
+
+    <Compile Remove="**\*" />
+
+  </ItemGroup>
+
+
+
+</Project>
+

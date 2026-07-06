@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RaccoonLand DependencyInjection Microsoft DI integration: Scrutor-based assembly scanning for classes marked with ServiceAttribute.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RaccoonLand.Modules.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Scrutor" />
+  </ItemGroup>
+
+</Project>

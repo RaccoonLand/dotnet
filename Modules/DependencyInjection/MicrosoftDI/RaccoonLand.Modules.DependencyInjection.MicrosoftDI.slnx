@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.Registration.md" />
+    <File Path="docs/2.ScanningRules.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.DependencyInjection.MicrosoftDI.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

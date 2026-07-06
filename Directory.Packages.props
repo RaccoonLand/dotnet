@@ -33,6 +33,7 @@
     <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.16.0" />
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.16.0" />
     <PackageVersion Include="Scalar.AspNetCore" Version="2.16.6" />
+    <PackageVersion Include="Scrutor" Version="7.0.0" />
     <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageVersion Include="Serilog.Settings.Configuration" Version="10.0.1" />
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.2.3" />
@@ -62,5 +63,7 @@
     <PackageVersion Include="RaccoonLand.Modules.Persistence.SqlServer.Commands" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.Persistence.SqlServer.Queries" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.Security.Authorization.Abstractions" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.DependencyInjection.Abstractions" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.DependencyInjection.MicrosoftDI" Version="1.0.0" />
   </ItemGroup>
 </Project>

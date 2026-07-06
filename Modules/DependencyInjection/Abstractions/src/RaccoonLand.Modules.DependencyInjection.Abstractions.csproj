@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RaccoonLand DependencyInjection abstractions: Service attribute and registration enums for convention-based DI scanning. Contract only; bring RaccoonLand.Modules.DependencyInjection.MicrosoftDI for Microsoft.Extensions.DependencyInjection registration.</Description>
+  </PropertyGroup>
+
+</Project>
