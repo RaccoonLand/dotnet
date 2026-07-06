@@ -5,17 +5,12 @@ using CapabilityCentricSample.Departments.Endpoints.Queries.GetDepartmentById;
 using CapabilityCentricSample.Departments.Endpoints.Queries.SearchDepartments;
 using Microsoft.AspNetCore.Mvc;
 using RaccoonLand.Core.Hosting.AspNetCore.Controllers;
-using RaccoonLand.Core.Hosting.AspNetCore.PipelineResponseMapping;
-using RaccoonLand.Core.RequestProcessing.Abstractions.Dispatch;
 
 namespace CapabilityCentricSample.Hosting.API.Controllers.Departments;
 
 [ApiController]
 [Route("api/[controller]")]
-public sealed class DepartmentsController(
-    IRequestDispatcher dispatcher,
-    IPipelineResponseMapper responseMapper)
-    : RaccoonLandController(dispatcher, responseMapper)
+public sealed class DepartmentsController : RaccoonLandController
 {
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateDepartmentCommand command, CancellationToken cancellationToken)

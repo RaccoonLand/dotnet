@@ -3,17 +3,12 @@ using CleanArchitectureTemplate.Application.People.Queries.GetPersonById;
 using CleanArchitectureTemplate.Application.People.Queries.SearchPeople;
 using Microsoft.AspNetCore.Mvc;
 using RaccoonLand.Core.Hosting.AspNetCore.Controllers;
-using RaccoonLand.Core.Hosting.AspNetCore.PipelineResponseMapping;
-using RaccoonLand.Core.RequestProcessing.Abstractions.Dispatch;
 
 namespace CleanArchitectureTemplate.Hosting.API.Controllers.People;
 
 [ApiController]
 [Route("api/[controller]")]
-public sealed class PeopleController(
-    IRequestDispatcher dispatcher,
-    IPipelineResponseMapper responseMapper)
-    : RaccoonLandController(dispatcher, responseMapper)
+public sealed class PeopleController : RaccoonLandController
 {
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreatePersonCommand command, CancellationToken cancellationToken)

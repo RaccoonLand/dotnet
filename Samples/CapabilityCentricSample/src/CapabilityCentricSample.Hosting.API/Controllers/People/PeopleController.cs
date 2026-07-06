@@ -6,17 +6,12 @@ using CapabilityCentricSample.People.Endpoints.Queries.GetPersonById;
 using CapabilityCentricSample.People.Endpoints.Queries.SearchPeople;
 using Microsoft.AspNetCore.Mvc;
 using RaccoonLand.Core.Hosting.AspNetCore.Controllers;
-using RaccoonLand.Core.Hosting.AspNetCore.PipelineResponseMapping;
-using RaccoonLand.Core.RequestProcessing.Abstractions.Dispatch;
 
 namespace CapabilityCentricSample.Hosting.API.Controllers.People;
 
 [ApiController]
 [Route("api/[controller]")]
-public sealed class PeopleController(
-    IRequestDispatcher dispatcher,
-    IPipelineResponseMapper responseMapper)
-    : RaccoonLandController(dispatcher, responseMapper)
+public sealed class PeopleController : RaccoonLandController
 {
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreatePersonCommand command, CancellationToken cancellationToken)

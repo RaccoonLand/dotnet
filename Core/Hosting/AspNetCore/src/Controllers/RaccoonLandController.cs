@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using RaccoonLand.Core.Hosting.AspNetCore.PipelineResponseMapping;
 using RaccoonLand.Core.RequestProcessing.Abstractions.Cqrs;
 using RaccoonLand.Core.RequestProcessing.Abstractions.Dispatch;
@@ -14,23 +15,11 @@ namespace RaccoonLand.Core.Hosting.AspNetCore.Controllers;
 /// <remarks>
 /// Controllers should stay thin: bind the request (route/query/body), call <c>DispatchAsync</c>, return the
 /// result. Business logic belongs in <see cref="IEndpoint{TRequest}"/> handlers, not in the controller.
+/// <see cref="IRequestDispatcher"/> and <see cref="IPipelineResponseMapper"/> are resolved from
+/// <c>HttpContext.RequestServices</c> on each dispatch.
 /// </remarks>
 public abstract class RaccoonLandController : ControllerBase
 {
-    private readonly IRequestDispatcher _dispatcher;
-    private readonly IPipelineResponseMapper _responseMapper;
-
-    /// <summary>Initializes the controller with the dispatcher and response mapper.</summary>
-    protected RaccoonLandController(
-        IRequestDispatcher dispatcher,
-        IPipelineResponseMapper responseMapper)
-    {
-        ArgumentNullException.ThrowIfNull(dispatcher);
-        ArgumentNullException.ThrowIfNull(responseMapper);
-        _dispatcher = dispatcher;
-        _responseMapper = responseMapper;
-    }
-
     /// <summary>
     /// Dispatches a void request (command with no response) through the pipeline and maps the envelope to HTTP.
     /// </summary>
@@ -52,11 +41,14 @@ public abstract class RaccoonLandController : ControllerBase
         IRequestBase request,
         CancellationToken cancellationToken)
     {
-        var response = await _dispatcher.DispatchAsync(
+        var dispatcher = HttpContext.RequestServices.GetRequiredService<IRequestDispatcher>();
+        var responseMapper = HttpContext.RequestServices.GetRequiredService<IPipelineResponseMapper>();
+
+        var response = await dispatcher.DispatchAsync(
             request,
             HttpContext.RequestServices,
             cancellationToken);
 
-        return _responseMapper.Map(response);
+        return responseMapper.Map(response);
     }
 }
