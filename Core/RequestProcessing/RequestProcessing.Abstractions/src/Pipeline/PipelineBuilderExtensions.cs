@@ -24,9 +24,10 @@ public static class PipelineBuilderExtensions
 
     /// <summary>
     /// Adds a class-based middleware resolved once from <see cref="IPipelineBuilder.ApplicationServices"/>
-    /// when the pipeline is built. The instance is part of the compiled pipeline delegate. Middleware must be
-    /// registered as a singleton; request-scoped services are resolved from
-    /// <see cref="PipelineContext.RequestServices"/> inside <see cref="IPipelineMiddleware.InvokeAsync"/>.
+    /// when <c>UseMiddleware&lt;T&gt;</c> is called (the instance is then captured in the compiled pipeline).
+    /// Middleware must be registered as a <b>singleton</b> and stay stateless. Request-scoped services must be
+    /// resolved from <see cref="PipelineContext.RequestServices"/> inside
+    /// <see cref="IPipelineMiddleware.InvokeAsync"/> — never via the middleware constructor.
     /// </summary>
     public static IPipelineBuilder UseMiddleware<TMiddleware>(this IPipelineBuilder builder)
         where TMiddleware : IPipelineMiddleware

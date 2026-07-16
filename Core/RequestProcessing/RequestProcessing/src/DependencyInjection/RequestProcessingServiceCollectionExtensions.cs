@@ -10,14 +10,17 @@ namespace RaccoonLand.Core.RequestProcessing.DependencyInjection;
 
 /// <summary>
 /// Registers the RaccoonLand request-processing pipeline: scans assemblies for endpoint implementations,
-/// registers them in DI and the <see cref="EndpointInvokerRegistry"/>, and builds the command/query pipelines.
+/// registers them in DI and the <see cref="EndpointInvokerRegistry"/>, and registers a singleton factory for
+/// <see cref="CompiledPipelines"/>. The command/query pipelines are built when that singleton is first resolved.
 /// </summary>
 public static class RequestProcessingServiceCollectionExtensions
 {
     /// <summary>
     /// Scans <paramref name="scanAssemblies"/> for <see cref="IEndpoint{TRequest}"/> and
-    /// <see cref="IEndpoint{TRequest,TResponse}"/> implementations, registers them, and builds the command and
-    /// query pipelines. When no assemblies are supplied, the calling assembly is scanned.
+    /// <see cref="IEndpoint{TRequest,TResponse}"/> implementations, registers them, and registers a
+    /// <see cref="CompiledPipelines"/> factory. Pipeline composition (including optional middleware callbacks)
+    /// runs when <see cref="CompiledPipelines"/> is first resolved from DI — not immediately when this method
+    /// returns. When no assemblies are supplied, the calling assembly is scanned.
     /// </summary>
     /// <param name="services">The service collection.</param>
     /// <param name="configureCommandPipeline">Optional callback to add middleware to the command pipeline.</param>
@@ -30,16 +33,24 @@ public static class RequestProcessingServiceCollectionExtensions
         params Assembly[] scanAssemblies)
     {
         ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(scanAssemblies);
 
         if (scanAssemblies.Length == 0)
         {
             scanAssemblies = [Assembly.GetCallingAssembly()];
         }
 
+        // Same assembly listed twice would re-register endpoints and trip duplicate-request checks.
+        var assemblies = scanAssemblies.Distinct().ToArray();
+
         var registry = new EndpointInvokerRegistry();
 
-        foreach (var assembly in scanAssemblies)
+        foreach (var assembly in assemblies)
         {
+            ArgumentNullException.ThrowIfNull(assembly);
+
+            // Fail fast: do not catch ReflectionTypeLoadException — a partially loadable assembly is a
+            // startup configuration problem, not something to silently skip.
             foreach (var type in assembly.GetTypes())
             {
                 if (type is { IsAbstract: false, IsInterface: false, IsGenericTypeDefinition: false })
@@ -58,11 +69,9 @@ public static class RequestProcessingServiceCollectionExtensions
             var queryBuilder = new QueryPipelineBuilder(sp, registry);
             configureQueryPipeline?.Invoke(queryBuilder);
 
-            return new CompiledPipelines
-            {
-                Command = commandBuilder.Build(),
-                Query = queryBuilder.Build(),
-            };
+            return new CompiledPipelines(
+                commandBuilder.Build(),
+                queryBuilder.Build());
         });
         services.AddSingleton<IRequestDispatcher, RequestDispatcher>();
 
@@ -94,25 +103,49 @@ public static class RequestProcessingServiceCollectionExtensions
         }
     }
 
+    /// <summary>
+    /// Returns the single <see cref="IEndpoint{TRequest}"/> / <see cref="IEndpoint{TRequest,TResponse}"/> shape
+    /// on <paramref name="type"/>. Zero matches → (null, null). More than one match → throws.
+    /// </summary>
     private static (Type? RequestType, Type? ResponseType) GetEndpointShape(Type type)
     {
-        foreach (var @interface in type.GetInterfaces().Where(i => i.IsGenericType))
+        var shapes = type.GetInterfaces()
+            .Where(i => i.IsGenericType)
+            .Select(i =>
+            {
+                var definition = i.GetGenericTypeDefinition();
+                var arguments = i.GetGenericArguments();
+
+                if (definition == typeof(IEndpoint<,>))
+                {
+                    return (RequestType: (Type?)arguments[0], ResponseType: (Type?)arguments[1], Interface: i);
+                }
+
+                if (definition == typeof(IEndpoint<>))
+                {
+                    return (RequestType: (Type?)arguments[0], ResponseType: (Type?)null, Interface: i);
+                }
+
+                return (RequestType: null, ResponseType: null, Interface: i);
+            })
+            .Where(shape => shape.RequestType is not null)
+            .ToArray();
+
+        if (shapes.Length == 0)
         {
-            var definition = @interface.GetGenericTypeDefinition();
-            var arguments = @interface.GetGenericArguments();
-
-            if (definition == typeof(IEndpoint<,>))
-            {
-                return (arguments[0], arguments[1]);
-            }
-
-            if (definition == typeof(IEndpoint<>))
-            {
-                return (arguments[0], null);
-            }
+            return (null, null);
         }
 
-        return (null, null);
+        if (shapes.Length > 1)
+        {
+            var names = string.Join(", ", shapes.Select(s => s.Interface.ToString()));
+            throw new InvalidOperationException(
+                $"Endpoint type '{type.FullName}' implements multiple IEndpoint interfaces ({names}). " +
+                "Each endpoint class must implement exactly one IEndpoint<TRequest> or IEndpoint<TRequest, TResponse>. " +
+                "Split handlers into separate types.");
+        }
+
+        return (shapes[0].RequestType, shapes[0].ResponseType);
     }
 
     private static RequestKind ClassifyRequestKind(Type requestType)

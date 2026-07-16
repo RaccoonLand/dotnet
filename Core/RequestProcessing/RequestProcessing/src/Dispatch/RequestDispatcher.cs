@@ -18,6 +18,8 @@ public sealed class RequestDispatcher : IRequestDispatcher
     public RequestDispatcher(CompiledPipelines pipelines, EndpointInvokerRegistry registry)
     {
         ArgumentNullException.ThrowIfNull(pipelines);
+        ArgumentNullException.ThrowIfNull(pipelines.Command);
+        ArgumentNullException.ThrowIfNull(pipelines.Query);
         ArgumentNullException.ThrowIfNull(registry);
         _pipelines = pipelines;
         _registry = registry;
@@ -34,13 +36,6 @@ public sealed class RequestDispatcher : IRequestDispatcher
         var requestType = request.GetType();
         var kind = _registry.ResolveKind(requestType);
         var pipeline = kind == RequestKind.Query ? _pipelines.Query : _pipelines.Command;
-
-        if (pipeline is null)
-        {
-            throw new InvalidOperationException(
-                $"The {(kind == RequestKind.Query ? "query" : "command")} pipeline has not been built. " +
-                "Call AddRaccoonLandRequestProcessing or build and assign CompiledPipelines during startup.");
-        }
 
         var context = new PipelineContext(request, kind, requestServices, cancellationToken);
         await pipeline(context);

@@ -21,9 +21,10 @@ public sealed record PipelineResponse
     public IReadOnlyList<PipelineMessage> Warnings { get; init; } = [];
 
     /// <summary>
-    /// Optional status hint for the host adapter (for example 400, 401, 403, 404, 409). Uses familiar
-    /// HTTP-style numeric codes as a transport-agnostic convention; not a dependency on ASP.NET Core.
-    /// When <see langword="null"/>, the host applies its own default mapping.
+    /// Optional status hint for the host adapter. This is <b>not</b> an HTTP API contract and does not
+    /// require ASP.NET Core. Hosts may treat familiar HTTP-style numbers (for example 400, 401, 403, 404, 409)
+    /// as a shared convention when mapping to their transport; other hosts (workers, message consumers) may
+    /// ignore the hint or map it differently. When <see langword="null"/>, the host applies its own default.
     /// </summary>
     public int? StatusHint { get; init; }
 }
