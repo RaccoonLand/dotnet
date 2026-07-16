@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RaccoonLand FileStorage SqlServer provider: VARBINARY(MAX) blob storage for on-prem deployments.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RaccoonLand.Modules.FileStorage.Abstractions" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+  </ItemGroup>
+
+</Project>

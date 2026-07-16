@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RaccoonLand FileStorage S3 provider: HTTP-based AWS S3 and S3-compatible storage with pre-signed URLs and multipart uploads.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RaccoonLand.Modules.FileStorage.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+  </ItemGroup>
+
+</Project>

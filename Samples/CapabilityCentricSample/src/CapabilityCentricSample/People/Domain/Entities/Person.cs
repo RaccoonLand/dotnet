@@ -22,6 +22,12 @@ public sealed class Person : AggregateRoot<int>
     public Guid? CurrentDepartmentId { get; private set; }
     public DateTime? DepartmentAssignedAt { get; private set; }
 
+    /// <summary>Opaque FileStorage key for the person photo. Persist only the key, never a path or URL.</summary>
+    public string? PhotoFileKey { get; private set; }
+
+    /// <summary>Opaque FileStorage key for the person resume PDF. Persist only the key, never a path or URL.</summary>
+    public string? ResumeFileKey { get; private set; }
+
     #endregion
 
     #region Constructors
@@ -77,6 +83,18 @@ public sealed class Person : AggregateRoot<int>
 
         CurrentDepartmentId = departmentId;
         DepartmentAssignedAt = DateTime.UtcNow;
+    }
+
+    public void SetPhotoFileKey(string fileKey)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileKey);
+        PhotoFileKey = fileKey;
+    }
+
+    public void SetResumeFileKey(string fileKey)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileKey);
+        ResumeFileKey = fileKey;
     }
 
     #endregion

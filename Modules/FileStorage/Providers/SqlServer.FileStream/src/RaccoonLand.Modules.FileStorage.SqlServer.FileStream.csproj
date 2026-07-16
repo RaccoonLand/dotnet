@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Description>RaccoonLand FileStorage SqlServer FILESTREAM provider: streaming blob storage on SQL Server FILESTREAM (Windows only).</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RaccoonLand.Modules.FileStorage.Abstractions" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+  </ItemGroup>
+
+</Project>

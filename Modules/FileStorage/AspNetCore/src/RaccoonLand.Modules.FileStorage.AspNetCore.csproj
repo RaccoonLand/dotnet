@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RaccoonLand FileStorage ASP.NET Core adapter: IFormFile mapping to FileUploadContent, OpenRead to file results with Range support, and ready-made HTTP/pipeline exception handlers.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Abstractions\src\RaccoonLand.Modules.FileStorage.Abstractions.csproj" />
+    <PackageReference Include="RaccoonLand.Core.Hosting.AspNetCore" />
+    <PackageReference Include="RaccoonLand.Modules.Middlewares.ExceptionHandlingMiddleware" />
+    <PackageReference Include="RaccoonLand.Modules.MessageLocalization.Abstraction" />
+  </ItemGroup>
+
+</Project>

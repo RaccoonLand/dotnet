@@ -23,4 +23,6 @@ public sealed class GetPersonByIdResponse
     public PersonStatus Status { get; init; }
     public Guid? CurrentDepartmentId { get; init; }
     public DateTime? DepartmentAssignedAt { get; init; }
+    public string? PhotoFileKey { get; init; }
+    public string? ResumeFileKey { get; init; }
 }

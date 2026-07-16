@@ -12,6 +12,7 @@ using RaccoonLand.Core.Hosting.AspNetCore.HttpExecutionContext;
 using RaccoonLand.Core.RequestProcessing.Abstractions.Pipeline;
 using RaccoonLand.Core.RequestProcessing.Abstractions.Responses;
 using RaccoonLand.Core.RequestProcessing.DependencyInjection;
+using RaccoonLand.Modules.FileStorage.AspNetCore;
 using RaccoonLand.Modules.MessageLocalization.Abstraction;
 using RaccoonLand.Modules.Middlewares.ExceptionHandlingMiddleware;
 using RaccoonLand.Modules.Middlewares.FluentValidationMiddleware;
@@ -38,6 +39,7 @@ public static class Hosting
         services.AddRaccoonLandAspNetCore(configuration);
         services.AddRaccoonLandHttpExceptionHandling(options =>
         {
+            options.AddFileStorageHandlers();
             options.On<DbUpdateException>(async (httpContext, _) =>
             {
                 var localizer = httpContext.RequestServices.GetService<IMessageLocalization>();
@@ -59,6 +61,7 @@ public static class Hosting
             });
         });
 
+        services.AddRaccoonLandFileSystemStorage(configuration);
         services.AddCleanArchitectureSampleCommandsPersistence(configuration);
         services.AddCleanArchitectureSampleQueriesPersistence(configuration);
 

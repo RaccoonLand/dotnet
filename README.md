@@ -23,6 +23,7 @@ localization, security, and hosting.
   - `OpenApi`
   - `Persistence`
   - `Security`
+  - `FileStorage` — provider-agnostic blob storage (`Abstractions`, `FileSystem`, `SqlServer`, `SqlServer.FileStream`, `S3`)
 - **Samples**
   - `CapabilityCentricSample` - capability-centric layout in a single application assembly
   - `CleanArchitectureSample` - layered clean architecture with generic `ICommandDbContext` and `IQueryDbContext`

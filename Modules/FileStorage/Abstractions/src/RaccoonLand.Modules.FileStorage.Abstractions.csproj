@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RaccoonLand FileStorage abstractions: provider-agnostic file reference model, streaming IFileStorage contract, and optional IFileUrlSigner for direct storage access.</Description>
+  </PropertyGroup>
+
+</Project>

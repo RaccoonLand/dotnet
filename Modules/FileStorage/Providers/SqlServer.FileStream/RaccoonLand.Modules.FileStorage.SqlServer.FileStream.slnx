@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.Registration.md" />
+    <File Path="docs/2.Schema.md" />
+    <File Path="docs/3.Requirements.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.FileStorage.SqlServer.FileStream.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

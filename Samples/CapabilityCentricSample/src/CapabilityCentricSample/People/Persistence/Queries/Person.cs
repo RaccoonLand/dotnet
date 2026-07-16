@@ -17,4 +17,6 @@ public sealed class Person : QueryAggregateRoot<int>
     public PersonStatus Status { get; set; }
     public Guid? CurrentDepartmentId { get; set; }
     public DateTime? DepartmentAssignedAt { get; set; }
+    public string? PhotoFileKey { get; set; }
+    public string? ResumeFileKey { get; set; }
 }

@@ -12,6 +12,8 @@
 		</PackageReference>
 		<PackageReference Include="OpenTelemetry.Exporter.Console" />
 		<PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+		<PackageReference Include="RaccoonLand.Modules.FileStorage.FileSystem" />
+		<PackageReference Include="RaccoonLand.Modules.FileStorage.AspNetCore" />
 		<PackageReference Include="RaccoonLand.Modules.MessageLocalization.SQLServer" />
 		<PackageReference Include="RaccoonLand.Core.Hosting.AspNetCore" />
 		<PackageReference Include="RaccoonLand.Core.RequestProcessing" />

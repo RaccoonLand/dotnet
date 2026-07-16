@@ -12,4 +12,12 @@ public sealed class CreatePersonCommand : ICommand<int>
     public string Email { get; init; } = string.Empty;
     public string MobileNumber { get; init; } = string.Empty;
     public DateTime EmploymentDate { get; init; }
+
+    public Stream PhotoContent { get; init; } = Stream.Null;
+    public string PhotoContentType { get; init; } = string.Empty;
+    public long PhotoContentLength { get; init; }
+
+    public Stream ResumeContent { get; init; } = Stream.Null;
+    public string ResumeContentType { get; init; } = string.Empty;
+    public long ResumeContentLength { get; init; }
 }

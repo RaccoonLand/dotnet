@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.Registration.md" />
+    <File Path="docs/2.S3Flavor.md" />
+    <File Path="docs/3.PresignedUrls.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.FileStorage.S3.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

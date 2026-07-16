@@ -14,6 +14,7 @@
 		<PackageReference Include="RaccoonLand.Core.RequestProcessing.Abstractions" />
 		<PackageReference Include="RaccoonLand.Modules.MessageLocalization.Abstraction" />
 		<PackageReference Include="RaccoonLand.Modules.Middlewares.RequestCaching.Abstraction" />
+		<PackageReference Include="RaccoonLand.Modules.FileStorage.Abstractions" />
 		<PackageReference Include="RaccoonLand.Modules.Persistence.SqlServer.Queries" />
 	</ItemGroup>
 

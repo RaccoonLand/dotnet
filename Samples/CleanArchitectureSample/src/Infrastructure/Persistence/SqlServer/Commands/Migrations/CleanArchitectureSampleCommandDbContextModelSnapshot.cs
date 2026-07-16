@@ -89,6 +89,14 @@ namespace CleanArchitectureSample.Persistence.SqlServer.Commands.Migrations
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PhotoFileKey")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("ResumeFileKey")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
                     b.Property<byte>("Status")
                         .HasColumnType("tinyint");
 

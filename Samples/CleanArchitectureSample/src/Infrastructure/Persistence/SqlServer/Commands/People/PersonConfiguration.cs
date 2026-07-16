@@ -44,5 +44,8 @@ public sealed class PersonConfiguration : IEntityTypeConfiguration<Person>, ICom
         {
             buildAction.Property(p => p.Value).HasMaxLength(SharedConstants.MOBILE_NUMBER_MAX_LENGTH).HasColumnName(nameof(Person.MobileNumber));
         });
+
+        builder.Property(x => x.PhotoFileKey).HasMaxLength(PersonConstants.FILE_KEY_MAX_LENGTH);
+        builder.Property(x => x.ResumeFileKey).HasMaxLength(PersonConstants.FILE_KEY_MAX_LENGTH);
     }
 }

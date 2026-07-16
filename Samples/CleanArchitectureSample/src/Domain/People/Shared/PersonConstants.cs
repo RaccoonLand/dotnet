@@ -10,4 +10,6 @@ public static class PersonConstants
 
     public const int LAST_NAME_MIN_LENGTH = 2;
     public const int LAST_NAME_MAX_LENGTH = 50;
+
+    public const int FILE_KEY_MAX_LENGTH = 256;
 }

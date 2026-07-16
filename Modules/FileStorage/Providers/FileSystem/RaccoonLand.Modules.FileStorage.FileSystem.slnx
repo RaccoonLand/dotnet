@@ -1,0 +1,22 @@
+<Solution>
+
+  <Folder Name="/docs/">
+
+    <File Path="docs/1.Registration.md" />
+
+    <File Path="docs/2.StorageLayout.md" />
+
+    <File Path="docs/3.ConfigurationAndLimitations.md" />
+
+  </Folder>
+
+  <Folder Name="/src/">
+
+    <Project Path="src/RaccoonLand.Modules.FileStorage.FileSystem.csproj" />
+
+  </Folder>
+
+  <Folder Name="/test/" />
+
+</Solution>
+

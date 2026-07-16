@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RaccoonLand FileStorage FileSystem provider: local disk storage for development and on-prem deployments.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RaccoonLand.Modules.FileStorage.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+  </ItemGroup>
+
+</Project>

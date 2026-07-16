@@ -32,6 +32,8 @@ public sealed class GetPersonByIdEndpoint(IQueryDbContext db)
             Status = person.Status,
             CurrentDepartmentId = person.CurrentDepartmentId,
             DepartmentAssignedAt = person.DepartmentAssignedAt,
+            PhotoFileKey = person.PhotoFileKey,
+            ResumeFileKey = person.ResumeFileKey,
         });
     }
 }
