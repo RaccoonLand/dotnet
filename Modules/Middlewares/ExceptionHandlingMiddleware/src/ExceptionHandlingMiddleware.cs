@@ -69,10 +69,12 @@ public sealed class ExceptionHandlingMiddleware(IOptions<ExceptionHandlingOption
 
     private static PipelineMessage ToPipelineMessage(DomainError error, IMessageLocalization? localizer)
     {
-        var message = localizer is null
-            ? error.Message
-            : localizer[error.Message, error.Parameters];
+        if (localizer is null)
+        {
+            return new PipelineMessage(error.Code, error.Message);
+        }
 
-        return new PipelineMessage(error.Code, message);
+        // Spread into params object?[] for IMessageLocalization.
+        return new PipelineMessage(error.Code, localizer[error.Message, error.Parameters.ToArray()]);
     }
 }

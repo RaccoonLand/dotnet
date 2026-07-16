@@ -13,6 +13,9 @@ public abstract record DomainEvent
     /// <summary>The time the event occurred, in UTC.</summary>
     public DateTimeOffset OccurredOnUtc { get; init; } = DateTimeOffset.UtcNow;
 
-    /// <summary>The event type name; used for serialization/routing in the outbox.</summary>
-    public string EventType => GetType().Name;
+    /// <summary>
+    /// Stable contract name used for serialization/routing in the outbox.
+    /// Must not be derived from the CLR type name — rename of the class must not change this value.
+    /// </summary>
+    public abstract string EventType { get; }
 }

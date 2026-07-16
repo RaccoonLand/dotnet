@@ -1,10 +1,10 @@
 namespace RaccoonLand.Core.Domain.Exceptions;
 
 /// <summary>
-/// Domain exception. Whenever this is thrown, the pipeline exception-handling middleware returns an HTTP 400
-/// response and exposes each error's <see cref="DomainError.Code"/> as a machine-readable contract to the consumer.
+/// Domain exception that carries one or more <see cref="DomainError"/> values for business-rule violations.
 /// <see cref="Exception.Message"/> concatenates every error's localization template key (see
-/// <see cref="DomainError.Message"/>).
+/// <see cref="DomainError.Message"/>). How a host maps this exception to a transport response is defined
+/// by that host (for example request-pipeline exception handling), not by this type.
 /// </summary>
 public class DomainException : Exception
 {

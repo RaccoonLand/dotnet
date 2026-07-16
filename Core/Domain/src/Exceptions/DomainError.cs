@@ -22,7 +22,8 @@ public sealed class DomainError
 
         Code = code;
         Message = message;
-        Parameters = parameters ?? [];
+        // Defensive copy so callers cannot mutate this instance after construction.
+        Parameters = parameters is { Length: > 0 } ? parameters.ToArray() : [];
     }
 
     /// <summary>Error code for the consumer's programmed reaction.</summary>
@@ -31,6 +32,6 @@ public sealed class DomainError
     /// <summary>Localization template key (never null/whitespace).</summary>
     public string Message { get; }
 
-    /// <summary>Positional parameters for message localization (never null).</summary>
-    public object?[] Parameters { get; }
+    /// <summary>Positional parameters for message localization (never null; read-only).</summary>
+    public IReadOnlyList<object?> Parameters { get; }
 }
