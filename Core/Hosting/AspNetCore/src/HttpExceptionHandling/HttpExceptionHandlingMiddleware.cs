@@ -8,7 +8,8 @@ namespace RaccoonLand.Core.Hosting.AspNetCore.HttpExceptionHandling;
 /// <summary>
 /// ASP.NET Core HTTP middleware that turns unhandled request exceptions into HTTP responses. Resolution order:
 /// developer-registered handlers, then any other unhandled exception (HTTP 500
-/// <see cref="ProblemDetails"/>, with details logged but not leaked).
+/// <see cref="ProblemDetails"/> with Status, Title, Type = about:blank, and Instance = request path;
+/// exception details are logged but not leaked).
 /// <para>
 /// Not to be confused with pipeline
 /// <c>RaccoonLand.Modules.Middlewares.ExceptionHandlingMiddleware.ExceptionHandlingMiddleware</c>, which is a
@@ -89,6 +90,10 @@ public sealed class HttpExceptionHandlingMiddleware
         {
             Status = StatusCodes.Status500InternalServerError,
             Title = "An unexpected error occurred.",
+            Type = "about:blank",
+            Instance = httpContext.Request.Path.HasValue
+                ? httpContext.Request.Path.Value
+                : null,
         };
 
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;

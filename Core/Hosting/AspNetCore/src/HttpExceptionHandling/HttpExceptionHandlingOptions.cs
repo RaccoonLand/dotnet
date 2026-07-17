@@ -14,9 +14,15 @@ public sealed class HttpExceptionHandlingOptions
     public IReadOnlyList<ExceptionHandlerRegistration> Handlers => _handlers;
 
     /// <summary>
-    /// Registers a handler for <typeparamref name="TException"/> (and derived types). The handler writes the
-    /// HTTP response and returns <c>true</c> when it has handled the exception; returning <c>false</c> lets the
-    /// next handler (or the built-in handling) run.
+    /// Registers a handler for <typeparamref name="TException"/> (and derived types). Handlers are tried in
+    /// <b>registration order</b> with <see cref="Type.IsInstanceOfType"/> — register more specific types
+    /// <b>before</b> broader ones (for example <c>On&lt;DbUpdateException&gt;</c> before <c>On&lt;Exception&gt;</c>),
+    /// otherwise an early broad handler can shadow later specific ones.
+    /// <para>
+    /// The handler must write a complete HTTP response (at least a status code, and a body when appropriate)
+    /// and return <c>true</c> only then. Return <c>false</c> if you did not handle the exception so the next
+    /// handler or the built-in fallback can run.
+    /// </para>
     /// </summary>
     public HttpExceptionHandlingOptions On<TException>(Func<HttpContext, TException, Task<bool>> handler)
         where TException : Exception

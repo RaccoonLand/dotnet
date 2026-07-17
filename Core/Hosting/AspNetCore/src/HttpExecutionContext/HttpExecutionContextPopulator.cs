@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 
 namespace RaccoonLand.Core.Hosting.AspNetCore.HttpExecutionContext;
 
@@ -50,12 +51,15 @@ internal static class HttpExecutionContextPopulator
             return tenantId;
         }
 
-        return ResolveHeaderValue(httpContext, options.TenantIdHeader);
+        return ResolveHeaderValue(httpContext, options.TenantIdHeader, options.TenantIdHeaderMultiValueMode);
     }
 
     private static string? ResolveCorrelationId(HttpContext httpContext, HttpExecutionContextOptions options)
     {
-        var correlationId = ResolveHeaderValue(httpContext, options.CorrelationIdHeader);
+        var correlationId = ResolveHeaderValue(
+            httpContext,
+            options.CorrelationIdHeader,
+            options.CorrelationIdHeaderMultiValueMode);
         if (!string.IsNullOrWhiteSpace(correlationId))
         {
             return correlationId;
@@ -85,15 +89,37 @@ internal static class HttpExecutionContextPopulator
         return principal.FindFirst(claimType)?.Value;
     }
 
-    private static string? ResolveHeaderValue(HttpContext httpContext, string? headerName)
+    private static string? ResolveHeaderValue(
+        HttpContext httpContext,
+        string? headerName,
+        MultiValueHeaderMode multiValueMode)
     {
         if (string.IsNullOrWhiteSpace(headerName))
         {
             return null;
         }
 
-        return httpContext.Request.Headers.TryGetValue(headerName, out var values)
-            ? values.ToString()
-            : null;
+        if (!httpContext.Request.Headers.TryGetValue(headerName, out var values))
+        {
+            return null;
+        }
+
+        return ApplyMultiValueMode(values, multiValueMode);
+    }
+
+    private static string? ApplyMultiValueMode(StringValues values, MultiValueHeaderMode mode)
+    {
+        var nonEmpty = values
+            .Where(static v => !string.IsNullOrWhiteSpace(v))
+            .Select(static v => v!.Trim())
+            .ToArray();
+
+        return mode switch
+        {
+            MultiValueHeaderMode.FirstValue => nonEmpty.Length > 0 ? nonEmpty[0] : null,
+            MultiValueHeaderMode.SingleValueOnly => nonEmpty.Length == 1 ? nonEmpty[0] : null,
+            MultiValueHeaderMode.Join => nonEmpty.Length > 0 ? string.Join(',', nonEmpty) : null,
+            _ => nonEmpty.Length == 1 ? nonEmpty[0] : null,
+        };
     }
 }
