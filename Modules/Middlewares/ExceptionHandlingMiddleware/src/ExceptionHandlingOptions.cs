@@ -30,9 +30,36 @@ public sealed class ExceptionHandlingOptions
 
         return this;
     }
+}
 
-    /// <summary>A custom exception handler bound to a specific exception type.</summary>
-    public sealed record ExceptionHandlerRegistration(
-        Type ExceptionType,
-        Func<PipelineContext, Exception, Task<bool>> Handler);
+/// <summary>A custom exception handler bound to a specific exception type.</summary>
+/// <remarks>
+/// Prefer <see cref="ExceptionHandlingOptions.On{TException}"/>. Constructing this type directly is supported
+/// but requires a non-null <see cref="Exception"/>-derived type and handler.
+/// </remarks>
+public sealed record ExceptionHandlerRegistration
+{
+    public ExceptionHandlerRegistration(
+        Type exceptionType,
+        Func<PipelineContext, Exception, Task<bool>> handler)
+    {
+        ArgumentNullException.ThrowIfNull(exceptionType);
+        ArgumentNullException.ThrowIfNull(handler);
+
+        if (!typeof(Exception).IsAssignableFrom(exceptionType))
+        {
+            throw new ArgumentException(
+                $"Type '{exceptionType}' must derive from {nameof(Exception)}.",
+                nameof(exceptionType));
+        }
+
+        ExceptionType = exceptionType;
+        Handler = handler;
+    }
+
+    /// <summary>Exception type (and derived types) this handler applies to.</summary>
+    public Type ExceptionType { get; }
+
+    /// <summary>Handler invoked when the caught exception matches <see cref="ExceptionType"/>.</summary>
+    public Func<PipelineContext, Exception, Task<bool>> Handler { get; }
 }
