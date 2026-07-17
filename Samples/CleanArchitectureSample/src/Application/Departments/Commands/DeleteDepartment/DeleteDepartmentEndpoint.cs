@@ -24,7 +24,7 @@ public sealed class DeleteDepartmentEndpoint(
         {
             return Result.Failure(new PipelineMessage(
                 SharedBusinessMessageTemplates.ENTITY_NOT_FOUND,
-                messageLocalization[SharedBusinessMessageTemplates.ENTITY_NOT_FOUND, DepartmentLocalizations.DEPARTMENT]));
+                messageLocalization.Get(SharedBusinessMessageTemplates.ENTITY_NOT_FOUND, DepartmentLocalizations.DEPARTMENT)));
         }
 
         db.Set<Department>().Remove(department);

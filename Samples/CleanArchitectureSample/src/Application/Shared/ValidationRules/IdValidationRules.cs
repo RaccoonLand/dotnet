@@ -13,6 +13,6 @@ public static class IdValidationRules
         return ruleBuilder
             .GreaterThan(0)
             .WithErrorCode(SharedValidationMessageTemplates.NUMBER_GREATER_THAN)
-            .WithMessage(localization[SharedValidationMessageTemplates.NUMBER_GREATER_THAN, SharedLocalizations.ID]);
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.NUMBER_GREATER_THAN, SharedLocalizations.ID));
     }
 }

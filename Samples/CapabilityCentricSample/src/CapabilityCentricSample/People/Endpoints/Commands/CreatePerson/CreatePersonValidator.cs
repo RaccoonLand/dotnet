@@ -20,27 +20,27 @@ public sealed class CreatePersonValidator : AbstractValidator<CreatePersonComman
         RuleFor(x => x.PhotoContentType)
             .NotEmpty()
             .WithErrorCode(SharedValidationMessageTemplates.VALUE_REQUIRED)
-            .WithMessage(localization[SharedValidationMessageTemplates.VALUE_REQUIRED, "PhotoContentType"]);
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.VALUE_REQUIRED, "PhotoContentType"));
         RuleFor(x => x.PhotoContentLength)
             .GreaterThan(0)
             .WithErrorCode(SharedValidationMessageTemplates.NUMBER_GREATER_THAN)
-            .WithMessage(localization[SharedValidationMessageTemplates.NUMBER_GREATER_THAN, "PhotoContentLength"]);
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.NUMBER_GREATER_THAN, "PhotoContentLength"));
         RuleFor(x => x.PhotoContent)
             .Must(stream => stream is not null && stream != Stream.Null)
             .WithErrorCode(SharedValidationMessageTemplates.VALUE_REQUIRED)
-            .WithMessage(localization[SharedValidationMessageTemplates.VALUE_REQUIRED, "PhotoContent"]);
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.VALUE_REQUIRED, "PhotoContent"));
 
         RuleFor(x => x.ResumeContentType)
             .NotEmpty()
             .WithErrorCode(SharedValidationMessageTemplates.VALUE_REQUIRED)
-            .WithMessage(localization[SharedValidationMessageTemplates.VALUE_REQUIRED, "ResumeContentType"]);
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.VALUE_REQUIRED, "ResumeContentType"));
         RuleFor(x => x.ResumeContentLength)
             .GreaterThan(0)
             .WithErrorCode(SharedValidationMessageTemplates.NUMBER_GREATER_THAN)
-            .WithMessage(localization[SharedValidationMessageTemplates.NUMBER_GREATER_THAN, "ResumeContentLength"]);
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.NUMBER_GREATER_THAN, "ResumeContentLength"));
         RuleFor(x => x.ResumeContent)
             .Must(stream => stream is not null && stream != Stream.Null)
             .WithErrorCode(SharedValidationMessageTemplates.VALUE_REQUIRED)
-            .WithMessage(localization[SharedValidationMessageTemplates.VALUE_REQUIRED, "ResumeContent"]);
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.VALUE_REQUIRED, "ResumeContent"));
     }
 }

@@ -44,7 +44,7 @@ internal static class FileStorageExceptionMapping
     {
         // Never use exception.Message in the API body — it may include storage keys.
         var localizer = services?.GetService<IMessageLocalization>();
-        return localizer is null ? templateKey : localizer[templateKey];
+        return localizer is null ? templateKey : localizer.Get(templateKey);
     }
 }
 

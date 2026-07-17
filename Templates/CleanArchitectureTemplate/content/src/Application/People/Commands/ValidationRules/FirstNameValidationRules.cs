@@ -14,10 +14,10 @@ public static class FirstNameValidationRules
         return ruleBuilder
             .NotEmpty()
             .WithErrorCode(SharedValidationMessageTemplates.VALUE_REQUIRED)
-            .WithMessage(localization[SharedValidationMessageTemplates.VALUE_REQUIRED, PersonLocalizations.FIRST_NAME])
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.VALUE_REQUIRED, PersonLocalizations.FIRST_NAME))
             .Length(PersonConstants.FIRST_NAME_MIN_LENGTH, PersonConstants.FIRST_NAME_MAX_LENGTH)
             .WithErrorCode(SharedValidationMessageTemplates.STRING_LENGTH_BETWEEN)
-            .WithMessage(localization[SharedValidationMessageTemplates.STRING_LENGTH_BETWEEN,
-                PersonLocalizations.FIRST_NAME, PersonConstants.FIRST_NAME_MIN_LENGTH, PersonConstants.FIRST_NAME_MAX_LENGTH]);
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.STRING_LENGTH_BETWEEN,
+                PersonLocalizations.FIRST_NAME, PersonConstants.FIRST_NAME_MIN_LENGTH, PersonConstants.FIRST_NAME_MAX_LENGTH));
     }
 }

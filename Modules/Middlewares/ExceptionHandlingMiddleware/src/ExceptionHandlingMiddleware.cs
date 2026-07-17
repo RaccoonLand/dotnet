@@ -75,6 +75,6 @@ public sealed class ExceptionHandlingMiddleware(IOptions<ExceptionHandlingOption
         }
 
         // Spread into params object?[] for IMessageLocalization.
-        return new PipelineMessage(error.Code, localizer[error.Message, error.Parameters.ToArray()]);
+        return new PipelineMessage(error.Code, localizer.Get(error.Message, error.Parameters.ToArray()));
     }
 }

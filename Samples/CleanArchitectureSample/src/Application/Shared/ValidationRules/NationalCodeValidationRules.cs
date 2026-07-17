@@ -13,10 +13,10 @@ public static class NationalCodeValidationRules
         return ruleBuilder
             .NotEmpty()
             .WithErrorCode(SharedValidationMessageTemplates.VALUE_REQUIRED)
-            .WithMessage(localization[SharedValidationMessageTemplates.VALUE_REQUIRED, SharedLocalizations.NATIONAL_CODE])
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.VALUE_REQUIRED, SharedLocalizations.NATIONAL_CODE))
             .Length(SharedConstants.NATIONAL_CODE_LENGTH)
             .WithErrorCode(SharedValidationMessageTemplates.STRING_LENGTH_EQUAL)
-            .WithMessage(localization[SharedValidationMessageTemplates.STRING_LENGTH_EQUAL,
-                SharedLocalizations.NATIONAL_CODE, SharedConstants.NATIONAL_CODE_LENGTH]);
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.STRING_LENGTH_EQUAL,
+                SharedLocalizations.NATIONAL_CODE, SharedConstants.NATIONAL_CODE_LENGTH));
     }
 }

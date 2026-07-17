@@ -28,7 +28,7 @@ public sealed class DownloadPersonResumeEndpoint(
         if (person is null)
             return Result<DownloadPersonFileResult?>.Failure(new PipelineMessage(
                 SharedBusinessMessageTemplates.ENTITY_NOT_FOUND,
-                messageLocalization[SharedBusinessMessageTemplates.ENTITY_NOT_FOUND, PersonLocalizations.PERSON]));
+                messageLocalization.Get(SharedBusinessMessageTemplates.ENTITY_NOT_FOUND, PersonLocalizations.PERSON)));
 
         if (string.IsNullOrWhiteSpace(person.ResumeFileKey))
             return Result<DownloadPersonFileResult?>.Success(null);

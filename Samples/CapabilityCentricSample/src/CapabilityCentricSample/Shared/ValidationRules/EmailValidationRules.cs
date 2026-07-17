@@ -1,4 +1,4 @@
-﻿using CapabilityCentricSample.Shared.Localizations;
+using CapabilityCentricSample.Shared.Localizations;
 using FluentValidation;
 using RaccoonLand.Modules.MessageLocalization.Abstraction;
 
@@ -13,10 +13,10 @@ public static class EmailValidationRules
         return ruleBuilder
             .NotEmpty()
             .WithErrorCode(SharedValidationMessageTemplates.VALUE_REQUIRED)
-            .WithMessage(localization[SharedValidationMessageTemplates.VALUE_REQUIRED, SharedLocalizations.EMAIL])
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.VALUE_REQUIRED, SharedLocalizations.EMAIL))
             .Length(SharedConstants.EMAIL_MIN_LENGTH, SharedConstants.EMAIL_MAX_LENGTH)
             .WithErrorCode(SharedValidationMessageTemplates.STRING_LENGTH_BETWEEN)
-            .WithMessage(localization[SharedValidationMessageTemplates.STRING_LENGTH_BETWEEN,
-                SharedLocalizations.EMAIL, SharedConstants.EMAIL_MIN_LENGTH, SharedConstants.EMAIL_MAX_LENGTH]);
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.STRING_LENGTH_BETWEEN,
+                SharedLocalizations.EMAIL, SharedConstants.EMAIL_MIN_LENGTH, SharedConstants.EMAIL_MAX_LENGTH));
     }
 }

@@ -46,7 +46,7 @@ public sealed class AuthorizationMiddleware : IPipelineMiddleware
             : (AuthorizationMessageTemplates.AccessDenied, 403);
 
         var localizer = context.RequestServices.GetService<IMessageLocalization>();
-        var message = localizer is null ? template : localizer[template];
+        var message = localizer is null ? template : localizer.Get(template);
 
         return new PipelineResponse
         {

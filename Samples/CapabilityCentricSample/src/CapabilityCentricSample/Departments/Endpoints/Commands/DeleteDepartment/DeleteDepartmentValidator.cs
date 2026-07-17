@@ -11,6 +11,6 @@ public sealed class DeleteDepartmentValidator : AbstractValidator<DeleteDepartme
         RuleFor(x => x.Id)
             .NotEmpty()
             .WithErrorCode(SharedValidationMessageTemplates.VALUE_REQUIRED)
-            .WithMessage(localization[SharedValidationMessageTemplates.VALUE_REQUIRED, SharedLocalizations.ID]);
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.VALUE_REQUIRED, SharedLocalizations.ID));
     }
 }

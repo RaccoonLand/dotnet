@@ -13,7 +13,7 @@ public sealed class UpdateDepartmentValidator : AbstractValidator<UpdateDepartme
         RuleFor(x => x.Id)
             .NotEmpty()
             .WithErrorCode(SharedValidationMessageTemplates.VALUE_REQUIRED)
-            .WithMessage(localization[SharedValidationMessageTemplates.VALUE_REQUIRED, SharedLocalizations.ID]);
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.VALUE_REQUIRED, SharedLocalizations.ID));
 
         RuleFor(x => x.Name).DepartmentNameRules(localization);
         RuleFor(x => x.Status).DepartmentStatusRules(localization);

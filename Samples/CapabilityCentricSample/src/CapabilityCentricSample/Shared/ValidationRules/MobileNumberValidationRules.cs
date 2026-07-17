@@ -1,4 +1,4 @@
-﻿using CapabilityCentricSample.Shared.Localizations;
+using CapabilityCentricSample.Shared.Localizations;
 using FluentValidation;
 using RaccoonLand.Modules.MessageLocalization.Abstraction;
 
@@ -12,10 +12,10 @@ public static class MobileNumberValidationRules
         return ruleBuilder
             .NotEmpty()
             .WithErrorCode(SharedValidationMessageTemplates.VALUE_REQUIRED)
-            .WithMessage(localization[SharedValidationMessageTemplates.VALUE_REQUIRED, SharedLocalizations.MOBILE_NUMBER])
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.VALUE_REQUIRED, SharedLocalizations.MOBILE_NUMBER))
             .Length(SharedConstants.MOBILE_NUMBER_MIN_LENGTH, SharedConstants.MOBILE_NUMBER_MAX_LENGTH)
             .WithErrorCode(SharedValidationMessageTemplates.STRING_LENGTH_BETWEEN)
-            .WithMessage(localization[SharedValidationMessageTemplates.STRING_LENGTH_BETWEEN,
-                SharedLocalizations.MOBILE_NUMBER, SharedConstants.MOBILE_NUMBER_MIN_LENGTH, SharedConstants.MOBILE_NUMBER_MAX_LENGTH]);
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.STRING_LENGTH_BETWEEN,
+                SharedLocalizations.MOBILE_NUMBER, SharedConstants.MOBILE_NUMBER_MIN_LENGTH, SharedConstants.MOBILE_NUMBER_MAX_LENGTH));
     }
 }

@@ -1,4 +1,4 @@
-﻿using CapabilityCentricSample.People.Shared;
+using CapabilityCentricSample.People.Shared;
 using CapabilityCentricSample.Shared.Localizations;
 using FluentValidation;
 using RaccoonLand.Modules.MessageLocalization.Abstraction;
@@ -14,10 +14,10 @@ public static class EmployeeCodeValidationRules
         return ruleBuilder
             .NotEmpty()
             .WithErrorCode(SharedValidationMessageTemplates.VALUE_REQUIRED)
-            .WithMessage(localization[SharedValidationMessageTemplates.VALUE_REQUIRED, PersonLocalizations.EMPLOYEE_CODE])
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.VALUE_REQUIRED, PersonLocalizations.EMPLOYEE_CODE))
             .Length(PersonConstants.EMPLOYEE_CODE_MIN_LENGTH, PersonConstants.EMPLOYEE_CODE_MAX_LENGTH)
             .WithErrorCode(SharedValidationMessageTemplates.STRING_LENGTH_BETWEEN)
-            .WithMessage(localization[SharedValidationMessageTemplates.STRING_LENGTH_BETWEEN,
-                PersonLocalizations.EMPLOYEE_CODE, PersonConstants.EMPLOYEE_CODE_MIN_LENGTH, PersonConstants.EMPLOYEE_CODE_MAX_LENGTH]);
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.STRING_LENGTH_BETWEEN,
+                PersonLocalizations.EMPLOYEE_CODE, PersonConstants.EMPLOYEE_CODE_MIN_LENGTH, PersonConstants.EMPLOYEE_CODE_MAX_LENGTH));
     }
 }

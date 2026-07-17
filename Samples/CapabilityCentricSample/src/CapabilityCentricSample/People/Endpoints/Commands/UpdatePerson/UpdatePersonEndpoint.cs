@@ -23,7 +23,7 @@ public sealed class UpdatePersonEndpoint(CapabilityCentricSampleCommandDbContext
 
         if (person is null)
             return Result.Failure(new PipelineMessage(SharedBusinessMessageTemplates.ENTITY_NOT_FOUND,
-                _messageLocalization[SharedBusinessMessageTemplates.ENTITY_NOT_FOUND, PersonLocalizations.PERSON]));
+                _messageLocalization.Get(SharedBusinessMessageTemplates.ENTITY_NOT_FOUND, PersonLocalizations.PERSON)));
         //throw new DomainException(SharedBusinessMessageTemplates.ENTITY_NOT_FOUND,
         //    SharedBusinessMessageTemplates.ENTITY_NOT_FOUND, PersonLocalizations.PERSON);
 

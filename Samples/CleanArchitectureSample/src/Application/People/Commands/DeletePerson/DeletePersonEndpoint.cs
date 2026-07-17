@@ -25,7 +25,7 @@ public sealed class DeletePersonEndpoint(
         if (person is null)
             return Result.Failure(new PipelineMessage(
                 SharedBusinessMessageTemplates.ENTITY_NOT_FOUND,
-                messageLocalization[SharedBusinessMessageTemplates.ENTITY_NOT_FOUND, PersonLocalizations.PERSON]));
+                messageLocalization.Get(SharedBusinessMessageTemplates.ENTITY_NOT_FOUND, PersonLocalizations.PERSON)));
 
         var photoKey = person.PhotoFileKey;
         var resumeKey = person.ResumeFileKey;

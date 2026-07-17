@@ -27,7 +27,7 @@ public sealed class AssignPersonToDepartmentEndpoint(
         {
             return Result.Failure(new PipelineMessage(
                 SharedBusinessMessageTemplates.ENTITY_NOT_FOUND,
-                messageLocalization[SharedBusinessMessageTemplates.ENTITY_NOT_FOUND, PersonLocalizations.PERSON]));
+                messageLocalization.Get(SharedBusinessMessageTemplates.ENTITY_NOT_FOUND, PersonLocalizations.PERSON)));
         }
 
         var department = await db.Set<Department>()
@@ -37,14 +37,14 @@ public sealed class AssignPersonToDepartmentEndpoint(
         {
             return Result.Failure(new PipelineMessage(
                 SharedBusinessMessageTemplates.ENTITY_NOT_FOUND,
-                messageLocalization[SharedBusinessMessageTemplates.ENTITY_NOT_FOUND, DepartmentLocalizations.DEPARTMENT]));
+                messageLocalization.Get(SharedBusinessMessageTemplates.ENTITY_NOT_FOUND, DepartmentLocalizations.DEPARTMENT)));
         }
 
         if (department.Status != DepartmentStatus.Active)
         {
             return Result.Failure(new PipelineMessage(
                 SharedBusinessMessageTemplates.ENTITY_IS_NOT_ACTIVE,
-                messageLocalization[SharedBusinessMessageTemplates.ENTITY_IS_NOT_ACTIVE, DepartmentLocalizations.DEPARTMENT]));
+                messageLocalization.Get(SharedBusinessMessageTemplates.ENTITY_IS_NOT_ACTIVE, DepartmentLocalizations.DEPARTMENT)));
         }
 
         person.AssignToDepartment(department.Id);

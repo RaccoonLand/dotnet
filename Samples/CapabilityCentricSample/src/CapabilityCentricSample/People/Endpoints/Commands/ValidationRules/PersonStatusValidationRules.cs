@@ -1,4 +1,4 @@
-﻿using CapabilityCentricSample.People.Shared;
+using CapabilityCentricSample.People.Shared;
 using CapabilityCentricSample.People.Shared.Enums;
 using CapabilityCentricSample.Shared.Localizations;
 using FluentValidation;
@@ -15,6 +15,6 @@ public static class PersonStatusValidationRules
         return ruleBuilder
             .IsInEnum()
             .WithErrorCode(SharedValidationMessageTemplates.ENUM_INVALID)
-            .WithMessage(localization[SharedValidationMessageTemplates.ENUM_INVALID, PersonLocalizations.PERSON_STATUS]);
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.ENUM_INVALID, PersonLocalizations.PERSON_STATUS));
     }
 }

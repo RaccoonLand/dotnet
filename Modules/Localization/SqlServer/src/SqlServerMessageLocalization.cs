@@ -24,23 +24,32 @@ internal sealed class SqlServerMessageLocalization(
     private readonly CultureInfo _defaultCulture = ResolveDefaultCulture(options.Value.DefaultCulture);
 
     /// <inheritdoc />
-    public string this[string messageTemplate, params object?[] parameters]
-        => Format(ResolveCulture(explicitCulture: null), messageTemplate, parameters);
+    public string Get(string messageTemplate, params object?[] parameters)
+    {
+        ArgumentNullException.ThrowIfNull(messageTemplate);
+        ArgumentNullException.ThrowIfNull(parameters);
+        return Format(ResolveCurrentCulture(), messageTemplate, parameters);
+    }
 
     /// <inheritdoc />
-    public string this[CultureInfo culture, string messageTemplate, params object?[] parameters]
-        => Format(ResolveCulture(culture), messageTemplate, parameters);
+    public string GetForCulture(CultureInfo culture, string messageTemplate, params object?[] parameters)
+    {
+        ArgumentNullException.ThrowIfNull(culture);
+        ArgumentNullException.ThrowIfNull(messageTemplate);
+        ArgumentNullException.ThrowIfNull(parameters);
+        return Format(culture, messageTemplate, parameters);
+    }
 
     private string Format(CultureInfo culture, string messageTemplate, object?[] parameters)
     {
         var template = Resolve(culture, messageTemplate);
 
-        if (parameters is not { Length: > 0 })
+        if (parameters.Length == 0)
         {
             return template;
         }
 
-        var arguments = new object?[parameters.Length];
+        var arguments = new object[parameters.Length];
         for (var i = 0; i < parameters.Length; i++)
         {
             arguments[i] = ResolveParameter(culture, parameters[i]);
@@ -57,12 +66,14 @@ internal sealed class SqlServerMessageLocalization(
         }
     }
 
-    private object? ResolveParameter(CultureInfo culture, object? parameter) => parameter switch
+    private object ResolveParameter(CultureInfo culture, object? parameter) => parameter switch
     {
-        // A literal value to insert as-is (escape hatch for raw strings that must not be looked up).
-        RawValue raw => raw.Value,
+        // Literal string escape hatch (Raw is string-only; null Value → empty).
+        RawValue raw => raw.Value ?? string.Empty,
         // By convention a string parameter is itself a localization key.
         string key => Resolve(culture, key),
+        // Bare null element → empty literal.
+        null => string.Empty,
         // Anything else (numbers, dates, ...) is a literal.
         _ => parameter,
     };
@@ -103,9 +114,9 @@ internal sealed class SqlServerMessageLocalization(
     private string NormalizeCultureName(CultureInfo culture)
         => string.IsNullOrEmpty(culture.Name) ? _defaultCulture.Name : culture.Name;
 
-    // Resolution order: explicit culture -> ICurrentCultureProvider (e.g. a request header) -> default.
-    private CultureInfo ResolveCulture(CultureInfo? explicitCulture)
-        => explicitCulture ?? _cultureProvider.GetCurrentCulture() ?? _defaultCulture;
+    // Get only: ICurrentCultureProvider (e.g. a request header) → configured default.
+    private CultureInfo ResolveCurrentCulture()
+        => _cultureProvider.GetCurrentCulture() ?? _defaultCulture;
 
     private static CultureInfo ResolveDefaultCulture(string name)
     {

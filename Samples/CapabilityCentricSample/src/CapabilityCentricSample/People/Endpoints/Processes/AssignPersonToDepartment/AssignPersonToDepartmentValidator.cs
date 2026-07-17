@@ -13,6 +13,6 @@ public sealed class AssignPersonToDepartmentValidator : AbstractValidator<Assign
         RuleFor(x => x.DepartmentId)
             .NotEmpty()
             .WithErrorCode(SharedValidationMessageTemplates.VALUE_REQUIRED)
-            .WithMessage(localization[SharedValidationMessageTemplates.VALUE_REQUIRED, SharedLocalizations.ID]);
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.VALUE_REQUIRED, SharedLocalizations.ID));
     }
 }

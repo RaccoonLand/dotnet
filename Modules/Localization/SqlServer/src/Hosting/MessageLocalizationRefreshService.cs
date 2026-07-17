@@ -40,6 +40,10 @@ internal sealed class MessageLocalizationRefreshService(
             _applicationId = await _repository.EnsureApplicationAsync(cancellationToken);
             await ReloadAsync(cancellationToken);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception exception)
         {
             _logger.LogWarning(exception,
@@ -108,7 +112,16 @@ internal sealed class MessageLocalizationRefreshService(
             return;
         }
 
-        await _repository.InsertMissingAsync(_applicationId, pending, cancellationToken);
-        _logger.LogInformation("Persisted {Count} missing localization key(s) for admin review.", pending.Count);
+        try
+        {
+            await _repository.InsertMissingAsync(_applicationId, pending, cancellationToken);
+            _logger.LogInformation("Persisted {Count} missing localization key(s) for admin review.", pending.Count);
+        }
+        catch
+        {
+            // Drain already removed these keys; put them back so the next cycle can retry.
+            _missingKeys.Requeue(pending);
+            throw;
+        }
     }
 }

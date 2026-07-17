@@ -16,38 +16,58 @@ public interface IMessageLocalization
     /// Resolves <paramref name="messageTemplate"/> for the current culture and formats it with the
     /// optional <paramref name="parameters"/>.
     /// </summary>
-    /// <param name="messageTemplate">The message template key (itself resolved by the implementation).</param>
-    /// <param name="parameters">
-    /// Optional values inserted into the template. By convention a <see cref="string"/> is treated as a
-    /// localization key that the implementation resolves before insertion, while any non-string value is
-    /// inserted as-is. To insert a literal string without resolution, wrap it with
-    /// <see cref="RawValue.Raw(object?)"/>.
+    /// <param name="messageTemplate">
+    /// The message template key. Must not be <see langword="null"/>.
     /// </param>
+    /// <param name="parameters">
+    /// Optional values inserted into the template. Must not be a <see langword="null"/> array (omit the
+    /// argument or pass an empty array). By convention a <see cref="string"/> is treated as a
+    /// localization key that the implementation resolves before insertion, while any non-string value is
+    /// inserted as-is. A <see langword="null"/> element or <see cref="RawValue.Raw(string?)"/> with a
+    /// <see langword="null"/> value is inserted as an empty literal (same as <see cref="string.Empty"/>).
+    /// To insert a literal string without key resolution, wrap it with <see cref="RawValue.Raw(string?)"/>.
+    /// Only strings need <see cref="RawValue"/>; numbers and other non-strings are already literals.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="messageTemplate"/> is <see langword="null"/>, or <paramref name="parameters"/> is a
+    /// <see langword="null"/> array.
+    /// </exception>
     /// <example>
     /// <code>
     /// // "COMPANY" is resolved as a key; 10 and 60 are literals.
-    /// localizer[ProjectValidationErrors.VALIDATION_ERROR_NOT_FOUND, ProjectTranslation.COMPANY];
-    /// localizer[ProjectValidationErrors.VALIDATION_ERROR_AGE_BETWEEN, 10, 60];
+    /// localizer.Get(ProjectValidationErrors.VALIDATION_ERROR_NOT_FOUND, ProjectTranslation.COMPANY);
+    /// localizer.Get(ProjectValidationErrors.VALIDATION_ERROR_AGE_BETWEEN, 10, 60);
     /// // Insert a literal string ("Raccoon") that must not be looked up as a key.
-    /// localizer[ProjectValidationErrors.VALIDATION_ERROR_WELCOME, Raw("Raccoon")];
+    /// localizer.Get(ProjectValidationErrors.VALIDATION_ERROR_WELCOME, Raw("Raccoon"));
     /// </code>
     /// </example>
-    string this[string messageTemplate, params object?[] parameters] { get; }
+    string Get(string messageTemplate, params object?[] parameters);
 
     /// <summary>
     /// Resolves <paramref name="messageTemplate"/> for the given <paramref name="culture"/> and formats it
     /// with the optional <paramref name="parameters"/>.
     /// </summary>
-    /// <param name="culture">The target culture, typically built from a name such as <c>"fa-IR"</c>.</param>
-    /// <param name="messageTemplate">The message template key (itself resolved by the implementation).</param>
-    /// <param name="parameters">
-    /// Optional values inserted into the template, following the same key/literal convention as the
-    /// current-culture overload. Wrap a literal string with <see cref="RawValue.Raw(object?)"/>.
+    /// <param name="culture">
+    /// The target culture (for example from <c>CultureInfo.GetCultureInfo("fa-IR")</c>).
+    /// Must not be <see langword="null"/>. Unlike <see cref="ICurrentCultureProvider.GetCurrentCulture"/>,
+    /// <see langword="null"/> is not a fallback signal here — use <see cref="Get(string, object?[])"/> instead.
     /// </param>
+    /// <param name="messageTemplate">The message template key. Must not be <see langword="null"/>.</param>
+    /// <param name="parameters">
+    /// Optional values inserted into the template, following the same key/literal/<see langword="null"/>
+    /// convention as <see cref="Get(string, object?[])"/>. Must not be a <see langword="null"/> array.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="culture"/>, <paramref name="messageTemplate"/>, or the <paramref name="parameters"/>
+    /// array is <see langword="null"/>.
+    /// </exception>
     /// <example>
     /// <code>
-    /// localizer[CultureInfo.GetCultureInfo("fa-IR"), ProjectValidationErrors.VALIDATION_ERROR_NOT_FOUND, ProjectTranslation.COMPANY];
+    /// localizer.GetForCulture(
+    ///     CultureInfo.GetCultureInfo("fa-IR"),
+    ///     ProjectValidationErrors.VALIDATION_ERROR_NOT_FOUND,
+    ///     ProjectTranslation.COMPANY);
     /// </code>
     /// </example>
-    string this[CultureInfo culture, string messageTemplate, params object?[] parameters] { get; }
+    string GetForCulture(CultureInfo culture, string messageTemplate, params object?[] parameters);
 }

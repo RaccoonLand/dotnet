@@ -15,6 +15,6 @@ public static class DepartmentStatusValidationRules
         return ruleBuilder
             .IsInEnum()
             .WithErrorCode(SharedValidationMessageTemplates.ENUM_INVALID)
-            .WithMessage(localization[SharedValidationMessageTemplates.ENUM_INVALID, DepartmentLocalizations.DEPARTMENT_STATUS]);
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.ENUM_INVALID, DepartmentLocalizations.DEPARTMENT_STATUS));
     }
 }

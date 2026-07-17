@@ -13,9 +13,9 @@ public static class DescriptionValidationRules
         return ruleBuilder
             .MaximumLength(SharedConstants.DESCRIPTION_MAX_LENGTH)
             .WithErrorCode(SharedValidationMessageTemplates.STRING_LENGTH_LESS_THAN)
-            .WithMessage(localization[
+            .WithMessage(localization.Get(
                 SharedValidationMessageTemplates.STRING_LENGTH_LESS_THAN,
                 SharedLocalizations.DESCRIPTION,
-                SharedConstants.DESCRIPTION_MAX_LENGTH]);
+                SharedConstants.DESCRIPTION_MAX_LENGTH));
     }
 }

@@ -14,12 +14,12 @@ public static class DepartmentCodeValidationRules
         return ruleBuilder
             .NotEmpty()
             .WithErrorCode(SharedValidationMessageTemplates.VALUE_REQUIRED)
-            .WithMessage(localization[SharedValidationMessageTemplates.VALUE_REQUIRED, DepartmentLocalizations.DEPARTMENT_CODE])
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.VALUE_REQUIRED, DepartmentLocalizations.DEPARTMENT_CODE))
             .Length(DepartmentConstants.DEPARTMENT_CODE_MIN_LENGTH, DepartmentConstants.DEPARTMENT_CODE_MAX_LENGTH)
             .WithErrorCode(SharedValidationMessageTemplates.STRING_LENGTH_BETWEEN)
-            .WithMessage(localization[SharedValidationMessageTemplates.STRING_LENGTH_BETWEEN,
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.STRING_LENGTH_BETWEEN,
                 DepartmentLocalizations.DEPARTMENT_CODE,
                 DepartmentConstants.DEPARTMENT_CODE_MIN_LENGTH,
-                DepartmentConstants.DEPARTMENT_CODE_MAX_LENGTH]);
+                DepartmentConstants.DEPARTMENT_CODE_MAX_LENGTH));
     }
 }

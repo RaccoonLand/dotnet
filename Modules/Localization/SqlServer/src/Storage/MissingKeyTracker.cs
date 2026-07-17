@@ -1,5 +1,3 @@
-using System.Collections.Concurrent;
-
 namespace RaccoonLand.Modules.MessageLocalization.SQLServer.Storage;
 
 /// <summary>A key that was requested but not found in the store, recorded for later persistence.</summary>
@@ -11,25 +9,58 @@ internal sealed record MissingKey(string Culture, string Key);
 /// </summary>
 internal sealed class MissingKeyTracker
 {
-    private readonly ConcurrentDictionary<MissingKey, byte> _pending = new();
+    private readonly object _gate = new();
+    private readonly HashSet<MissingKey> _pending = [];
 
     /// <summary>Records a missing key (deduplicated until the next drain).</summary>
-    public void Report(string culture, string key) => _pending.TryAdd(new MissingKey(culture, key), 0);
+    public void Report(string culture, string key)
+    {
+        lock (_gate)
+        {
+            _pending.Add(new MissingKey(culture, key));
+        }
+    }
 
-    /// <summary>Atomically removes and returns all pending missing keys.</summary>
+    /// <summary>
+    /// Removes and returns all pending missing keys under the same lock used by
+    /// <see cref="Report"/> / <see cref="Requeue"/>.
+    /// </summary>
     public IReadOnlyCollection<MissingKey> Drain()
     {
-        if (_pending.IsEmpty)
+        lock (_gate)
         {
-            return [];
+            if (_pending.Count == 0)
+            {
+                return [];
+            }
+
+            var keys = _pending.ToArray();
+            _pending.Clear();
+            return keys;
+        }
+    }
+
+    /// <summary>
+    /// Puts keys back into the pending set (for example after a failed persist). Deduplicates with any
+    /// keys reported since the corresponding <see cref="Drain"/>.
+    /// </summary>
+    public void Requeue(IEnumerable<MissingKey> keys)
+    {
+        ArgumentNullException.ThrowIfNull(keys);
+
+        // Materialize before taking the lock so deferred enumerables cannot run under the lock.
+        var materialized = keys as IReadOnlyCollection<MissingKey> ?? keys.ToArray();
+        if (materialized.Count == 0)
+        {
+            return;
         }
 
-        var keys = _pending.Keys.ToArray();
-        foreach (var key in keys)
+        lock (_gate)
         {
-            _pending.TryRemove(key, out _);
+            foreach (var key in materialized)
+            {
+                _pending.Add(key);
+            }
         }
-
-        return keys;
     }
 }

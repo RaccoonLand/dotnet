@@ -13,14 +13,14 @@ public sealed class SetPersonPhotoValidator : AbstractValidator<SetPersonPhotoCo
         RuleFor(x => x.ContentType)
             .NotEmpty()
             .WithErrorCode(SharedValidationMessageTemplates.VALUE_REQUIRED)
-            .WithMessage(localization[SharedValidationMessageTemplates.VALUE_REQUIRED, "ContentType"]);
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.VALUE_REQUIRED, "ContentType"));
         RuleFor(x => x.ContentLength)
             .GreaterThan(0)
             .WithErrorCode(SharedValidationMessageTemplates.NUMBER_GREATER_THAN)
-            .WithMessage(localization[SharedValidationMessageTemplates.NUMBER_GREATER_THAN, "ContentLength"]);
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.NUMBER_GREATER_THAN, "ContentLength"));
         RuleFor(x => x.Content)
             .Must(stream => stream is not null && stream != Stream.Null)
             .WithErrorCode(SharedValidationMessageTemplates.VALUE_REQUIRED)
-            .WithMessage(localization[SharedValidationMessageTemplates.VALUE_REQUIRED, "Content"]);
+            .WithMessage(localization.Get(SharedValidationMessageTemplates.VALUE_REQUIRED, "Content"));
     }
 }

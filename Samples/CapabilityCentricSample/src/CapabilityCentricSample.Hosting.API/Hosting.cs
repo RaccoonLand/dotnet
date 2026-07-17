@@ -47,7 +47,7 @@ public static class Hosting
                 var localizer = httpContext.RequestServices.GetService<IMessageLocalization>();
                 var message = localizer is null
                     ? "A persistence error occurred while saving changes."
-                    : localizer[SharedBusinessMessageTemplates.OPERATION_FAILED];
+                    : localizer.Get(SharedBusinessMessageTemplates.OPERATION_FAILED);
 
                 httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 await httpContext.Response.WriteAsJsonAsync(new PipelineResponse
@@ -75,7 +75,7 @@ public static class Hosting
                 var localizer = context.RequestServices.GetService<IMessageLocalization>();
                 var message = localizer is null
                     ? "A persistence error occurred while saving changes."
-                    : localizer[SharedBusinessMessageTemplates.OPERATION_FAILED];
+                    : localizer.Get(SharedBusinessMessageTemplates.OPERATION_FAILED);
 
                 context.Response = new PipelineResponse
                 {
