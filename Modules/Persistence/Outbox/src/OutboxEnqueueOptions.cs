@@ -6,7 +6,12 @@ namespace RaccoonLand.Modules.Persistence.Outbox.Abstraction;
 /// </summary>
 public sealed class OutboxEnqueueOptions
 {
-    /// <summary>Overrides the default event type (payload CLR type name).</summary>
+    /// <summary>
+    /// Logical event type stored on the message. Prefer an explicit, stable, versioned name
+    /// (for example <c>order.placed.v1</c>). When null or whitespace, implementations may fall back to the
+    /// payload CLR type's unqualified <c>Name</c> (not <c>FullName</c>) as an emergency default — that
+    /// fallback is rename-fragile and should not be relied on in production contracts.
+    /// </summary>
     public string? EventType { get; init; }
 
     /// <summary>Optional aggregate type name for correlation.</summary>

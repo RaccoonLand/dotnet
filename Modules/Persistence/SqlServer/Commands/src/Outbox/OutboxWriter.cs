@@ -35,7 +35,7 @@ public sealed class OutboxWriter(
         var message = new OutboxPendingMessage
         {
             Id = Guid.CreateVersion7(),
-            EventType = options?.EventType ?? payloadType.Name,
+            EventType = string.IsNullOrWhiteSpace(options?.EventType) ? payloadType.Name : options.EventType,
             AggregateType = options?.AggregateType,
             AggregateBusinessKey = options?.AggregateBusinessKey,
             Payload = JsonSerializer.Serialize(payload, payloadType, JsonOptions),
@@ -46,21 +46,25 @@ public sealed class OutboxWriter(
         _pending.Add((typeof(TOutbox), message));
     }
 
-    internal IReadOnlyList<OutboxChannelBatch> Drain()
+    /// <summary>
+    /// Returns the current buffer grouped by channel without clearing. Call
+    /// <see cref="ClearPending"/> only after a successful flush so a failed write can retry.
+    /// </summary>
+    internal IReadOnlyList<OutboxChannelBatch> GetPendingBatches()
     {
         if (_pending.Count == 0)
         {
             return [];
         }
 
-        var batches = _pending
+        return _pending
             .GroupBy(item => item.ChannelType)
             .Select(group => new OutboxChannelBatch(
                 group.Key,
                 group.Select(item => item.Message).ToArray()))
             .ToArray();
-
-        _pending.Clear();
-        return batches;
     }
+
+    /// <summary>Clears the buffer after messages have been successfully written.</summary>
+    internal void ClearPending() => _pending.Clear();
 }

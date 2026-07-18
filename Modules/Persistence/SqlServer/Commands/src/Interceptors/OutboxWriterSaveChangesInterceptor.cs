@@ -37,7 +37,7 @@ public sealed class OutboxWriterSaveChangesInterceptor(
 
     private async Task WriteOutboxAsync(DbContext context, CancellationToken cancellationToken)
     {
-        var batches = _writer.Drain();
+        var batches = _writer.GetPendingBatches();
         if (batches.Count == 0)
         {
             return;
@@ -73,6 +73,8 @@ public sealed class OutboxWriterSaveChangesInterceptor(
                 transaction,
                 cancellationToken: cancellationToken));
         }
+
+        _writer.ClearPending();
     }
 
     private static string BuildInsertStatement(string qualifiedTableName) =>
