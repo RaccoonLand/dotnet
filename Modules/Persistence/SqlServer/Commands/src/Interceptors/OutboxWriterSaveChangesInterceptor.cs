@@ -1,3 +1,4 @@
+using System.Data.Common;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -8,14 +9,14 @@ using RaccoonLand.Modules.Persistence.SqlServer.Commands.Outbox;
 namespace RaccoonLand.Modules.Persistence.SqlServer.Commands.Interceptors;
 
 /// <summary>
-/// Drains the request-scoped <see cref="IOutboxWriter"/> buffer and persists messages to their registered
-/// outbox channel tables with Dapper on the same connection and transaction as <c>SaveChanges</c>.
-/// This is distinct from <see cref="OutboxSaveChangesInterceptor"/>, which writes aggregate domain/service
-/// events; this one writes messages explicitly enqueued through <see cref="IOutboxWriter"/>.
+/// Flushes the request-scoped <see cref="IOutboxWriter"/> buffer to registered channel tables with Dapper on
+/// the same connection and transaction as <c>SaveChanges</c>. Buffered messages are removed only after
+/// <see cref="TransactionCommittedAsync"/> (or immediately when no ambient transaction exists) so a failed
+/// commit can retry without losing enqueued messages.
 /// </summary>
 public sealed class OutboxWriterSaveChangesInterceptor(
     IOutboxChannelRegistry registry,
-    OutboxWriter writer) : SaveChangesInterceptor
+    OutboxWriter writer) : SaveChangesInterceptor, IDbTransactionInterceptor
 {
     private readonly IOutboxChannelRegistry _registry = registry;
     private readonly OutboxWriter _writer = writer;
@@ -35,6 +36,30 @@ public sealed class OutboxWriterSaveChangesInterceptor(
         return await base.SavedChangesAsync(eventData, result, cancellationToken);
     }
 
+    public Task TransactionCommittedAsync(
+        DbTransaction transaction,
+        TransactionEndEventData eventData,
+        CancellationToken cancellationToken = default)
+    {
+        _writer.ClearFlushedOnCommit();
+        return Task.CompletedTask;
+    }
+
+    public void TransactionCommitted(DbTransaction transaction, TransactionEndEventData eventData)
+        => _writer.ClearFlushedOnCommit();
+
+    public Task TransactionRolledBackAsync(
+        DbTransaction transaction,
+        TransactionEndEventData eventData,
+        CancellationToken cancellationToken = default)
+    {
+        _writer.RestoreFlushedOnRollback();
+        return Task.CompletedTask;
+    }
+
+    public void TransactionRolledBack(DbTransaction transaction, TransactionEndEventData eventData)
+        => _writer.RestoreFlushedOnRollback();
+
     private async Task WriteOutboxAsync(DbContext context, CancellationToken cancellationToken)
     {
         var batches = _writer.GetPendingBatches();
@@ -46,6 +71,7 @@ public sealed class OutboxWriterSaveChangesInterceptor(
         var connection = context.Database.GetDbConnection();
         var transaction = context.Database.CurrentTransaction?.GetDbTransaction();
         var createdOnUtc = DateTimeOffset.UtcNow;
+        var flushedIds = new List<Guid>();
 
         foreach (var batch in batches)
         {
@@ -72,9 +98,18 @@ public sealed class OutboxWriterSaveChangesInterceptor(
                 rows,
                 transaction,
                 cancellationToken: cancellationToken));
+
+            flushedIds.AddRange(batch.Messages.Select(message => message.Id));
         }
 
-        _writer.ClearPending();
+        if (context.Database.CurrentTransaction is null)
+        {
+            _writer.ClearPending();
+        }
+        else
+        {
+            _writer.MarkFlushed(flushedIds);
+        }
     }
 
     private static string BuildInsertStatement(string qualifiedTableName) =>

@@ -35,6 +35,7 @@ public static class CommandDbContextOptionsBuilderExtensions
 
         var interceptors = new IInterceptor[]
         {
+            // Order is part of the contract: audit must stamp IAuditable before the event outbox reads CreatedBy/ModifiedBy.
             new AuditSaveChangesInterceptor(executionContext),
             new OutboxSaveChangesInterceptor(outboxOptions),
         };
@@ -43,12 +44,13 @@ public static class CommandDbContextOptionsBuilderExtensions
     }
 
     /// <summary>
-    /// Adds the outbox-writer interceptor that drains the request-scoped
+    /// Adds the outbox-writer interceptor that flushes the request-scoped
     /// <see cref="RaccoonLand.Modules.Persistence.Outbox.Abstraction.IOutboxWriter"/> buffer on
     /// <c>SaveChanges</c>. Requires the outbox
     /// services to be registered with <c>AddRaccoonLandOutbox&lt;TOutbox&gt;()</c>. Because the interceptor is
     /// request-scoped, this must be called from a scoped <paramref name="serviceProvider"/> (for example the
     /// one passed to <c>AddDbContext((sp, options) =&gt; ...)</c>).
+    /// Call this <strong>after</strong> <see cref="AddRaccoonLandCommandInterceptors"/> so audit runs first.
     /// </summary>
     public static DbContextOptionsBuilder AddRaccoonLandOutboxInterceptor(
         this DbContextOptionsBuilder builder,

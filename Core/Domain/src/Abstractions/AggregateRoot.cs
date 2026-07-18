@@ -36,6 +36,30 @@ public abstract class AggregateRoot<TKey> : Entity<TKey>, IAggregateRoot
 
     public void ClearServiceEvents() => _serviceEvents.Clear();
 
+    public void RemoveDomainEvents(IReadOnlyCollection<Guid> eventIds)
+    {
+        ArgumentNullException.ThrowIfNull(eventIds);
+        if (eventIds.Count == 0)
+        {
+            return;
+        }
+
+        var ids = eventIds as HashSet<Guid> ?? eventIds.ToHashSet();
+        _domainEvents.RemoveAll(domainEvent => ids.Contains(domainEvent.EventId));
+    }
+
+    public void RemoveServiceEvents(IReadOnlyCollection<Guid> eventIds)
+    {
+        ArgumentNullException.ThrowIfNull(eventIds);
+        if (eventIds.Count == 0)
+        {
+            return;
+        }
+
+        var ids = eventIds as HashSet<Guid> ?? eventIds.ToHashSet();
+        _serviceEvents.RemoveAll(serviceEvent => ids.Contains(serviceEvent.EventId));
+    }
+
     public void RegenerateConcurrencyToken() => ConcurrencyToken = Guid.CreateVersion7();
 
     protected void RaiseDomainEvent(DomainEvent domainEvent) => _domainEvents.Add(domainEvent);

@@ -22,6 +22,12 @@ public interface IAggregateRoot
 
     void ClearServiceEvents();
 
+    /// <summary>Removes domain events whose <c>EventId</c> is in <paramref name="eventIds"/>.</summary>
+    void RemoveDomainEvents(IReadOnlyCollection<Guid> eventIds);
+
+    /// <summary>Removes service events whose <c>EventId</c> is in <paramref name="eventIds"/>.</summary>
+    void RemoveServiceEvents(IReadOnlyCollection<Guid> eventIds);
+
     /// <summary>Regenerates the concurrency token; invoked by the interceptor on save.</summary>
     void RegenerateConcurrencyToken();
 }
