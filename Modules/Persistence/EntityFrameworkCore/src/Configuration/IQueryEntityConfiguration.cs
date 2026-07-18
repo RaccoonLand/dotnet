@@ -9,5 +9,7 @@ namespace RaccoonLand.Modules.Persistence.EntityFrameworkCore.Configuration;
 /// under the query persistence layer, then apply them with
 /// <see cref="Extensions.ModelBuilderConfigurationExtensions.ApplyConfigurationsFromAssembly{TMarker}"/>.
 /// Configurations without this marker are ignored when the query marker is used.
+/// Do not also implement <see cref="ICommandEntityConfiguration"/> on the same class — dual markers are rejected
+/// at discovery time.
 /// </remarks>
 public interface IQueryEntityConfiguration;
