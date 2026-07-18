@@ -19,6 +19,12 @@ namespace RaccoonLand.Modules.Observability.Instrumentation.Diagnostics;
 /// <see cref="ActivitySource"/> and a <c>Meter</c>) and <see cref="ILogger"/>. The host decides where the data
 /// goes. Add it as the outermost middleware: <c>pipeline.UseMiddleware&lt;PipelineInstrumentationMiddleware&gt;()</c>.
 /// </para>
+/// <para>
+/// Options are read from <see cref="IOptionsMonitor{TOptions}"/> at the start of each request so reloadable
+/// configuration applies without restarting the host. A single snapshot is used for the duration of that request.
+/// If a reload produces invalid options (<see cref="OptionsValidationException"/>), the middleware keeps using
+/// the last known-good snapshot so the business request is never failed by observability configuration.
+/// </para>
 /// </summary>
 public sealed class PipelineInstrumentationMiddleware : IPipelineMiddleware
 {
@@ -26,18 +32,20 @@ public sealed class PipelineInstrumentationMiddleware : IPipelineMiddleware
     private const string Failure = "failure";
     private const string Exception = "exception";
 
-    private readonly InstrumentationOptions _options;
+    private readonly IOptionsMonitor<InstrumentationOptions> _options;
     private readonly ILogger<PipelineInstrumentationMiddleware> _logger;
+    private InstrumentationOptions _effective;
 
     public PipelineInstrumentationMiddleware(
-        IOptions<InstrumentationOptions> options,
+        IOptionsMonitor<InstrumentationOptions> options,
         ILogger<PipelineInstrumentationMiddleware> logger)
     {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(logger);
 
-        _options = options.Value;
+        _options = options;
         _logger = logger;
+        _effective = TryReadOptions(options) ?? new InstrumentationOptions();
     }
 
     public async Task InvokeAsync(PipelineContext context, PipelineDelegate next)
@@ -45,29 +53,30 @@ public sealed class PipelineInstrumentationMiddleware : IPipelineMiddleware
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(next);
 
+        var options = ResolveOptions();
         var requestType = context.Request.GetType();
-        var requestName = requestType.FullName ?? requestType.Name;
+        var requestFullName = requestType.FullName ?? requestType.Name;
         var kind = context.Kind.ToString();
 
-        using var activity = _options.EnableTracing
-            ? RaccoonLandTelemetry.ActivitySource.StartActivity($"{kind} {requestName}", ActivityKind.Internal)
+        using var activity = options.EnableTracing
+            ? RaccoonLandTelemetry.ActivitySource.StartActivity($"{kind} {requestFullName}", ActivityKind.Internal)
             : null;
 
         if (activity is not null)
         {
             activity.SetTag(Tags.RequestKind, kind);
-            activity.SetTag(Tags.RequestName, requestName);
+            activity.SetTag(Tags.RequestName, requestFullName);
             EnrichWithExecutionContext(activity, context);
         }
 
-        using var scope = _options.EnableLogging ? BeginExecutionScope(context, kind) : null;
-        if (_options.EnableLogging)
+        using var scope = options.EnableLogging ? BeginExecutionScope(context, kind) : null;
+        if (options.EnableLogging)
         {
-            _logger.LogDebug("Handling {RequestKind} {RequestName}.", kind, requestName);
+            _logger.LogDebug("Handling {RequestKind} {RequestName}.", kind, requestFullName);
         }
 
         var activeTags = new TagList { { Tags.RequestKind, kind } };
-        if (_options.EnableMetrics)
+        if (options.EnableMetrics)
         {
             RaccoonLandTelemetry.ActiveRequests.Add(1, activeTags);
         }
@@ -88,16 +97,23 @@ public sealed class PipelineInstrumentationMiddleware : IPipelineMiddleware
             if (activity is not null)
             {
                 activity.SetTag(Tags.Outcome, outcome);
-                activity.SetStatus(ActivityStatusCode.Error, exception.Message);
+                // Avoid putting exception.Message on the status description — it may contain sensitive data.
+                // Full exception details still go through AddException for exporters that consume events.
+                activity.SetStatus(
+                    ActivityStatusCode.Error,
+                    "An unhandled exception occurred during request processing.");
                 activity.AddException(exception);
             }
 
-            _logger.LogError(
-                exception,
-                "{RequestKind} {RequestName} threw {ExceptionType}.",
-                kind,
-                requestName,
-                exception.GetType().Name);
+            if (options.EnableLogging)
+            {
+                _logger.LogError(
+                    exception,
+                    "{RequestKind} {RequestName} threw {ExceptionType}.",
+                    kind,
+                    requestFullName,
+                    exception.GetType().Name);
+            }
 
             throw;
         }
@@ -105,16 +121,43 @@ public sealed class PipelineInstrumentationMiddleware : IPipelineMiddleware
         {
             var elapsedMs = Stopwatch.GetElapsedTime(startTimestamp).TotalMilliseconds;
 
-            if (_options.EnableMetrics)
+            if (options.EnableMetrics)
             {
                 RaccoonLandTelemetry.ActiveRequests.Add(-1, activeTags);
-                RecordMetrics(kind, requestName, outcome, elapsedMs);
+                RecordMetrics(options.RequestNameInMetrics, kind, requestType, outcome, elapsedMs);
             }
 
-            if (_options.EnableLogging && outcome != Exception)
+            // On the exception path the catch block already wrote LogError; skip a second finish entry.
+            if (options.EnableLogging && outcome != Exception)
             {
-                Log(kind, requestName, outcome, elapsedMs);
+                Log(kind, requestFullName, outcome, elapsedMs);
             }
+        }
+    }
+
+    private InstrumentationOptions ResolveOptions()
+    {
+        try
+        {
+            var current = _options.CurrentValue;
+            Volatile.Write(ref _effective, current);
+            return current;
+        }
+        catch (OptionsValidationException)
+        {
+            return Volatile.Read(ref _effective);
+        }
+    }
+
+    private static InstrumentationOptions? TryReadOptions(IOptionsMonitor<InstrumentationOptions> options)
+    {
+        try
+        {
+            return options.CurrentValue;
+        }
+        catch (OptionsValidationException)
+        {
+            return null;
         }
     }
 
@@ -134,18 +177,37 @@ public sealed class PipelineInstrumentationMiddleware : IPipelineMiddleware
         }
     }
 
-    private static void RecordMetrics(string kind, string requestName, string outcome, double elapsedMs)
+    private static void RecordMetrics(
+        RequestNameMetricTag nameTag,
+        string kind,
+        Type requestType,
+        string outcome,
+        double elapsedMs)
     {
         var tags = new TagList
         {
             { Tags.RequestKind, kind },
-            { Tags.RequestName, requestName },
             { Tags.Outcome, outcome },
         };
+
+        var metricName = ResolveMetricRequestName(nameTag, requestType);
+        if (metricName is not null)
+        {
+            tags.Add(Tags.RequestName, metricName);
+        }
 
         RaccoonLandTelemetry.RequestCount.Add(1, tags);
         RaccoonLandTelemetry.RequestDuration.Record(elapsedMs, tags);
     }
+
+    private static string? ResolveMetricRequestName(RequestNameMetricTag nameTag, Type requestType)
+        => nameTag switch
+        {
+            RequestNameMetricTag.None => null,
+            RequestNameMetricTag.Name => requestType.Name,
+            // FullName, and any undefined enum value: never fail the business request for bad telemetry config.
+            _ => requestType.FullName ?? requestType.Name,
+        };
 
     private static string DetermineOutcome(PipelineResponse? response)
         => response is { Errors.Count: > 0 } ? Failure : Success;
