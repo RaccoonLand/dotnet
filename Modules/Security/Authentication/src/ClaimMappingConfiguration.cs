@@ -5,7 +5,11 @@ namespace RaccoonLand.Modules.Security.Authentication;
 
 internal static class ClaimMappingConfiguration
 {
-    public static void DisableDefaultClaimMapping()
+    /// <summary>
+    /// Clears process-wide default JWT claim type maps. Call only when the application explicitly opts in.
+    /// The change is irreversible for the process lifetime and affects other JWT handlers in the process.
+    /// </summary>
+    public static void ClearGlobalJwtClaimTypeMaps()
     {
         JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
         JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
