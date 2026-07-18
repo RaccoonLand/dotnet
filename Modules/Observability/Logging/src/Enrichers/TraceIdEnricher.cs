@@ -5,7 +5,10 @@ using Serilog.Events;
 namespace RaccoonLand.Modules.Observability.Logging.Serilog.Enrichers;
 
 /// <summary>
-/// Adds the current <see cref="Activity.TraceId"/> as a <c>TraceId</c> log property when an activity exists.
+/// Adds the current <see cref="Activity.TraceId"/> as a log property named <c>TraceId</c> when an activity
+/// exists. Uses Serilog's add-if-absent semantics so an existing <c>TraceId</c> on the event is not replaced by
+/// this enricher. Global collision/override behaviour still depends on other enrichers the consumer registers.
+/// Backend-specific field names (for example <c>trace_id</c>) are the sink/host's responsibility.
 /// </summary>
 internal sealed class TraceIdEnricher : ILogEventEnricher
 {

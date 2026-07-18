@@ -3,7 +3,8 @@ namespace RaccoonLand.Modules.Observability.Logging.Serilog.Configuration;
 /// <summary>
 /// RaccoonLand-specific Serilog settings, bound from configuration alongside the standard <c>Serilog</c> section.
 /// Controls default enrichments applied before <c>ReadFrom.Configuration</c>; sinks and levels remain in the
-/// <c>Serilog</c> section and are installed by the consumer as separate NuGet packages.
+/// <c>Serilog</c> section and are installed by the consumer as separate NuGet packages. Bound once when
+/// Serilog is configured (snapshot — not live-reloaded with the logger).
 /// </summary>
 /// <example>
 /// appsettings.json:
