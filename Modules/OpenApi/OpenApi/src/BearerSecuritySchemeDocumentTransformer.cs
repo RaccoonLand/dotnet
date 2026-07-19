@@ -16,6 +16,12 @@ internal sealed class BearerSecuritySchemeDocumentTransformer(OpenApiSecurityOpt
         OpenApiDocumentTransformerContext context,
         CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(security.SchemeName))
+        {
+            throw new InvalidOperationException(
+                $"{nameof(OpenApiSecurityOptions.SchemeName)} cannot be null, empty, or whitespace.");
+        }
+
         var scheme = new OpenApiSecurityScheme
         {
             Type = SecuritySchemeType.Http,
@@ -26,6 +32,15 @@ internal sealed class BearerSecuritySchemeDocumentTransformer(OpenApiSecurityOpt
         };
 
         document.Components ??= new OpenApiComponents();
+
+        if (document.Components.SecuritySchemes is not null
+            && document.Components.SecuritySchemes.ContainsKey(security.SchemeName))
+        {
+            throw new InvalidOperationException(
+                $"OpenAPI security scheme component '{security.SchemeName}' is already registered. " +
+                $"Choose a different {nameof(OpenApiSecurityOptions.SchemeName)} or remove the existing component.");
+        }
+
         document.AddComponent(security.SchemeName, scheme);
 
         if (security.ApplyGlobally)

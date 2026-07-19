@@ -8,6 +8,7 @@ namespace RaccoonLand.Modules.OpenApi;
 
 /// <summary>
 /// Maps the OpenAPI document endpoint that serves the generated JSON consumed by the UI providers.
+/// Uses the same <see cref="IOptions{TOptions}"/> snapshot registered by <c>AddRaccoonLandOpenApi</c>.
 /// </summary>
 public static class OpenApiEndpointRouteBuilderExtensions
 {

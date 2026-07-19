@@ -9,7 +9,10 @@ public sealed class OpenApiSecurityOptions
     /// <summary>When <see langword="true"/>, a JWT Bearer security scheme is added to the document.</summary>
     public bool EnableJwtBearer { get; set; }
 
-    /// <summary>Security scheme name registered in the document components (defaults to <c>Bearer</c>).</summary>
+    /// <summary>
+    /// Security scheme name registered in the document components (defaults to <c>Bearer</c>).
+    /// Must be non-empty when <see cref="EnableJwtBearer"/> is <see langword="true"/>.
+    /// </summary>
     public string SchemeName { get; set; } = "Bearer";
 
     /// <summary>Bearer token format hint shown in the UI (defaults to <c>JWT</c>).</summary>

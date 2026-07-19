@@ -29,7 +29,8 @@ public sealed class OpenApiDocumentOptions
     public string? Description { get; set; }
 
     /// <summary>
-    /// Route where the generated OpenAPI JSON is served. Supports the <c>{documentName}</c> placeholder.
+    /// Route where the generated OpenAPI JSON is served. Must include the <c>{documentName}</c> placeholder
+    /// so the mapped endpoint and UI providers stay aligned with <see cref="DocumentName"/>.
     /// Defaults to the built-in <c>Microsoft.AspNetCore.OpenApi</c> route.
     /// </summary>
     public string RoutePattern { get; set; } = "/openapi/{documentName}.json";
