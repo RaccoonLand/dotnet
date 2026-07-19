@@ -14,11 +14,18 @@ namespace RaccoonLand.Modules.Middlewares.FluentValidationMiddleware;
 /// <see cref="PipelineMessage"/> per failure. Message text comes from <see cref="ValidationFailure.ErrorMessage"/>
 /// as produced by the validator — localization belongs in the validator (for example via
 /// <c>IMessageLocalization</c> injected into <c>AbstractValidator&lt;T&gt;</c>).
+/// <para>
+/// Validators run sequentially. Failures are aggregated across validators that complete; cancellation may stop
+/// the loop before later validators run.
+/// </para>
 /// </summary>
 public sealed class FluentValidationMiddleware(ILogger<FluentValidationMiddleware> logger) : IPipelineMiddleware
 {
     public async Task InvokeAsync(PipelineContext context, PipelineDelegate next)
     {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(next);
+
         var requestType = context.Request.GetType();
         var validatorType = typeof(IValidator<>).MakeGenericType(requestType);
         var validators = context.RequestServices.GetServices(validatorType).OfType<IValidator>().ToArray();
