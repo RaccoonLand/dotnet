@@ -1,15 +1,16 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using RaccoonLand.Core.RequestProcessing.Abstractions.Pipeline;
+using Microsoft.Extensions.Options;
 
 namespace RaccoonLand.Modules.Middlewares.RequestCachingMiddleware;
 
 /// <summary>
 /// Registration for the request-caching pipeline middleware. Registers the middleware as a singleton
-/// (stateless; <c>IDistributedCache</c> and options are resolved per invocation). Call this, then add
-/// the middleware to a pipeline with <c>pipeline.UseMiddleware&lt;RequestCachingMiddleware&gt;()</c>. The
-/// consumer must also register an <c>IDistributedCache</c> (for example <c>AddDistributedMemoryCache</c>).
+/// (stateless; <c>IDistributedCache</c> and <see cref="IOptionsMonitor{TOptions}"/> are used per invocation).
+/// Call this, then add the middleware to a pipeline with
+/// <c>pipeline.UseMiddleware&lt;RequestCachingMiddleware&gt;()</c>. The consumer must also register an
+/// <c>IDistributedCache</c> (for example <c>AddDistributedMemoryCache</c>).
 /// </summary>
 public static class RequestCachingServiceCollectionExtensions
 {
@@ -29,14 +30,18 @@ public static class RequestCachingServiceCollectionExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentException.ThrowIfNullOrWhiteSpace(sectionName);
 
-        services.AddOptions<RequestCachingOptions>()
+        var builder = services.AddOptions<RequestCachingOptions>()
             .Bind(configuration.GetSection(sectionName));
 
         if (configure is not null)
         {
-            services.Configure(configure);
+            builder.Configure(configure);
         }
+
+        builder.Validate(ValidateDurations, DurationValidationMessage)
+            .ValidateOnStart();
 
         services.TryAddSingleton<RequestCachingMiddleware>();
 
@@ -52,14 +57,45 @@ public static class RequestCachingServiceCollectionExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
 
-        services.AddOptions<RequestCachingOptions>();
-        services.TryAddSingleton<RequestCachingMiddleware>();
+        var builder = services.AddOptions<RequestCachingOptions>();
 
         if (configure is not null)
         {
-            services.Configure(configure);
+            builder.Configure(configure);
         }
 
+        builder.Validate(ValidateDurations, DurationValidationMessage)
+            .ValidateOnStart();
+
+        services.TryAddSingleton<RequestCachingMiddleware>();
+
         return services;
+    }
+
+    private const string DurationValidationMessage =
+        "RequestCaching Duration values must be greater than TimeSpan.Zero " +
+        "(Default and every Overrides entry).";
+
+    private static bool ValidateDurations(RequestCachingOptions options)
+    {
+        if (options.Default is null || options.Default.Duration <= TimeSpan.Zero)
+        {
+            return false;
+        }
+
+        if (options.Overrides is null)
+        {
+            return false;
+        }
+
+        foreach (var entry in options.Overrides.Values)
+        {
+            if (entry is null || entry.Duration <= TimeSpan.Zero)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

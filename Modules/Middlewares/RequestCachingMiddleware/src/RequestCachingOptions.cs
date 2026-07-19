@@ -38,8 +38,9 @@ public sealed class RequestCachingOptions
 public sealed class RequestCacheEntryOptions
 {
     /// <summary>
-    /// Absolute time-to-live for the cached entry. Absolute (not sliding) expiration is used on purpose so
-    /// that reads never rewrite the entry — the cache is only written on a miss.
+    /// Absolute time-to-live for the cached entry. Must be greater than <see cref="TimeSpan.Zero"/>.
+    /// Absolute (not sliding) expiration is used on purpose so that reads never rewrite the entry — the cache
+    /// is only written on a miss.
     /// </summary>
     public TimeSpan Duration { get; set; } = TimeSpan.FromMinutes(5);
 }
