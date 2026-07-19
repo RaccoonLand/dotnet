@@ -18,7 +18,10 @@ namespace RaccoonLand.Modules.Security.Authorization.SqlServer.Provider;
 ///   <item><description>otherwise → <see cref="AuthorizationStatus.Denied"/>.</description></item>
 /// </list>
 /// When <see cref="SqlAuthorizationOptions.EnableCache"/> is set, the anonymous set and each user's allowed
-/// set are cached in <see cref="IDistributedCache"/>.
+/// set are cached in <see cref="IDistributedCache"/>. Cache entries can keep a previous allow (or deny)
+/// decision until TTL expires after revocation or rule changes.
+/// Database and connectivity failures propagate as exceptions and are not mapped to
+/// <see cref="AuthorizationStatus.Denied"/>.
 /// </summary>
 public sealed class SqlAuthorizationProvider : IAuthorizationProvider
 {

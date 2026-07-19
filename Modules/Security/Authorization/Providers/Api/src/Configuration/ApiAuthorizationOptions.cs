@@ -80,7 +80,11 @@ public sealed class ApiAuthorizationOptions
     /// When <see langword="true"/> the resolved request sets are cached in <c>IDistributedCache</c>. A
     /// distributed cache must be registered, otherwise registration validation fails. Defaults to
     /// <see langword="false"/>.
-    /// <para>Caching delays the effect of revoking access until the entry expires, so keep the durations short.</para>
+    /// <para>
+    /// Cached allow (or deny) sets remain in effect until TTL expires — revocation and rule changes are
+    /// delayed for the process/consumers that still hold a cache entry. Prefer short
+    /// <see cref="UserCacheDuration"/> values, or disable caching when immediate revocation is required.
+    /// </para>
     /// </summary>
     public bool EnableCache { get; set; }
 

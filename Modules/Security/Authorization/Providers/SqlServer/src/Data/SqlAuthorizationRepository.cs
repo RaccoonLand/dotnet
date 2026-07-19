@@ -9,6 +9,7 @@ namespace RaccoonLand.Modules.Security.Authorization.SqlServer.Data;
 /// <summary>
 /// Dapper-based access to the two configurable authorization stored procedures. Each call returns a set of
 /// request full-names; the provider checks membership in memory.
+/// Connection, timeout, and SQL failures throw; they are not converted to an authorization deny.
 /// </summary>
 public sealed class SqlAuthorizationRepository(IOptions<SqlAuthorizationOptions> options)
 {

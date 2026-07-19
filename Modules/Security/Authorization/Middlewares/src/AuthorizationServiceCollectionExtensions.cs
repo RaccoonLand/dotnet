@@ -11,7 +11,8 @@ namespace RaccoonLand.Modules.Security.Authorization.Middlewares;
 /// middleware to a pipeline with <c>pipeline.UseMiddleware&lt;AuthorizationMiddleware&gt;()</c>.
 /// <para>
 /// An <c>IAuthorizationProvider</c> must be registered separately (for example by a provider package such as
-/// the claim-based provider).
+/// the claim-based provider). Registration of the middleware alone does not validate that a provider exists;
+/// missing registration surfaces on the first authorized request as a DI resolution failure.
 /// </para>
 /// </summary>
 public static class AuthorizationServiceCollectionExtensions

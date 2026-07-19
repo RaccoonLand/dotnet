@@ -19,7 +19,10 @@ namespace RaccoonLand.Modules.Security.Authorization.Api.Provider;
 ///   <item><description>otherwise → <see cref="AuthorizationStatus.Denied"/>.</description></item>
 /// </list>
 /// When <see cref="ApiAuthorizationOptions.EnableCache"/> is set, the anonymous set and each user's allowed set
-/// are cached in <see cref="IDistributedCache"/>.
+/// are cached in <see cref="IDistributedCache"/>. Cache entries can keep a previous allow (or deny) decision
+/// until TTL expires after revocation or rule changes.
+/// Transport, timeout, and deserialization failures from the API propagate as exceptions and are not mapped
+/// to <see cref="AuthorizationStatus.Denied"/>.
 /// </summary>
 public sealed class ApiAuthorizationProvider : IAuthorizationProvider
 {

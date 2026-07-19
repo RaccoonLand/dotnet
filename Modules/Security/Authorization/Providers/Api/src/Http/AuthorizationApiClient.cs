@@ -7,6 +7,7 @@ namespace RaccoonLand.Modules.Security.Authorization.Api.Http;
 /// <summary>
 /// Typed <see cref="HttpClient"/> wrapper around the external authorization API. Each call returns a set of
 /// request full-names; the provider checks membership in memory.
+/// Non-success responses, timeouts, and JSON failures throw; they are not converted to an authorization deny.
 /// </summary>
 public sealed class AuthorizationApiClient(HttpClient httpClient, IOptions<ApiAuthorizationOptions> options)
 {

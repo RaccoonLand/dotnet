@@ -15,6 +15,8 @@ namespace RaccoonLand.Modules.Security.Authorization.Claims.Provider;
 ///   <item><description>a policy exists and is satisfied → <see cref="AuthorizationStatus.Allowed"/>;</description></item>
 ///   <item><description>otherwise → <see cref="AuthorizationStatus.Denied"/>.</description></item>
 /// </list>
+/// Decisions are in-memory and synchronous; <see cref="CancellationToken"/> is accepted for contract
+/// compatibility and is not observed.
 /// </summary>
 public sealed class ClaimAuthorizationProvider(
     IClaimsPrincipalAccessor claimsPrincipalAccessor,
