@@ -1,4 +1,5 @@
 using CapabilityCentricSample.People.Domain.ValueObjects;
+using CapabilityCentricSample.People.Domain.Events;
 using CapabilityCentricSample.People.Shared;
 using CapabilityCentricSample.People.Shared.Enums;
 using CapabilityCentricSample.Shared.Localizations;
@@ -49,7 +50,7 @@ public sealed class Person : AggregateRoot<int>
         MobileNumber mobileNumber,
         DateTime employmentDate)
     {
-        return new Person
+        var person = new Person
         {
             EmployeeCode = employeeCode,
             FirstName = firstName,
@@ -60,6 +61,10 @@ public sealed class Person : AggregateRoot<int>
             EmploymentDate = employmentDate,
             Status = PersonStatus.Active,
         };
+
+        person.RaiseDomainEvent(new PersonCreated(person.BusinessKey));
+        person.RaiseServiceEvent(new PersonCreatedIntegrationEvent(person.BusinessKey));
+        return person;
     }
 
     public void Update(

@@ -1,4 +1,6 @@
 using CapabilityCentricSample.People.Endpoints.Commands.CreatePerson;
+using CapabilityCentricSample.People.Domain.Events;
+using CapabilityCentricSample.People.EventHandlers;
 using CapabilityCentricSample.Shared.Localizations;
 using CapabilityCentricSample.Shared.Persistence;
 using FluentValidation;
@@ -16,6 +18,8 @@ using RaccoonLand.Core.RequestProcessing.Abstractions.Responses;
 using RaccoonLand.Core.RequestProcessing.DependencyInjection;
 using RaccoonLand.Modules.FileStorage.AspNetCore;
 using RaccoonLand.Modules.MessageLocalization.Abstraction;
+using RaccoonLand.Modules.Messaging.OutboxRelay;
+using RaccoonLand.Modules.Messaging.SqlServer;
 using RaccoonLand.Modules.Middlewares.ExceptionHandlingMiddleware;
 using RaccoonLand.Modules.Middlewares.FluentValidationMiddleware;
 using RaccoonLand.Modules.Middlewares.RequestCachingMiddleware;
@@ -101,6 +105,15 @@ public static class Hosting
 
         services.AddDistributedMemoryCache();
         services.AddRaccoonLandRequestCaching(configuration);
+
+        var commandConnection = configuration.GetConnectionString("CommandConnection")
+            ?? throw new InvalidOperationException("Connection string 'CommandConnection' is required for outbox relay.");
+
+        services.AddRaccoonLandOutboxEventStore(
+            configuration,
+            configureSql: sql => sql.ConnectionString = commandConnection);
+        services.AddRaccoonLandDomainEventHandler<PersonCreated, PersonCreatedHandler>();
+        services.AddRaccoonLandOutboxRelay(configuration);
 
         services.AddRaccoonLandFluentValidation();
         services.AddValidatorsFromAssemblyContaining<CreatePersonCommand>();

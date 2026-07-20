@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RaccoonLand messaging abstractions for asynchronous outbox consumption: outbox store/relay contracts, domain-event handlers, service-event publisher/consumer ports, and inbox idempotency contracts.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RaccoonLand.Core.Domain" />
+  </ItemGroup>
+
+</Project>

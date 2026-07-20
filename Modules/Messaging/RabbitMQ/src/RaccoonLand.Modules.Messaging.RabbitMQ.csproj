@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>RabbitMQ adapter for RaccoonLand service events: publishes Category=Service outbox rows via IServiceEventPublisher, and consumes them with an inbox-gated hosted worker plus IServiceEventHandler&lt;T&gt; dispatch.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <PackageReference Include="RabbitMQ.Client" />
+    <PackageReference Include="RaccoonLand.Core.Domain" />
+    <PackageReference Include="RaccoonLand.Modules.Messaging.Abstractions" />
+  </ItemGroup>
+
+</Project>

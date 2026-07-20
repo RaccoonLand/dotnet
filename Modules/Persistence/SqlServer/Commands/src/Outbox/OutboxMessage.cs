@@ -12,7 +12,7 @@ public sealed class OutboxMessage
     /// <summary>"Domain" or "Service".</summary>
     public required string Category { get; init; }
 
-    /// <summary>The CLR type name of the event.</summary>
+    /// <summary>The stable contract name of the event (<see cref="RaccoonLand.Core.Domain.Events.DomainEvent.EventType"/>).</summary>
     public required string EventType { get; init; }
 
     /// <summary>The CLR type name of the aggregate that raised the event.</summary>

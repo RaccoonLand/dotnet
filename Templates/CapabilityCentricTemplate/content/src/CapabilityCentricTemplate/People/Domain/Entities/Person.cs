@@ -1,3 +1,4 @@
+using CapabilityCentricTemplate.People.Domain.Events;
 using CapabilityCentricTemplate.People.Domain.ValueObjects;
 using RaccoonLand.Core.Domain.Abstractions;
 
@@ -14,10 +15,14 @@ public sealed class Person : AggregateRoot<int>
 
     public static Person Create(FirstName firstName, LastName lastName)
     {
-        return new Person
+        var person = new Person
         {
             FirstName = firstName,
             LastName = lastName,
         };
+
+        person.RaiseDomainEvent(new PersonCreated(person.BusinessKey));
+        person.RaiseServiceEvent(new PersonCreatedIntegrationEvent(person.BusinessKey));
+        return person;
     }
 }

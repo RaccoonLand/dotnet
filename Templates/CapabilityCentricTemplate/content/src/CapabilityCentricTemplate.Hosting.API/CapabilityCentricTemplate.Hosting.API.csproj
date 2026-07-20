@@ -18,6 +18,8 @@
 		<PackageReference Include="RaccoonLand.Modules.Middlewares.ExceptionHandlingMiddleware" />
 		<PackageReference Include="RaccoonLand.Modules.Middlewares.FluentValidationMiddleware" />
 		<PackageReference Include="RaccoonLand.Modules.Middlewares.RequestCachingMiddleware" />
+		<PackageReference Include="RaccoonLand.Modules.Messaging.OutboxRelay" />
+		<PackageReference Include="RaccoonLand.Modules.Messaging.SqlServer" />
 		<PackageReference Include="RaccoonLand.Modules.Observability.Instrumentation" />
 		<PackageReference Include="RaccoonLand.Modules.Observability.Logging.Serilog" />
 		<PackageReference Include="RaccoonLand.Modules.OpenApi" />

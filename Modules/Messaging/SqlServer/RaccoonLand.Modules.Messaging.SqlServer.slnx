@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.SqlOutboxEventStore.md" />
+    <File Path="docs/2.Schema.md" />
+    <File Path="docs/3.Registration.md" />
+    <File Path="docs/4.Inbox.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.Messaging.SqlServer.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

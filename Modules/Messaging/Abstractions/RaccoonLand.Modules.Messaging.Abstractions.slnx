@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/0.Overview.md" />
+    <File Path="docs/1.OutboxEventRecord.md" />
+    <File Path="docs/2.IOutboxEventStore.md" />
+    <File Path="docs/3.IDomainEventHandler.md" />
+    <File Path="docs/4.IServiceEventPublisher.md" />
+    <File Path="docs/5.Options.md" />
+    <File Path="docs/6.Inbox.md" />
+    <File Path="docs/7.IServiceEventHandler.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.Messaging.Abstractions.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1.RabbitMqServiceEventPublisher.md" />
+    <File Path="docs/2.ServiceEventMessageHeaders.md" />
+    <File Path="docs/3.Options.md" />
+    <File Path="docs/4.Registration.md" />
+    <File Path="docs/5.Consumer.md" />
+    <File Path="docs/6.ConsumerRegistration.md" />
+    <File Path="docs/7.PoisonAndDeadLetter.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RaccoonLand.Modules.Messaging.RabbitMQ.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

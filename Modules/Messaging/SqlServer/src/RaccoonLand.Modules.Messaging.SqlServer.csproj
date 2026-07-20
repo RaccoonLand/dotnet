@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>SQL Server implementation of IOutboxEventStore for RaccoonLand messaging: claims unpublished OutboxEvent rows with UPDLOCK/READPAST and marks them processed via ProcessedOnUtc.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <PackageReference Include="RaccoonLand.Modules.Messaging.Abstractions" />
+  </ItemGroup>
+
+</Project>
