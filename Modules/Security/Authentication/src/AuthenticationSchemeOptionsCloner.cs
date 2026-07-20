@@ -18,18 +18,10 @@ internal static class AuthenticationSchemeOptionsCloner
         var targetType = target.GetType();
         var sourceType = source.GetType();
 
-        foreach (var targetProperty in targetType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+        foreach (var targetProperty in EnumerateWritableInstanceProperties(targetType))
         {
-            if (!targetProperty.CanWrite || targetProperty.GetIndexParameters().Length > 0)
-            {
-                continue;
-            }
-
-            var sourceProperty = sourceType.GetProperty(
-                targetProperty.Name,
-                BindingFlags.Public | BindingFlags.Instance);
-
-            if (sourceProperty?.CanRead != true || sourceProperty.GetIndexParameters().Length > 0)
+            var sourceProperty = FindReadableInstanceProperty(sourceType, targetProperty.Name);
+            if (sourceProperty is null)
             {
                 continue;
             }
@@ -58,6 +50,50 @@ internal static class AuthenticationSchemeOptionsCloner
 
             targetProperty.SetValue(target, value);
         }
+    }
+
+    /// <summary>
+    /// Walks from the most-derived type toward <see cref="object"/> with
+    /// <see cref="BindingFlags.DeclaredOnly"/> so shadowed properties such as
+    /// <c>JwtBearerOptions.Events</c> vs <c>AuthenticationSchemeOptions.Events</c>
+    /// do not throw <see cref="AmbiguousMatchException"/>.
+    /// </summary>
+    private static IEnumerable<PropertyInfo> EnumerateWritableInstanceProperties(Type type)
+    {
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+
+        for (var current = type; current is not null && current != typeof(object); current = current.BaseType!)
+        {
+            foreach (var property in current.GetProperties(
+                         BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
+            {
+                if (!property.CanWrite
+                    || property.GetIndexParameters().Length > 0
+                    || !seen.Add(property.Name))
+                {
+                    continue;
+                }
+
+                yield return property;
+            }
+        }
+    }
+
+    private static PropertyInfo? FindReadableInstanceProperty(Type type, string name)
+    {
+        for (var current = type; current is not null && current != typeof(object); current = current.BaseType!)
+        {
+            var property = current.GetProperty(
+                name,
+                BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+
+            if (property?.CanRead == true && property.GetIndexParameters().Length == 0)
+            {
+                return property;
+            }
+        }
+
+        return null;
     }
 
     private static bool IsNonNullableValueType(Type type)
