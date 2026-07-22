@@ -9,5 +9,8 @@
     <Project Path="src/Abstraction/RaccoonLand.Modules.Middlewares.RequestCaching.Abstraction.csproj" />
     <Project Path="src/RaccoonLand.Modules.Middlewares.RequestCachingMiddleware.csproj" />
   </Folder>
-  <Folder Name="/test/" />
+  <Folder Name="/test/">
+    <Project Path="test/RaccoonLand.Modules.Middlewares.RequestCachingMiddleware.Tests.csproj" />
+  </Folder>
 </Solution>
+

@@ -7,5 +7,8 @@
   <Folder Name="/src/">
     <Project Path="src/RaccoonLand.Modules.Middlewares.ExceptionHandlingMiddleware.csproj" />
   </Folder>
-  <Folder Name="/test/" />
+  <Folder Name="/test/">
+    <Project Path="test/RaccoonLand.Modules.Middlewares.ExceptionHandlingMiddleware.Tests.csproj" />
+  </Folder>
 </Solution>
+

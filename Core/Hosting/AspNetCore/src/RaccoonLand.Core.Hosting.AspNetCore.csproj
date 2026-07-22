@@ -9,6 +9,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="RaccoonLand.Core.Hosting.AspNetCore.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="RaccoonLand.Core.ExecutionContext.Abstractions" />
     <PackageReference Include="RaccoonLand.Core.RequestProcessing.Abstractions" />
   </ItemGroup>
