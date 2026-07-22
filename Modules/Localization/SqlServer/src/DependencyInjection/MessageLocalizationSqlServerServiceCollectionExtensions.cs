@@ -49,6 +49,8 @@ public static class MessageLocalizationSqlServerServiceCollectionExtensions
         services.TryAddSingleton<MessageLocalizationStore>();
         services.TryAddSingleton<MissingKeyTracker>();
         services.TryAddSingleton<MessageLocalizationRepository>();
+        services.TryAddSingleton<IMessageLocalizationRepository>(sp =>
+            sp.GetRequiredService<MessageLocalizationRepository>());
         // Default culture provider; a consumer can override it by registering its own ICurrentCultureProvider.
         services.TryAddSingleton<ICurrentCultureProvider, NullCurrentCultureProvider>();
         services.TryAddSingleton<IMessageLocalization, SqlServerMessageLocalization>();

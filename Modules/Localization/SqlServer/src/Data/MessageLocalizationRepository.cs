@@ -12,7 +12,7 @@ namespace RaccoonLand.Modules.MessageLocalization.SQLServer.Data;
 /// Dapper-based data access for the shared localization database. Used only at startup and by the periodic
 /// refresh worker, never on the request hot path (requests are served from the in-memory store).
 /// </summary>
-internal sealed class MessageLocalizationRepository
+internal sealed class MessageLocalizationRepository : IMessageLocalizationRepository
 {
     // SQL Server regular identifiers: letter/underscore, then letter/digit/underscore/@/#/$.
     private static readonly Regex SqlIdentifier = new(

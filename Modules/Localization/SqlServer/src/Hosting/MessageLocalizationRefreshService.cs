@@ -13,13 +13,13 @@ namespace RaccoonLand.Modules.MessageLocalization.SQLServer.Hosting;
 /// newly created placeholders become visible.
 /// </summary>
 internal sealed class MessageLocalizationRefreshService(
-    MessageLocalizationRepository repository,
+    IMessageLocalizationRepository repository,
     MessageLocalizationStore store,
     MissingKeyTracker missingKeys,
     IOptions<MessageLocalizationSqlServerOptions> options,
     ILogger<MessageLocalizationRefreshService> logger) : BackgroundService
 {
-    private readonly MessageLocalizationRepository _repository = repository;
+    private readonly IMessageLocalizationRepository _repository = repository;
     private readonly MessageLocalizationStore _store = store;
     private readonly MissingKeyTracker _missingKeys = missingKeys;
     private readonly MessageLocalizationSqlServerOptions _options = options.Value;
