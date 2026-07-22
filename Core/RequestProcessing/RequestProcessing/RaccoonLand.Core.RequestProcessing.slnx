@@ -10,5 +10,8 @@
   <Folder Name="/src/">
     <Project Path="src/RaccoonLand.Core.RequestProcessing.csproj" />
   </Folder>
-  <Folder Name="/test/" />
+  <Folder Name="/test/">
+    <Project Path="test/RaccoonLand.Core.RequestProcessing.Tests.csproj" />
+  </Folder>
 </Solution>
+
