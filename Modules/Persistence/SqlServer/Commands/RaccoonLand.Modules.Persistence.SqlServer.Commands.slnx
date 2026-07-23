@@ -11,5 +11,7 @@
   <Folder Name="/src/">
     <Project Path="src/RaccoonLand.Modules.Persistence.SqlServer.Commands.csproj" />
   </Folder>
-  <Folder Name="/test/" />
+  <Folder Name="/test/">
+    <Project Path="test/RaccoonLand.Modules.Persistence.SqlServer.Commands.Tests.csproj" />
+  </Folder>
 </Solution>
