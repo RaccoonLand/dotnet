@@ -25,13 +25,13 @@ namespace RaccoonLand.Modules.Security.Authorization.SqlServer.Provider;
 /// </summary>
 public sealed class SqlAuthorizationProvider : IAuthorizationProvider
 {
-    private readonly SqlAuthorizationRepository _repository;
+    private readonly ISqlAuthorizationRepository _repository;
     private readonly ICurrentExecutionContext _executionContext;
     private readonly IDistributedCache? _cache;
     private readonly SqlAuthorizationOptions _options;
 
     public SqlAuthorizationProvider(
-        SqlAuthorizationRepository repository,
+        ISqlAuthorizationRepository repository,
         ICurrentExecutionContext executionContext,
         IOptions<SqlAuthorizationOptions> options,
         IDistributedCache? cache = null)
@@ -94,7 +94,7 @@ public sealed class SqlAuthorizationProvider : IAuthorizationProvider
     private async Task<IReadOnlyCollection<string>> GetOrLoadAsync(
         string cacheKey,
         TimeSpan duration,
-        Func<SqlAuthorizationRepository, CancellationToken, Task<IReadOnlyCollection<string>>> load,
+        Func<ISqlAuthorizationRepository, CancellationToken, Task<IReadOnlyCollection<string>>> load,
         CancellationToken cancellationToken)
     {
         if (!_options.EnableCache)

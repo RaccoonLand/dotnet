@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <PackageId>RaccoonLand.Modules.Security.Authorization.SqlServer</PackageId>
+    <Version>1.0.1</Version>
     <Description>RaccoonLand SQL Server authorization provider: an IAuthorizationProvider that decides access (status only) from two configurable stored procedures — one returning the publicly anonymous request names, the other returning the request names allowed for the current user (resolved from ICurrentExecutionContext). Set-based and deny-by-default, with optional IDistributedCache caching. One of the RaccoonLand.Modules.Security.Authorization providers.</Description>
   </PropertyGroup>
 

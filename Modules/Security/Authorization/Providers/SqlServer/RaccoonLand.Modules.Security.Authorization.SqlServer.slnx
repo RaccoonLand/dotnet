@@ -7,5 +7,7 @@
   <Folder Name="/src/">
     <Project Path="src/RaccoonLand.Modules.Security.Authorization.SqlServer.csproj" />
   </Folder>
-  <Folder Name="/test/" />
+  <Folder Name="/test/">
+    <Project Path="test/RaccoonLand.Modules.Security.Authorization.SqlServer.Tests.csproj" />
+  </Folder>
 </Solution>

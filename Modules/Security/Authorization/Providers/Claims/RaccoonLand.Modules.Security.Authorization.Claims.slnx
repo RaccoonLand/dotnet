@@ -8,5 +8,7 @@
   <Folder Name="/src/">
     <Project Path="src/RaccoonLand.Modules.Security.Authorization.Claims.csproj" />
   </Folder>
-  <Folder Name="/test/" />
+  <Folder Name="/test/">
+    <Project Path="test/RaccoonLand.Modules.Security.Authorization.Claims.Tests.csproj" />
+  </Folder>
 </Solution>

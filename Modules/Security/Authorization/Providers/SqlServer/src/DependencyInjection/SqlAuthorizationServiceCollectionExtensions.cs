@@ -52,7 +52,7 @@ public static class SqlAuthorizationServiceCollectionExtensions
 
     private static IServiceCollection AddCore(this IServiceCollection services)
     {
-        services.TryAddSingleton<SqlAuthorizationRepository>();
+        services.TryAddSingleton<ISqlAuthorizationRepository, SqlAuthorizationRepository>();
         services.TryAddScoped<IAuthorizationProvider, SqlAuthorizationProvider>();
 
         return services;

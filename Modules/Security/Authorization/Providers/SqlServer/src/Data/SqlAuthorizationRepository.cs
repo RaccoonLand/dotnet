@@ -12,6 +12,7 @@ namespace RaccoonLand.Modules.Security.Authorization.SqlServer.Data;
 /// Connection, timeout, and SQL failures throw; they are not converted to an authorization deny.
 /// </summary>
 public sealed class SqlAuthorizationRepository(IOptions<SqlAuthorizationOptions> options)
+    : ISqlAuthorizationRepository
 {
     private readonly SqlAuthorizationOptions _options = options.Value;
 
