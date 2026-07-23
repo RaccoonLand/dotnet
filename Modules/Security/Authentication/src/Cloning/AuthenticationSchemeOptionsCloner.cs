@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace RaccoonLand.Modules.Security.Authentication;
+namespace RaccoonLand.Modules.Security.Authentication.Cloning;
 
 /// <summary>
 /// Copies public instance property values from a bound scheme-options instance onto the handler options

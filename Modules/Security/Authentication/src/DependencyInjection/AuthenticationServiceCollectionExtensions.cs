@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using RaccoonLand.Modules.Security.Authentication.Binding;
+using RaccoonLand.Modules.Security.Authentication.ClaimMapping;
+using RaccoonLand.Modules.Security.Authentication.Cloning;
 using RaccoonLand.Modules.Security.Authentication.Configuration;
 using RaccoonLandAuthenticationOptions = RaccoonLand.Modules.Security.Authentication.Configuration.AuthenticationOptions;
 

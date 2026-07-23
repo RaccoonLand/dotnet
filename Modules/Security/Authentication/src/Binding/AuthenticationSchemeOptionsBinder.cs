@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using RaccoonLand.Modules.Security.Authentication.Configuration;
 
-namespace RaccoonLand.Modules.Security.Authentication;
+namespace RaccoonLand.Modules.Security.Authentication.Binding;
 
 internal static class AuthenticationSchemeOptionsBinder
 {

@@ -1,7 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.JsonWebTokens;
 
-namespace RaccoonLand.Modules.Security.Authentication;
+namespace RaccoonLand.Modules.Security.Authentication.ClaimMapping;
 
 internal static class ClaimMappingConfiguration
 {
