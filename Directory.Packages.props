@@ -77,7 +77,7 @@
     <PackageVersion Include="RaccoonLand.Modules.Persistence.SqlServer.Queries" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.Security.Authorization.Abstractions" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.DependencyInjection.Abstractions" Version="1.0.0" />
-    <PackageVersion Include="RaccoonLand.Modules.DependencyInjection.MicrosoftDI" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.DependencyInjection.MicrosoftDI" Version="1.0.1" />
     <PackageVersion Include="RaccoonLand.Modules.FileStorage.Abstractions" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.FileStorage.AspNetCore" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.FileStorage.FileSystem" Version="1.0.0" />

@@ -228,7 +228,11 @@ public static class DependencyInjectionServiceCollectionExtensions
         {
             var selector = scan
                 .FromAssemblies(assemblies)
-                .AddClasses(classes => classes.Where(type => Matches(type, lifetime, attributeRegistration)));
+                // publicOnly: false so internal concrete/nested-internal types are scanned too, per the
+                // documented contract (see docs/2.ScanningRules.md "Included types").
+                .AddClasses(
+                    classes => classes.Where(type => Matches(type, lifetime, attributeRegistration)),
+                    publicOnly: false);
 
             var lifetimeSelector = scrutorRegistration switch
             {

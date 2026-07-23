@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Version>1.0.1</Version>
     <Description>RaccoonLand DependencyInjection Microsoft DI integration: Scrutor-based assembly scanning for classes marked with ServiceAttribute.</Description>
   </PropertyGroup>
 

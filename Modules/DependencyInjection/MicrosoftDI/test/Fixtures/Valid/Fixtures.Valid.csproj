@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>RaccoonLand.Modules.DependencyInjection.Tests.Fixtures.Valid</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RaccoonLand.Modules.DependencyInjection.Abstractions" />
+  </ItemGroup>
+
+</Project>

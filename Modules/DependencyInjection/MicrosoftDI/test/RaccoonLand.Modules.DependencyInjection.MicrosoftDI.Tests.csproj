@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <RootNamespace>RaccoonLand.Modules.DependencyInjection.MicrosoftDI.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <!-- Fixture projects live under this folder; exclude their sources so they are not double-compiled
+       into the test assembly (which would break assembly isolation for the scanner). -->
+  <ItemGroup>
+    <Compile Remove="Fixtures\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\RaccoonLand.Modules.DependencyInjection.MicrosoftDI.csproj" />
+    <ProjectReference Include="Fixtures\Valid\Fixtures.Valid.csproj" />
+    <ProjectReference Include="Fixtures\NoMatch\Fixtures.NoMatch.csproj" />
+    <ProjectReference Include="Fixtures\Ambiguous\Fixtures.Ambiguous.csproj" />
+    <ProjectReference Include="Fixtures\Conflict\Fixtures.Conflict.csproj" />
+  </ItemGroup>
+
+</Project>
