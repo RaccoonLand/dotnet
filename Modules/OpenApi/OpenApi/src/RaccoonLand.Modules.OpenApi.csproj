@@ -16,4 +16,8 @@
     <PackageReference Include="RaccoonLand.Modules.OpenApi.Abstractions" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="RaccoonLand.Modules.OpenApi.Tests" />
+  </ItemGroup>
+
 </Project>
