@@ -9,4 +9,8 @@
     <PackageReference Include="Serilog.Settings.Configuration" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="RaccoonLand.Modules.Observability.Logging.Serilog.Tests" />
+  </ItemGroup>
+
 </Project>
