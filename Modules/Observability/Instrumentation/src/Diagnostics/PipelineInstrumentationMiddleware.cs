@@ -88,6 +88,9 @@ public sealed class PipelineInstrumentationMiddleware : IPipelineMiddleware
         {
             await next(context);
 
+            // A domain/validation failure (non-empty PipelineResponse.Errors) is recorded only via the outcome
+            // tag; by design it does NOT set the span status to Error. Only an unhandled exception (catch block)
+            // is a span-level system error. See docs/1.RaccoonLandTelemetry.md ("Span status vs outcome").
             outcome = DetermineOutcome(context.Response);
             activity?.SetTag(Tags.Outcome, outcome);
         }
