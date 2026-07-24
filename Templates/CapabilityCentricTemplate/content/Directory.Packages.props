@@ -33,7 +33,7 @@
   <ItemGroup>
     <PackageVersion Include="RaccoonLand.Core.Domain" Version="1.0.1" />
     <PackageVersion Include="RaccoonLand.Core.ExecutionContext.Abstractions" Version="1.0.0" />
-    <PackageVersion Include="RaccoonLand.Core.RequestProcessing" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Core.RequestProcessing" Version="1.0.1" />
     <PackageVersion Include="RaccoonLand.Core.RequestProcessing.Abstractions" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Core.Hosting.AspNetCore" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.MessageLocalization.Abstraction" Version="1.0.0" />

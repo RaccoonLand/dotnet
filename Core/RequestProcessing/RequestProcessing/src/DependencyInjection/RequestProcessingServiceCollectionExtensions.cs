@@ -1,5 +1,6 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using RaccoonLand.Core.RequestProcessing.Abstractions.Cqrs;
 using RaccoonLand.Core.RequestProcessing.Abstractions.Dispatch;
 using RaccoonLand.Core.RequestProcessing.Abstractions.Pipeline;
@@ -16,16 +17,33 @@ namespace RaccoonLand.Core.RequestProcessing.DependencyInjection;
 public static class RequestProcessingServiceCollectionExtensions
 {
     /// <summary>
+    /// One-call marker used to reject a second call to <see cref="AddRaccoonLandRequestProcessing"/> on the
+    /// same <see cref="IServiceCollection"/>. Repeated registration would silently orphan endpoints from the
+    /// first call (a fresh <see cref="EndpointInvokerRegistry"/> would replace the previous one via
+    /// last-wins singleton resolution) and could silently swap the middleware pipelines. Failing fast here
+    /// prevents that class of data-loss bug.
+    /// </summary>
+    private sealed class RequestProcessingMarker;
+
+    /// <summary>
     /// Scans <paramref name="scanAssemblies"/> for <see cref="IEndpoint{TRequest}"/> and
     /// <see cref="IEndpoint{TRequest,TResponse}"/> implementations, registers them, and registers a
     /// <see cref="CompiledPipelines"/> factory. Pipeline composition (including optional middleware callbacks)
     /// runs when <see cref="CompiledPipelines"/> is first resolved from DI — not immediately when this method
     /// returns. When no assemblies are supplied, the calling assembly is scanned.
+    /// <para>
+    /// Must be called <b>exactly once</b> per <see cref="IServiceCollection"/>. A second call throws
+    /// <see cref="InvalidOperationException"/>.
+    /// </para>
     /// </summary>
     /// <param name="services">The service collection.</param>
     /// <param name="configureCommandPipeline">Optional callback to add middleware to the command pipeline.</param>
     /// <param name="configureQueryPipeline">Optional callback to add middleware to the query pipeline.</param>
     /// <param name="scanAssemblies">Assemblies to scan for endpoint types.</param>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when <see cref="AddRaccoonLandRequestProcessing"/> has already been called on the same
+    /// <paramref name="services"/> instance.
+    /// </exception>
     public static IServiceCollection AddRaccoonLandRequestProcessing(
         this IServiceCollection services,
         Action<IPipelineBuilder>? configureCommandPipeline = null,
@@ -34,6 +52,17 @@ public static class RequestProcessingServiceCollectionExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(scanAssemblies);
+
+        // Register the marker first (before any scan work) so that a second call fails fast before it can
+        // do any partial work — no orphan AddScoped descriptors, no half-populated registry.
+        if (services.Any(d => d.ServiceType == typeof(RequestProcessingMarker)))
+        {
+            throw new InvalidOperationException(
+                "AddRaccoonLandRequestProcessing has already been called on this IServiceCollection. " +
+                "Call it exactly once at startup (typically in Program.cs). Calling it twice would " +
+                "silently orphan endpoints from the first call and swap the middleware pipelines.");
+        }
+        services.AddSingleton<RequestProcessingMarker>();
 
         if (scanAssemblies.Length == 0)
         {
@@ -90,7 +119,9 @@ public static class RequestProcessingServiceCollectionExtensions
             return;
         }
 
-        services.AddScoped(endpointType);
+        // TryAdd so a consumer who intentionally pre-registered the endpoint (test override, decorator,
+        // or a custom factory) is not silently overwritten by the scan.
+        services.TryAddScoped(endpointType);
         var kind = ClassifyRequestKind(requestType);
 
         if (responseType is null)

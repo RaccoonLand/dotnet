@@ -137,4 +137,57 @@ public sealed class RegistrationTests
 
         Assert.Equal("value", response!.Result);
     }
+
+    [Fact]
+    public void AddRaccoonLandRequestProcessing_WhenCalledTwice_ThrowsInvalidOperation()
+    {
+        // Second call must fail fast so silent-orphaning (fresh registry replacing the previous one via
+        // last-wins singleton resolution) cannot happen.
+        var services = new ServiceCollection();
+        services.AddRaccoonLandRequestProcessing(scanAssemblies: typeof(DoSomethingEndpoint).Assembly);
+
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+            services.AddRaccoonLandRequestProcessing(scanAssemblies: typeof(DoSomethingEndpoint).Assembly));
+
+        Assert.Contains("already been called", ex.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AddRaccoonLandRequestProcessing_WhenCalledTwiceOnDifferentCollections_Succeeds()
+    {
+        // The one-call guard is scoped to a single IServiceCollection, not global — otherwise tests
+        // that build many isolated containers would flake.
+        var firstServices = new ServiceCollection();
+        firstServices.AddRaccoonLandRequestProcessing(scanAssemblies: typeof(DoSomethingEndpoint).Assembly);
+
+        var secondServices = new ServiceCollection();
+        var ex = Record.Exception(() =>
+            secondServices.AddRaccoonLandRequestProcessing(scanAssemblies: typeof(DoSomethingEndpoint).Assembly));
+
+        Assert.Null(ex);
+    }
+
+    [Fact]
+    public async Task AddRaccoonLandRequestProcessing_DoesNotOverwritePreRegisteredEndpoint()
+    {
+        // The scan uses TryAddScoped so a test override / decorator / custom-factory registration made
+        // BEFORE the scan is preserved. The dispatcher must resolve the pre-registered instance, not a
+        // scan-created one.
+        var services = new ServiceCollection();
+        var preRegistered = new GetSomethingEndpoint();
+        services.AddScoped(_ => preRegistered);
+
+        services.AddRaccoonLandRequestProcessing(scanAssemblies: typeof(DoSomethingEndpoint).Assembly);
+
+        var provider = services.BuildServiceProvider();
+        using var scope = provider.CreateScope();
+        var resolved = scope.ServiceProvider.GetRequiredService<GetSomethingEndpoint>();
+
+        Assert.Same(preRegistered, resolved);
+
+        // The dispatcher path resolves from the request scope too, so it also sees the pre-registered instance.
+        var dispatcher = scope.ServiceProvider.GetRequiredService<IRequestDispatcher>();
+        var response = await dispatcher.DispatchAsync(new GetSomethingQuery(), scope.ServiceProvider);
+        Assert.Equal("value", response!.Result);
+    }
 }

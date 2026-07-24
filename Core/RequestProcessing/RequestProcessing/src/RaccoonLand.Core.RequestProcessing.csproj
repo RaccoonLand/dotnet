@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Version>1.0.1</Version>
     <Description>RaccoonLand RequestProcessing: the host-independent default implementation of the request pipeline and dispatcher built on RaccoonLand.Core.RequestProcessing.Abstractions. Provides the concrete PipelineBuilder (command/query), the endpoint invoker registry that terminates each pipeline, the compiled-pipeline holder, RequestDispatcher, and AddRaccoonLandRequestProcessing for assembly scanning and pipeline setup. No dependency on ASP.NET Core, so the same pipeline runs in an API or a worker.</Description>
   </PropertyGroup>
 
