@@ -19,8 +19,8 @@ public sealed class RegistrationTests
         var provider = services.BuildServiceProvider();
         var registry = provider.GetRequiredService<EndpointInvokerRegistry>();
 
-        Assert.Equal(RequestKind.Command, registry.ResolveKind(typeof(DoSomethingCommand)));
-        Assert.Equal(RequestKind.Query, registry.ResolveKind(typeof(GetSomethingQuery)));
+        Assert.Equal(RequestKind.Command, registry.ResolveMetadata(typeof(DoSomethingCommand)).Kind);
+        Assert.Equal(RequestKind.Query, registry.ResolveMetadata(typeof(GetSomethingQuery)).Kind);
         Assert.NotNull(provider.GetService<IRequestDispatcher>());
     }
 
@@ -34,7 +34,7 @@ public sealed class RegistrationTests
 
         var provider = services.BuildServiceProvider();
         var registry = provider.GetRequiredService<EndpointInvokerRegistry>();
-        Assert.Equal(RequestKind.Command, registry.ResolveKind(typeof(DoSomethingCommand)));
+        Assert.Equal(RequestKind.Command, registry.ResolveMetadata(typeof(DoSomethingCommand)).Kind);
     }
 
     [Fact]

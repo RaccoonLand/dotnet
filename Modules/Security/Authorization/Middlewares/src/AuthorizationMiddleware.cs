@@ -33,7 +33,7 @@ public sealed class AuthorizationMiddleware : IPipelineMiddleware
 {
     public async Task InvokeAsync(PipelineContext context, PipelineDelegate next)
     {
-        var requestType = context.Request.GetType();
+        var requestType = context.Metadata.RequestType;
         var requestName = requestType.FullName
             ?? throw new InvalidOperationException(
                 $"Authorization requires a request type with a non-null {nameof(Type.FullName)}. " +

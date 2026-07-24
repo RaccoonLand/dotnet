@@ -9,7 +9,7 @@ namespace RaccoonLand.Core.RequestProcessing.Pipeline;
 public sealed class QueryPipelineBuilder : PipelineBuilder
 {
     public QueryPipelineBuilder(IServiceProvider applicationServices, EndpointInvokerRegistry registry)
-        : base(applicationServices, context => registry.Resolve(context.Request.GetType())(context))
+        : base(applicationServices, context => registry.Resolve(context.Metadata.RequestType)(context))
     {
     }
 }

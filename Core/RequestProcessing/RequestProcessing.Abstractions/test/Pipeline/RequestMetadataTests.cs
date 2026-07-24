@@ -13,7 +13,6 @@ public sealed class RequestMetadataTests
         Assert.Equal(typeof(SampleQuery), metadata.RequestType);
         Assert.Equal(typeof(string), metadata.ResponseType);
         Assert.Equal(RequestKind.Query, metadata.Kind);
-        Assert.True(metadata.HasTypedResponse);
     }
 
     [Fact]
@@ -24,7 +23,6 @@ public sealed class RequestMetadataTests
         Assert.Equal(typeof(SampleRequest), metadata.RequestType);
         Assert.Null(metadata.ResponseType);
         Assert.Equal(RequestKind.Command, metadata.Kind);
-        Assert.False(metadata.HasTypedResponse);
     }
 
     [Fact]
@@ -70,7 +68,6 @@ public sealed class RequestMetadataTests
         var metadata = new RequestMetadata(typeof(SampleRequest), responseType: null, RequestKind.Command);
 
         Assert.Null(metadata.ResponseType);
-        Assert.False(metadata.HasTypedResponse);
     }
 
     [Fact]

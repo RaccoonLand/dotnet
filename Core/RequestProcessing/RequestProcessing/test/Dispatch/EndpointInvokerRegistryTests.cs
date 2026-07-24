@@ -94,30 +94,6 @@ public sealed class EndpointInvokerRegistryTests
     }
 
     [Fact]
-    public void ResolveKind_ReturnsExactRegisteredKind_ForVoidAndResponseEndpoints()
-    {
-        var registry = new EndpointInvokerRegistry();
-        registry.RegisterVoid(typeof(DoSomethingCommand), typeof(DoSomethingEndpoint), RequestKind.Command);
-        registry.RegisterResponse(
-            typeof(GetSomethingQuery),
-            typeof(string),
-            typeof(GetSomethingEndpoint),
-            RequestKind.Query);
-
-        Assert.Equal(RequestKind.Command, registry.ResolveKind(typeof(DoSomethingCommand)));
-        Assert.Equal(RequestKind.Query, registry.ResolveKind(typeof(GetSomethingQuery)));
-    }
-
-    [Fact]
-    public void ResolveKind_Throws_WhenRequestTypeIsNotRegistered()
-    {
-        var registry = new EndpointInvokerRegistry();
-
-        Assert.Throws<InvalidOperationException>(() =>
-            registry.ResolveKind(typeof(DoSomethingCommand)));
-    }
-
-    [Fact]
     public void RegisterVoid_Throws_WhenRequestTypeAlreadyRegistered()
     {
         var registry = new EndpointInvokerRegistry();
@@ -172,7 +148,6 @@ public sealed class EndpointInvokerRegistryTests
         Assert.Equal(typeof(DoSomethingCommand), metadata.RequestType);
         Assert.Null(metadata.ResponseType);
         Assert.Equal(RequestKind.Command, metadata.Kind);
-        Assert.False(metadata.HasTypedResponse);
     }
 
     [Fact]
@@ -190,7 +165,6 @@ public sealed class EndpointInvokerRegistryTests
         Assert.Equal(typeof(GetSomethingQuery), metadata.RequestType);
         Assert.Equal(typeof(string), metadata.ResponseType);
         Assert.Equal(RequestKind.Query, metadata.Kind);
-        Assert.True(metadata.HasTypedResponse);
     }
 
     [Fact]
@@ -201,21 +175,6 @@ public sealed class EndpointInvokerRegistryTests
         var ex = Assert.Throws<InvalidOperationException>(() =>
             registry.ResolveMetadata(typeof(DoSomethingCommand)));
         Assert.Contains(typeof(DoSomethingCommand).FullName!, ex.Message);
-    }
-
-    [Fact]
-    public void ResolveKind_DelegatesToResolveMetadata_AndAgreesWithIt()
-    {
-        var registry = new EndpointInvokerRegistry();
-        registry.RegisterResponse(
-            typeof(GetSomethingQuery),
-            typeof(string),
-            typeof(GetSomethingEndpoint),
-            RequestKind.Query);
-
-        Assert.Equal(
-            registry.ResolveMetadata(typeof(GetSomethingQuery)).Kind,
-            registry.ResolveKind(typeof(GetSomethingQuery)));
     }
 
     [Fact]

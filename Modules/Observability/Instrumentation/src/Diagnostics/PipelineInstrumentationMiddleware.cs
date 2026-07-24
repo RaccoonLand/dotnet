@@ -54,7 +54,7 @@ public sealed class PipelineInstrumentationMiddleware : IPipelineMiddleware
         ArgumentNullException.ThrowIfNull(next);
 
         var options = ResolveOptions();
-        var requestType = context.Request.GetType();
+        var requestType = context.Metadata.RequestType;
         var requestFullName = requestType.FullName ?? requestType.Name;
         var kind = context.Kind.ToString();
 

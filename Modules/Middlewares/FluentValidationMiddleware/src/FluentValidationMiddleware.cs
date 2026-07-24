@@ -26,7 +26,7 @@ public sealed class FluentValidationMiddleware(ILogger<FluentValidationMiddlewar
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(next);
 
-        var requestType = context.Request.GetType();
+        var requestType = context.Metadata.RequestType;
         var validatorType = typeof(IValidator<>).MakeGenericType(requestType);
         var validators = context.RequestServices.GetServices(validatorType).OfType<IValidator>().ToArray();
 

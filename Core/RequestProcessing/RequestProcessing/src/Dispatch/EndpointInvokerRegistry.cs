@@ -71,16 +71,10 @@ public sealed class EndpointInvokerRegistry
                 $"No endpoint is registered for request type '{requestType.FullName}'.");
 
     /// <summary>
-    /// Returns the recorded pipeline kind for a request type. Prefer <see cref="ResolveMetadata"/> when the
-    /// caller also needs the response type; this overload exists for callers that only care about kind.
-    /// </summary>
-    public RequestKind ResolveKind(Type requestType)
-        => ResolveMetadata(requestType).Kind;
-
-    /// <summary>
     /// Returns the pre-built <see cref="RequestMetadata"/> captured at scan time, so the dispatcher and any
     /// consumer can obtain the request's structural facts (type, response type, kind) with a single
-    /// dictionary lookup and zero runtime reflection.
+    /// dictionary lookup and zero runtime reflection. Callers that only need the kind read
+    /// <c>ResolveMetadata(t).Kind</c>.
     /// </summary>
     public RequestMetadata ResolveMetadata(Type requestType)
         => TryGetEntry(requestType, out var entry)

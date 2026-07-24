@@ -48,13 +48,6 @@ public sealed record RequestMetadata
     public RequestKind Kind { get; }
 
     /// <summary>
-    /// <see langword="true"/> when the request implements <see cref="IRequest{TResponse}"/>; middleware that
-    /// only makes sense for typed responses (e.g. caching, response mapping) can early-return when this is
-    /// <see langword="false"/>.
-    /// </summary>
-    public bool HasTypedResponse => ResponseType is not null;
-
-    /// <summary>
     /// Returns a memoized <see cref="RequestMetadata"/> for the given request type and pipeline kind. The
     /// <c>TResponse</c> is discovered by walking <paramref name="requestType"/>'s interfaces looking for
     /// <see cref="IRequest{TResponse}"/>; results are cached in a process-wide <see cref="ConcurrentDictionary{TKey,TValue}"/>
