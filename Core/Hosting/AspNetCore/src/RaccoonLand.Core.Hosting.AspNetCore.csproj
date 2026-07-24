@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Version>1.0.2</Version>
     <Description>RaccoonLand ASP.NET Core hosting adapter: RaccoonLandController with Dispatch helpers, PipelineResponse to IActionResult mapping (honoring PipelineResponse.StatusHint, for example 401/403 from the authorization middleware), HTTP-scoped ICurrentExecutionContext with configurable claim/header mapping, and ASP.NET Core exception-handling middleware.</Description>
   </PropertyGroup>
 

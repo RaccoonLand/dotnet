@@ -70,6 +70,64 @@ public sealed class RaccoonLandControllerTests
     }
 
     [Fact]
+    public async Task DispatchAsync_FallsBackToRequestAborted_WhenCallerPassesDefaultToken()
+    {
+        // Regression: if the action author forgets to accept + forward the CancellationToken
+        // parameter, the base must NOT dispatch with a token that never cancels — otherwise a
+        // client disconnect leaves in-flight DB / HTTP / cache work running to completion.
+        var dispatcher = new CapturingDispatcher
+        {
+            ResponseToReturn = new PipelineResponse(),
+        };
+        var mapper = new CapturingMapper();
+
+        using var requestAborted = new CancellationTokenSource();
+        var httpContext = new DefaultHttpContext
+        {
+            RequestServices = CreateRequestServices(dispatcher, mapper),
+            RequestAborted = requestAborted.Token,
+        };
+        var controller = new TestController
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+
+        await controller.DispatchPublicAsync(new SampleRequest(), CancellationToken.None);
+
+        Assert.Equal(requestAborted.Token, dispatcher.LastCancellationToken);
+        Assert.True(dispatcher.LastCancellationToken.CanBeCanceled);
+    }
+
+    [Fact]
+    public async Task DispatchAsync_PrefersExplicitToken_OverRequestAborted()
+    {
+        // When the caller does forward a real token, we must not swap it for RequestAborted —
+        // they may be composing cancellation with a timeout, a linked source, etc.
+        var dispatcher = new CapturingDispatcher
+        {
+            ResponseToReturn = new PipelineResponse(),
+        };
+        var mapper = new CapturingMapper();
+
+        using var requestAborted = new CancellationTokenSource();
+        using var caller = new CancellationTokenSource();
+        var httpContext = new DefaultHttpContext
+        {
+            RequestServices = CreateRequestServices(dispatcher, mapper),
+            RequestAborted = requestAborted.Token,
+        };
+        var controller = new TestController
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+
+        await controller.DispatchPublicAsync(new SampleRequest(), caller.Token);
+
+        Assert.Equal(caller.Token, dispatcher.LastCancellationToken);
+        Assert.NotEqual(requestAborted.Token, dispatcher.LastCancellationToken);
+    }
+
+    [Fact]
     public async Task DispatchAsync_PassesDispatcherResponseToMapper_WithoutMutation()
     {
         var envelope = new PipelineResponse
@@ -107,6 +165,58 @@ public sealed class RaccoonLandControllerTests
         Assert.Same(mapper.ResultToReturn, actionResult);
     }
 
+    [Fact]
+    public void Dispatcher_ResolvesFromHttpContextRequestServices_OnEachAccess()
+    {
+        // The property MUST NOT cache into a field: swapping HttpContext (test scenarios, custom
+        // scopes) between accesses must swap the resolved instance too.
+        var firstServices = CreateRequestServices(new CapturingDispatcher(), new CapturingMapper());
+        var secondServices = CreateRequestServices(new CapturingDispatcher(), new CapturingMapper());
+        var controller = CreateController(firstServices);
+
+        var first = controller.DispatcherPublic;
+
+        controller.ControllerContext.HttpContext = new DefaultHttpContext { RequestServices = secondServices };
+        var second = controller.DispatcherPublic;
+
+        Assert.Same(firstServices.GetRequiredService<IRequestDispatcher>(), first);
+        Assert.Same(secondServices.GetRequiredService<IRequestDispatcher>(), second);
+        Assert.NotSame(first, second);
+    }
+
+    [Fact]
+    public void ResponseMapper_ResolvesFromHttpContextRequestServices_OnEachAccess()
+    {
+        var firstServices = CreateRequestServices(new CapturingDispatcher(), new CapturingMapper());
+        var secondServices = CreateRequestServices(new CapturingDispatcher(), new CapturingMapper());
+        var controller = CreateController(firstServices);
+
+        var first = controller.ResponseMapperPublic;
+
+        controller.ControllerContext.HttpContext = new DefaultHttpContext { RequestServices = secondServices };
+        var second = controller.ResponseMapperPublic;
+
+        Assert.Same(firstServices.GetRequiredService<IPipelineResponseMapper>(), first);
+        Assert.Same(secondServices.GetRequiredService<IPipelineResponseMapper>(), second);
+        Assert.NotSame(first, second);
+    }
+
+    [Fact]
+    public async Task Dispatcher_UsedByCustomFlow_SharesSameInstanceAsDispatchAsync()
+    {
+        // The advanced-scenario property MUST resolve the same dispatcher that DispatchAsync uses,
+        // otherwise a controller mixing both paths would produce inconsistent behavior.
+        var dispatcher = new CapturingDispatcher { ResponseToReturn = new PipelineResponse() };
+        var mapper = new CapturingMapper();
+        var controller = CreateController(CreateRequestServices(dispatcher, mapper));
+
+        var viaProperty = controller.DispatcherPublic;
+        await controller.DispatchPublicAsync(new SampleRequest(), CancellationToken.None);
+
+        Assert.Same(dispatcher, viaProperty);
+        Assert.True(dispatcher.WasCalled);
+    }
+
     private static TestController CreateController(IServiceProvider requestServices)
     {
         return new TestController
@@ -135,6 +245,10 @@ public sealed class RaccoonLandControllerTests
 
         public Task<IActionResult> DispatchPublicAsync(IRequest<int> request, CancellationToken cancellationToken)
             => DispatchAsync(request, cancellationToken);
+
+        public IRequestDispatcher DispatcherPublic => Dispatcher;
+
+        public IPipelineResponseMapper ResponseMapperPublic => ResponseMapper;
     }
 
     private sealed class SampleRequest : IRequest;

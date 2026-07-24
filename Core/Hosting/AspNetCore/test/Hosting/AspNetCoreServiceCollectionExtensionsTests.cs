@@ -77,8 +77,61 @@ public sealed class AspNetCoreServiceCollectionExtensionsTests
             AspNetCoreServiceCollectionExtensions.AddRaccoonLandAspNetCore(null!));
     }
 
+    [Fact]
+    public void AddRaccoonLandAspNetCore_WithConfiguration_ReplacesPreviouslyRegisteredExecutionContext()
+    {
+        // Regression: this module is a host adapter and its ICurrentExecutionContext registration is
+        // authoritative. A prior registration (e.g. NullCurrentExecutionContext added by another
+        // module) must NOT survive — otherwise the HTTP middleware would populate HttpExecutionContext
+        // while consumers keep injecting the older, unpopulated implementation.
+        var services = new ServiceCollection();
+        services.AddScoped<ICurrentExecutionContext, StubExecutionContext>();
+
+        services.AddRaccoonLandAspNetCore(
+            configureExecutionContext: o => o.UserIdClaim = "sub");
+
+        var provider = services.BuildServiceProvider();
+        using var scope = provider.CreateScope();
+
+        Assert.IsType<ExecutionContextType>(
+            scope.ServiceProvider.GetRequiredService<ICurrentExecutionContext>());
+        Assert.IsType<ExecutionContextType>(
+            scope.ServiceProvider.GetRequiredService<ExecutionContextType>());
+
+        // And there is only one descriptor left, so future GetServices() enumeration is unambiguous.
+        Assert.Single(services, d => d.ServiceType == typeof(ICurrentExecutionContext));
+    }
+
+    [Fact]
+    public void AddRaccoonLandAspNetCore_WithConfiguration_HttpExecutionContextAndInterface_ResolveSameInstance()
+    {
+        // The interface must delegate to the same scoped concrete instance so the middleware's
+        // Populate() actually affects what consumers see.
+        var services = new ServiceCollection();
+        services.AddRaccoonLandAspNetCore(configureExecutionContext: _ => { });
+
+        var provider = services.BuildServiceProvider();
+        using var scope = provider.CreateScope();
+
+        var concrete = scope.ServiceProvider.GetRequiredService<ExecutionContextType>();
+        var abstraction = scope.ServiceProvider.GetRequiredService<ICurrentExecutionContext>();
+
+        Assert.Same(concrete, abstraction);
+    }
+
     private sealed class CustomMapper : IPipelineResponseMapper
     {
         public IActionResult Map(PipelineResponse? response) => new EmptyResult();
+    }
+
+    private sealed class StubExecutionContext : ICurrentExecutionContext
+    {
+        public bool IsAvailable => false;
+
+        public string? UserId => null;
+
+        public string? TenantId => null;
+
+        public string? CorrelationId => null;
     }
 }

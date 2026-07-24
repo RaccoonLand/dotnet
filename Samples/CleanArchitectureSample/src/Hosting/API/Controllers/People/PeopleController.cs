@@ -10,10 +10,7 @@ using CleanArchitectureSample.Application.People.Queries.DownloadPersonResume;
 using CleanArchitectureSample.Application.People.Queries.GetPersonById;
 using CleanArchitectureSample.Application.People.Queries.SearchPeople;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using RaccoonLand.Core.Hosting.AspNetCore.Controllers;
-using RaccoonLand.Core.Hosting.AspNetCore.PipelineResponseMapping;
-using RaccoonLand.Core.RequestProcessing.Abstractions.Dispatch;
 using RaccoonLand.Modules.FileStorage.AspNetCore;
 
 namespace CleanArchitectureSample.Hosting.API.Controllers.People;
@@ -132,10 +129,7 @@ public sealed class PeopleController : RaccoonLandController
         RaccoonLand.Core.RequestProcessing.Abstractions.Cqrs.IRequest<DownloadPersonFileResult?> request,
         CancellationToken cancellationToken)
     {
-        var dispatcher = HttpContext.RequestServices.GetRequiredService<IRequestDispatcher>();
-        var responseMapper = HttpContext.RequestServices.GetRequiredService<IPipelineResponseMapper>();
-
-        var response = await dispatcher.DispatchAsync(
+        var response = await Dispatcher.DispatchAsync(
             request,
             HttpContext.RequestServices,
             cancellationToken);
@@ -151,6 +145,6 @@ public sealed class PeopleController : RaccoonLandController
         if (response is { Errors.Count: 0 })
             return NotFound();
 
-        return responseMapper.Map(response);
+        return ResponseMapper.Map(response);
     }
 }

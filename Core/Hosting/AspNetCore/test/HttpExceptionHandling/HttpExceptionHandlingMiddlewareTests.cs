@@ -35,6 +35,84 @@ public sealed class HttpExceptionHandlingMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_UnhandledException_UsesProblemJsonContentType()
+    {
+        // RFC 7807 requires application/problem+json. Clients that route by content-type
+        // (Refit, Swagger UI, API gateways) misbehave when the fallback ships as application/json.
+        var httpContext = CreateHttpContext();
+        RequestDelegate next = _ => throw new InvalidOperationException("x");
+
+        var middleware = CreateMiddleware(next, new HttpExceptionHandlingOptions());
+
+        await middleware.InvokeAsync(httpContext);
+
+        Assert.Equal(StatusCodes.Status500InternalServerError, httpContext.Response.StatusCode);
+        Assert.NotNull(httpContext.Response.ContentType);
+        Assert.StartsWith(
+            "application/problem+json",
+            httpContext.Response.ContentType!,
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_UnhandledException_ClearsResponseHeaders_SetByDownstream()
+    {
+        // Regression: an action that starts producing (say) a CSV download and then throws must
+        // not leak Content-Disposition / Cache-Control / Set-Cookie into the 500 body. Browsers
+        // would otherwise download the JSON error as the CSV, and CDNs would cache the 500.
+        var httpContext = CreateHttpContext("/reports/orders.csv");
+        RequestDelegate next = ctx =>
+        {
+            ctx.Response.Headers.ContentDisposition = "attachment; filename=orders.csv";
+            ctx.Response.Headers.CacheControl = "public, max-age=300";
+            ctx.Response.Headers.ETag = "\"leaked-etag\"";
+            ctx.Response.Headers.Append("Set-Cookie", "poison=1; Path=/");
+            ctx.Response.ContentType = "text/csv";
+            throw new InvalidOperationException("boom");
+        };
+
+        var middleware = CreateMiddleware(next, new HttpExceptionHandlingOptions());
+
+        await middleware.InvokeAsync(httpContext);
+
+        Assert.Equal(StatusCodes.Status500InternalServerError, httpContext.Response.StatusCode);
+        Assert.False(httpContext.Response.Headers.ContainsKey("Content-Disposition"));
+        Assert.False(httpContext.Response.Headers.ContainsKey("Cache-Control"));
+        Assert.False(httpContext.Response.Headers.ContainsKey("ETag"));
+        Assert.False(httpContext.Response.Headers.ContainsKey("Set-Cookie"));
+        Assert.StartsWith(
+            "application/problem+json",
+            httpContext.Response.ContentType!,
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_UnhandledException_ClearsResponseBody_PartiallyWrittenByDownstream()
+    {
+        // If a downstream action buffered a partial CSV row before throwing, that byte prefix
+        // must not appear before the JSON error envelope.
+        var httpContext = CreateHttpContext();
+        RequestDelegate next = async ctx =>
+        {
+            ctx.Response.ContentType = "text/csv";
+            await ctx.Response.WriteAsync("id,name\r\n1,leaked-row\r\n");
+            throw new InvalidOperationException("boom");
+        };
+
+        var middleware = CreateMiddleware(next, new HttpExceptionHandlingOptions());
+
+        await middleware.InvokeAsync(httpContext);
+
+        httpContext.Response.Body.Position = 0;
+        var body = await new StreamReader(httpContext.Response.Body).ReadToEndAsync();
+        Assert.DoesNotContain("leaked-row", body, StringComparison.Ordinal);
+        Assert.DoesNotContain("id,name", body, StringComparison.Ordinal);
+        // The body should be valid problem-json.
+        using var doc = JsonDocument.Parse(body);
+        Assert.Equal(500, doc.RootElement.GetProperty("status").GetInt32());
+    }
+
+    [Fact]
     public async Task InvokeAsync_CustomHandlers_TriedInOrder_AndShortCircuit()
     {
         var calls = new List<string>();

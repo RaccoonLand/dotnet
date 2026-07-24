@@ -10,8 +10,11 @@ public sealed class HttpExceptionHandlingOptions
 {
     private readonly List<ExceptionHandlerRegistration> _handlers = [];
 
-    /// <summary>The registered custom handlers, in registration order.</summary>
-    public IReadOnlyList<ExceptionHandlerRegistration> Handlers => _handlers;
+    /// <summary>
+    /// The registered custom handlers, in registration order. Exposed as a read-only view — the
+    /// returned instance cannot be downcast to a mutable collection to bypass <see cref="On{TException}"/>.
+    /// </summary>
+    public IReadOnlyList<ExceptionHandlerRegistration> Handlers => _handlers.AsReadOnly();
 
     /// <summary>
     /// Registers a handler for <typeparamref name="TException"/> (and derived types). Handlers are tried in

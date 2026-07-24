@@ -59,7 +59,16 @@ public static class HttpExecutionContextServiceCollectionExtensions
 
     private static void RegisterCore(IServiceCollection services)
     {
+        // The concrete type is idempotent (TryAdd) so repeat calls are cheap.
         services.TryAddScoped<HttpExecutionContext>();
-        services.TryAddScoped<ICurrentExecutionContext>(sp => sp.GetRequiredService<HttpExecutionContext>());
+
+        // The ICurrentExecutionContext registration is *authoritative*: an ASP.NET Core host adapter
+        // exists precisely to own this contract on the HTTP layer. TryAdd here would silently
+        // no-op when another module (or an earlier registration) already provided
+        // ICurrentExecutionContext — the middleware would then keep populating HttpExecutionContext
+        // while consumers (audit, outbox, handlers) inject a *different* implementation and see a
+        // stale null context. Replacing every existing descriptor prevents that silent divergence.
+        services.RemoveAll<ICurrentExecutionContext>();
+        services.AddScoped<ICurrentExecutionContext>(sp => sp.GetRequiredService<HttpExecutionContext>());
     }
 }

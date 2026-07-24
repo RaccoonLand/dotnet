@@ -86,6 +86,13 @@ public sealed class HttpExceptionHandlingMiddleware
             httpContext.Request.Method,
             httpContext.Request.Path);
 
+        // The downstream action may have set headers before throwing (Content-Disposition,
+        // Cache-Control, Set-Cookie, ETag, Vary, ...). WriteAsJsonAsync would only overwrite
+        // Content-Type — the rest would leak into the error response and, for example, cause a
+        // browser to download the JSON body as the CSV file the action was preparing, or let a
+        // CDN cache the 500 body. Clear() is safe here because we've already checked HasStarted.
+        httpContext.Response.Clear();
+
         var problem = new ProblemDetails
         {
             Status = StatusCodes.Status500InternalServerError,
@@ -97,6 +104,14 @@ public sealed class HttpExceptionHandlingMiddleware
         };
 
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-        await httpContext.Response.WriteAsJsonAsync(problem);
+        // RFC 7807: ProblemDetails must be served as application/problem+json. WriteAsJsonAsync's
+        // default (application/json) breaks clients (Refit, Swagger UI, API gateways) that route
+        // by content-type.
+        await httpContext.Response.WriteAsJsonAsync(
+            problem,
+            options: null,
+            contentType: ProblemDetailsContentType);
     }
+
+    private const string ProblemDetailsContentType = "application/problem+json";
 }
