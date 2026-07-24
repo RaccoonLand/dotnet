@@ -175,8 +175,7 @@ public sealed class OutboxSaveChangesInterceptor : SaveChangesInterceptor, IDbTr
         {
             foreach (var aggregate in aggregates)
             {
-                aggregate.RemoveDomainEvents(writtenIds);
-                aggregate.RemoveServiceEvents(writtenIds);
+                RemoveWrittenEvents(aggregate, writtenIds);
             }
         }
         else
@@ -205,12 +204,21 @@ public sealed class OutboxSaveChangesInterceptor : SaveChangesInterceptor, IDbTr
             var writtenIds = state.WrittenEventIds;
             foreach (var aggregate in state.Aggregates)
             {
-                aggregate.RemoveDomainEvents(writtenIds);
-                aggregate.RemoveServiceEvents(writtenIds);
+                RemoveWrittenEvents(aggregate, writtenIds);
             }
         }
 
         state.Reset();
+    }
+
+    // Every AggregateRoot<TKey> implements IAggregateRootMutations; the cast is guaranteed for any
+    // instance flowing through the ChangeTracker as IAggregateRoot. This helper keeps the mutation
+    // point in one place so the internal-interface dependency is easy to audit.
+    private static void RemoveWrittenEvents(IAggregateRoot aggregate, IReadOnlyCollection<Guid> writtenIds)
+    {
+        var mutations = (IAggregateRootMutations)aggregate;
+        mutations.RemoveDomainEvents(writtenIds);
+        mutations.RemoveServiceEvents(writtenIds);
     }
 
     private string BuildInsertStatement() =>

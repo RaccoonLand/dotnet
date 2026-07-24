@@ -73,9 +73,11 @@ public class AuditSaveChangesInterceptor : SaveChangesInterceptor
             }
 
             // A modified aggregate gets a fresh concurrency token so concurrent edits are detected.
-            if (entry.State == EntityState.Modified && entry.Entity is IAggregateRoot aggregate)
+            // The mutating surface is internal on Core.Domain; this assembly is granted access via
+            // InternalsVisibleTo, so the IAggregateRootMutations pattern check compiles here.
+            if (entry.State == EntityState.Modified && entry.Entity is IAggregateRootMutations mutations)
             {
-                aggregate.RegenerateConcurrencyToken();
+                mutations.RegenerateConcurrencyToken();
             }
         }
     }

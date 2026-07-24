@@ -28,14 +28,26 @@ public sealed class DomainExceptionTests
     }
 
     [Fact]
-    public void Constructor_ThrowsNullReferenceException_WhenAnErrorElementIsNull()
+    public void Constructor_Throws_WhenAnErrorElementIsNull()
     {
-        // Current contract: null elements are invalid input. Message composition
-        // dereferences each error, so a null element fails with NullReferenceException.
-        // This documents today's behavior; a stricter ArgumentException may replace it later.
+        // Null elements are invalid input; the ctor validates up front so consumers never observe
+        // a NullReferenceException from message composition (which would look like an internal bug).
         var valid = new DomainError("E1", "first");
 
-        Assert.Throws<NullReferenceException>(() => new DomainException(valid, null!));
+        var ex = Assert.Throws<ArgumentException>(() => new DomainException(valid, null!));
+
+        Assert.Equal("errors", ex.ParamName);
+        // Index of the offending element is included so callers can locate the bad argument.
+        Assert.Contains("errors[1]", ex.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Constructor_Throws_WhenFirstErrorElementIsNull()
+    {
+        var ex = Assert.Throws<ArgumentException>(() => new DomainException(errors: [null!]));
+
+        Assert.Equal("errors", ex.ParamName);
+        Assert.Contains("errors[0]", ex.Message, StringComparison.Ordinal);
     }
 
     [Fact]

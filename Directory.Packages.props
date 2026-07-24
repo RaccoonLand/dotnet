@@ -50,7 +50,7 @@
   <!-- RaccoonLand inter-package references. All packages ship as 1.0.0 and are resolved
        from the local feed (see nuget.config packageSourceMapping). -->
   <ItemGroup>
-    <PackageVersion Include="RaccoonLand.Core.Domain" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Core.Domain" Version="1.0.1" />
     <PackageVersion Include="RaccoonLand.Core.ExecutionContext.Abstractions" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Core.RequestProcessing" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Core.RequestProcessing.Abstractions" Version="1.0.0" />
@@ -73,7 +73,7 @@
     <PackageVersion Include="RaccoonLand.Modules.OpenApi.Swagger" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.Persistence.EntityFrameworkCore" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.Persistence.Outbox.Abstraction" Version="1.0.0" />
-    <PackageVersion Include="RaccoonLand.Modules.Persistence.SqlServer.Commands" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.Persistence.SqlServer.Commands" Version="1.0.1" />
     <PackageVersion Include="RaccoonLand.Modules.Persistence.SqlServer.Queries" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.Security.Authorization.Abstractions" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.DependencyInjection.Abstractions" Version="1.0.0" />

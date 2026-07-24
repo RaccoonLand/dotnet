@@ -12,8 +12,6 @@ internal sealed class TestEntity : Entity<int>
         : base(id)
     {
     }
-
-    public void SetId(int id) => Id = id;
 }
 
 internal sealed class OtherTestEntity : Entity<int>

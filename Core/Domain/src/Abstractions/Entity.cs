@@ -18,15 +18,20 @@ public abstract class Entity<TKey> : IEquatable<Entity<TKey>>, IAuditable
     {
     }
 
-    /// <summary>The primary key of the entity.</summary>
-    public TKey Id { get; protected set; } = default!;
+    /// <summary>
+    /// The primary key of the entity. Init-only so it is assigned exactly once — during construction
+    /// or by the ORM materializer — and never mutated afterwards. This keeps the equality/hash-code
+    /// contract stable across the transient → persisted transition.
+    /// </summary>
+    public TKey Id { get; protected init; } = default!;
 
     /// <summary>
     /// Stable business key. Independent of <see cref="Id"/> and assigned at construction time
-    /// (before the database allocates a key) so it can be referenced from events.
-    /// Uses a version-7 (sequential) GUID for better index behavior.
+    /// (before the database allocates a key) so it can be referenced from events. Uses a version-7
+    /// (sequential) GUID for better index behavior. Init-only for the same immutability reason as
+    /// <see cref="Id"/>.
     /// </summary>
-    public Guid BusinessKey { get; protected set; } = Guid.CreateVersion7();
+    public Guid BusinessKey { get; protected init; } = Guid.CreateVersion7();
 
     public DateTimeOffset CreatedAtUtc { get; private set; }
 

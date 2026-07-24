@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Version>1.0.1</Version>
     <Description>RaccoonLand command-side SQL Server persistence: the base command DbContext that wraps SaveChanges in a transaction, an audit/concurrency SaveChanges interceptor driven by ICurrentExecutionContext (with a NullCurrentExecutionContext fallback), a transactional outbox interceptor that writes aggregate domain/service events, and the full IOutboxWriter implementation (writer, SQL Server channel options + registry, interceptor) that flushes enqueued outbox messages with Dapper on the same connection and transaction.</Description>
   </PropertyGroup>
 

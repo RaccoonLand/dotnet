@@ -1,3 +1,4 @@
+using RaccoonLand.Core.Domain.Abstractions;
 using RaccoonLand.Core.Domain.Tests.Support;
 
 namespace RaccoonLand.Core.Domain.Tests.Abstractions;
@@ -56,7 +57,7 @@ public sealed class AggregateRootEventLifecycleTests
         aggregate.RaiseDomain(new TestDomainEvent(aggregate.BusinessKey));
         aggregate.RaiseService(serviceEvent);
 
-        aggregate.ClearDomainEvents();
+        Mutations(aggregate).ClearDomainEvents();
 
         Assert.Empty(aggregate.DomainEvents);
         Assert.Same(serviceEvent, Assert.Single(aggregate.ServiceEvents));
@@ -70,7 +71,7 @@ public sealed class AggregateRootEventLifecycleTests
         aggregate.RaiseDomain(domainEvent);
         aggregate.RaiseService(new TestServiceEvent(aggregate.BusinessKey));
 
-        aggregate.ClearServiceEvents();
+        Mutations(aggregate).ClearServiceEvents();
 
         Assert.Same(domainEvent, Assert.Single(aggregate.DomainEvents));
         Assert.Empty(aggregate.ServiceEvents);
@@ -87,7 +88,7 @@ public sealed class AggregateRootEventLifecycleTests
         aggregate.RaiseDomain(remove);
         aggregate.RaiseService(serviceEvent);
 
-        aggregate.RemoveDomainEvents([remove.EventId]);
+        Mutations(aggregate).RemoveDomainEvents([remove.EventId]);
 
         Assert.Same(keep, Assert.Single(aggregate.DomainEvents));
         Assert.Same(serviceEvent, Assert.Single(aggregate.ServiceEvents));
@@ -104,7 +105,7 @@ public sealed class AggregateRootEventLifecycleTests
         aggregate.RaiseService(remove);
         aggregate.RaiseDomain(domainEvent);
 
-        aggregate.RemoveServiceEvents([remove.EventId]);
+        Mutations(aggregate).RemoveServiceEvents([remove.EventId]);
 
         Assert.Same(keep, Assert.Single(aggregate.ServiceEvents));
         Assert.Same(domainEvent, Assert.Single(aggregate.DomainEvents));
@@ -117,7 +118,7 @@ public sealed class AggregateRootEventLifecycleTests
         var domainEvent = new TestDomainEvent(aggregate.BusinessKey);
         aggregate.RaiseDomain(domainEvent);
 
-        aggregate.RemoveDomainEvents([]);
+        Mutations(aggregate).RemoveDomainEvents([]);
 
         Assert.Same(domainEvent, Assert.Single(aggregate.DomainEvents));
     }
@@ -129,7 +130,7 @@ public sealed class AggregateRootEventLifecycleTests
         var serviceEvent = new TestServiceEvent(aggregate.BusinessKey);
         aggregate.RaiseService(serviceEvent);
 
-        aggregate.RemoveServiceEvents([]);
+        Mutations(aggregate).RemoveServiceEvents([]);
 
         Assert.Same(serviceEvent, Assert.Single(aggregate.ServiceEvents));
     }
@@ -139,7 +140,7 @@ public sealed class AggregateRootEventLifecycleTests
     {
         var aggregate = new TestAggregateRoot(1);
 
-        Assert.Throws<ArgumentNullException>(() => aggregate.RemoveDomainEvents(null!));
+        Assert.Throws<ArgumentNullException>(() => Mutations(aggregate).RemoveDomainEvents(null!));
     }
 
     [Fact]
@@ -147,7 +148,7 @@ public sealed class AggregateRootEventLifecycleTests
     {
         var aggregate = new TestAggregateRoot(1);
 
-        Assert.Throws<ArgumentNullException>(() => aggregate.RemoveServiceEvents(null!));
+        Assert.Throws<ArgumentNullException>(() => Mutations(aggregate).RemoveServiceEvents(null!));
     }
 
     [Fact]
@@ -175,9 +176,47 @@ public sealed class AggregateRootEventLifecycleTests
         Assert.Same(domainEvent, Assert.Single(aggregate.DomainEvents));
         Assert.Same(serviceEvent, Assert.Single(aggregate.ServiceEvents));
 
-        // Allowed mutation path remains Raise* / Clear* / Remove*.
+        // Allowed mutation path remains Raise* / infrastructure-only IAggregateRootMutations.
         var extraDomain = new TestDomainEvent(aggregate.BusinessKey);
         aggregate.RaiseDomain(extraDomain);
         Assert.Equal([domainEvent, extraDomain], aggregate.DomainEvents);
     }
+
+    [Fact]
+    public void PublicAggregateRoot_DoesNotExposeMutationMethods_OnItsPublicSurface()
+    {
+        // Regression guard for the "silent event loss" hardening: no consumer holding an
+        // AggregateRoot<TKey> or IAggregateRoot reference should see Clear*/Remove*/Regenerate* in
+        // IntelliSense. The mutating contract must live only on the internal IAggregateRootMutations.
+        var mutationNames = new[]
+        {
+            "ClearDomainEvents",
+            "ClearServiceEvents",
+            "RemoveDomainEvents",
+            "RemoveServiceEvents",
+            "RegenerateConcurrencyToken",
+        };
+
+        var publicMembers = typeof(TestAggregateRoot).GetMembers()
+            .Select(m => m.Name)
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (var name in mutationNames)
+        {
+            Assert.DoesNotContain(name, publicMembers);
+        }
+
+        var iagRootMembers = typeof(IAggregateRoot).GetMembers()
+            .Select(m => m.Name)
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (var name in mutationNames)
+        {
+            Assert.DoesNotContain(name, iagRootMembers);
+        }
+    }
+
+    // Compact helper: the mutating surface is deliberately reachable only through the internal
+    // interface. Every test that needs it goes through this cast so intent is obvious.
+    private static IAggregateRootMutations Mutations(TestAggregateRoot aggregate) => aggregate;
 }

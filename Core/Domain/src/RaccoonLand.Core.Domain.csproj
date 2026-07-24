@@ -1,7 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Version>1.0.1</Version>
     <Description>RaccoonLand core domain building blocks: Entity, AggregateRoot, ValueObject, domain/service events, domain errors and domain exceptions.</Description>
   </PropertyGroup>
+
+  <!-- Grant infrastructure and the domain test project access to the internal
+       IAggregateRootMutations contract. Business consumers must not use this surface. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="RaccoonLand.Core.Domain.Tests" />
+    <InternalsVisibleTo Include="RaccoonLand.Modules.Persistence.SqlServer.Commands" />
+  </ItemGroup>
 
 </Project>

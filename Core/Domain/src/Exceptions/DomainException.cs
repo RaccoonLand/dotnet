@@ -22,24 +22,21 @@ public class DomainException : Exception
     {
     }
 
-    /// <param name="errors">One or more domain errors. At least one is required.</param>
+    /// <param name="errors">
+    /// One or more domain errors. At least one is required. The array itself must not be <see langword="null"/>,
+    /// and no element within it may be <see langword="null"/> — both cases throw <see cref="ArgumentException"/>
+    /// (or <see cref="ArgumentNullException"/> for a null array).
+    /// </param>
     public DomainException(params DomainError[] errors)
-        : base(CombineMessages(errors))
+        : base(BuildMessage(Validate(errors)))
     {
-        ArgumentNullException.ThrowIfNull(errors);
-
-        if (errors.Length == 0)
-        {
-            throw new ArgumentException("At least one error is required.", nameof(errors));
-        }
-
         Errors = errors;
     }
 
     /// <summary>All domain errors carried by this exception (never empty).</summary>
     public IReadOnlyList<DomainError> Errors { get; }
 
-    private static string CombineMessages(DomainError[] errors)
+    private static DomainError[] Validate(DomainError[] errors)
     {
         ArgumentNullException.ThrowIfNull(errors);
 
@@ -48,6 +45,21 @@ public class DomainException : Exception
             throw new ArgumentException("At least one error is required.", nameof(errors));
         }
 
-        return string.Join("; ", errors.Select(error => error.Message));
+        // Reject null elements up front so consumers never observe a NullReferenceException from
+        // downstream message composition (that would look like an internal bug, not bad input).
+        for (var i = 0; i < errors.Length; i++)
+        {
+            if (errors[i] is null)
+            {
+                throw new ArgumentException(
+                    $"errors[{i}] is null. Every element of errors must be a non-null DomainError.",
+                    nameof(errors));
+            }
+        }
+
+        return errors;
     }
+
+    private static string BuildMessage(DomainError[] errors)
+        => string.Join("; ", errors.Select(error => error.Message));
 }

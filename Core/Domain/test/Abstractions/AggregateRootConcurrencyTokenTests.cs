@@ -1,3 +1,4 @@
+using RaccoonLand.Core.Domain.Abstractions;
 using RaccoonLand.Core.Domain.Tests.Support;
 
 namespace RaccoonLand.Core.Domain.Tests.Abstractions;
@@ -16,12 +17,13 @@ public sealed class AggregateRootConcurrencyTokenTests
     public void RegenerateConcurrencyToken_ReplacesPreviousValueWithNewOne()
     {
         var aggregate = new TestAggregateRoot(1);
+        IAggregateRootMutations mutations = aggregate;
         var original = aggregate.ConcurrencyToken;
 
-        aggregate.RegenerateConcurrencyToken();
+        mutations.RegenerateConcurrencyToken();
         var firstRegen = aggregate.ConcurrencyToken;
 
-        aggregate.RegenerateConcurrencyToken();
+        mutations.RegenerateConcurrencyToken();
         var secondRegen = aggregate.ConcurrencyToken;
 
         Assert.NotEqual(original, firstRegen);

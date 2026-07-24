@@ -130,4 +130,35 @@ public sealed class EntityEqualityTests
         Assert.Contains(transient, set);
         Assert.Contains(persisted, set);
     }
+
+    [Fact]
+    public void GetHashCode_IsStable_AcrossRepeatedReadsOnSameInstance()
+    {
+        // Because Id is init-only, the hash-code contract cannot silently break after an entity is
+        // added to a hash-based collection (the transient → persisted mutation path that used to
+        // exist through a public setter is no longer possible).
+        var transient = new TestEntity();
+        var persisted = new TestEntity(42);
+
+        Assert.Equal(transient.GetHashCode(), transient.GetHashCode());
+        Assert.Equal(persisted.GetHashCode(), persisted.GetHashCode());
+    }
+
+    [Fact]
+    public void Dictionary_LookupSucceeds_AfterEntityIsUsedAsKey()
+    {
+        // Complements GetHashCode_IsStable_AcrossRepeatedReadsOnSameInstance: proves the practical
+        // consequence — using an entity as a Dictionary key remains sound because Id/BusinessKey
+        // are immutable after construction.
+        var persisted = new TestEntity(7);
+        var map = new Dictionary<TestEntity, string> { [persisted] = "seven" };
+
+        Assert.True(map.ContainsKey(persisted));
+        Assert.Equal("seven", map[persisted]);
+
+        // Same Id/type → equal → same bucket → lookup by a different reference still succeeds.
+        var lookupKey = new TestEntity(7);
+        Assert.True(map.ContainsKey(lookupKey));
+        Assert.Equal("seven", map[lookupKey]);
+    }
 }
