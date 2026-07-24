@@ -68,8 +68,21 @@ public sealed class OutboxWriterSaveChangesInterceptor(
             return;
         }
 
+        // Same-transaction atomicity is the whole reason this interceptor exists. Without an ambient
+        // transaction the outbox INSERT would auto-commit, so entity changes and outbox rows would no
+        // longer be a single unit of work. BaseCommandDbContext always owns a transaction on its default
+        // path; hitting this branch means the interceptor is attached to a context that does not.
+        if (context.Database.CurrentTransaction is null)
+        {
+            throw new InvalidOperationException(
+                "OutboxWriterSaveChangesInterceptor requires an ambient database transaction. " +
+                "Use BaseCommandDbContext (which owns a transaction on SaveChangesAsync) or begin a " +
+                "transaction on the caller side before saving. Auto-committed outbox writes break the " +
+                "atomicity guarantee this interceptor provides.");
+        }
+
         var connection = context.Database.GetDbConnection();
-        var transaction = context.Database.CurrentTransaction?.GetDbTransaction();
+        var transaction = context.Database.CurrentTransaction.GetDbTransaction();
         var createdOnUtc = DateTimeOffset.UtcNow;
         var flushedIds = new List<Guid>();
 
@@ -102,14 +115,8 @@ public sealed class OutboxWriterSaveChangesInterceptor(
             flushedIds.AddRange(batch.Messages.Select(message => message.Id));
         }
 
-        if (context.Database.CurrentTransaction is null)
-        {
-            _writer.ClearPending();
-        }
-        else
-        {
-            _writer.MarkFlushed(flushedIds);
-        }
+        // Defer drop until TransactionCommitted so a rolled-back commit can retry with messages intact.
+        _writer.MarkFlushed(flushedIds);
     }
 
     private static string BuildInsertStatement(string qualifiedTableName) =>

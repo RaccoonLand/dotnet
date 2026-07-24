@@ -53,7 +53,7 @@
     <PackageVersion Include="RaccoonLand.Modules.OpenApi.Swagger" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.Persistence.EntityFrameworkCore" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.Persistence.Outbox.Abstraction" Version="1.0.0" />
-    <PackageVersion Include="RaccoonLand.Modules.Persistence.SqlServer.Commands" Version="1.0.1" />
+    <PackageVersion Include="RaccoonLand.Modules.Persistence.SqlServer.Commands" Version="1.0.2" />
     <PackageVersion Include="RaccoonLand.Modules.Persistence.SqlServer.Queries" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.Security.Authorization.Abstractions" Version="1.0.0" />
   </ItemGroup>

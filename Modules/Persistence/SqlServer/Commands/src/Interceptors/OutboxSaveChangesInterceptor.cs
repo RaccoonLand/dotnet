@@ -101,6 +101,19 @@ public sealed class OutboxSaveChangesInterceptor : SaveChangesInterceptor, IDbTr
             return;
         }
 
+        // Same-transaction atomicity is the whole reason this interceptor exists. Without an ambient
+        // transaction the outbox INSERT would auto-commit, so entity changes and outbox rows would no
+        // longer be a single unit of work. BaseCommandDbContext always owns a transaction on its default
+        // path; hitting this branch means the interceptor is attached to a context that does not.
+        if (context.Database.CurrentTransaction is null)
+        {
+            throw new InvalidOperationException(
+                "OutboxSaveChangesInterceptor requires an ambient database transaction. " +
+                "Use BaseCommandDbContext (which owns a transaction on SaveChangesAsync) or begin a " +
+                "transaction on the caller side before saving. Auto-committed outbox writes break the " +
+                "atomicity guarantee this interceptor provides.");
+        }
+
         var now = DateTimeOffset.UtcNow;
         var messages = new List<OutboxMessage>();
 
@@ -161,7 +174,7 @@ public sealed class OutboxSaveChangesInterceptor : SaveChangesInterceptor, IDbTr
         }
 
         var connection = context.Database.GetDbConnection();
-        var transaction = context.Database.CurrentTransaction?.GetDbTransaction();
+        var transaction = context.Database.CurrentTransaction!.GetDbTransaction();
 
         await connection.ExecuteAsync(new CommandDefinition(
             BuildInsertStatement(),
@@ -169,26 +182,15 @@ public sealed class OutboxSaveChangesInterceptor : SaveChangesInterceptor, IDbTr
             transaction,
             cancellationToken: cancellationToken));
 
-        var writtenIds = messages.Select(message => message.Id).ToHashSet();
-
-        if (context.Database.CurrentTransaction is null)
+        // Defer removal until TransactionCommitted so a rolled-back commit can retry with events intact.
+        foreach (var message in messages)
         {
-            foreach (var aggregate in aggregates)
-            {
-                RemoveWrittenEvents(aggregate, writtenIds);
-            }
+            state.WrittenEventIds.Add(message.Id);
         }
-        else
-        {
-            foreach (var id in writtenIds)
-            {
-                state.WrittenEventIds.Add(id);
-            }
 
-            foreach (var aggregate in aggregates)
-            {
-                state.Aggregates.Add(aggregate);
-            }
+        foreach (var aggregate in aggregates)
+        {
+            state.Aggregates.Add(aggregate);
         }
     }
 

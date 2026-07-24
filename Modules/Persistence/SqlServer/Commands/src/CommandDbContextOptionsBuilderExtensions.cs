@@ -31,6 +31,8 @@ public static class CommandDbContextOptionsBuilderExtensions
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(outboxOptions);
 
+        outboxOptions.EnsureValid();
+
         var executionContext = currentExecutionContext ?? NullCurrentExecutionContext.Instance;
 
         var interceptors = new IInterceptor[]

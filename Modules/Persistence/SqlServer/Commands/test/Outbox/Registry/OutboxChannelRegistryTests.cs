@@ -33,6 +33,49 @@ public sealed class OutboxChannelRegistryTests
             () => registry.Register<ITestOutbox>(new OutboxChannelOptions { Table = table }));
     }
 
+    [Theory]
+    [InlineData("has space")]
+    [InlineData("has-dash")]
+    [InlineData("has.dot")]
+    [InlineData("has]bracket")]
+    [InlineData("OutboxEvent]; DROP TABLE Users; --")]
+    public void Register_WhenTableHasUnsafeChars_ThrowsArgumentException(string table)
+    {
+        var registry = new OutboxChannelRegistry();
+
+        var ex = Assert.Throws<ArgumentException>(
+            () => registry.Register<ITestOutbox>(new OutboxChannelOptions { Table = table }));
+        Assert.Equal("Table", ex.ParamName);
+    }
+
+    [Fact]
+    public void Register_WhenSchemaInvalid_ThrowsArgumentException()
+    {
+        var registry = new OutboxChannelRegistry();
+
+        var ex = Assert.Throws<ArgumentException>(
+            () => registry.Register<ITestOutbox>(new OutboxChannelOptions
+            {
+                Schema = "bad schema",
+                Table = "T",
+            }));
+        Assert.Equal("Schema", ex.ParamName);
+    }
+
+    [Fact]
+    public void Register_WhenDatabaseSetToInvalidIdentifier_ThrowsArgumentException()
+    {
+        var registry = new OutboxChannelRegistry();
+
+        var ex = Assert.Throws<ArgumentException>(
+            () => registry.Register<ITestOutbox>(new OutboxChannelOptions
+            {
+                Database = "bad db",
+                Table = "T",
+            }));
+        Assert.Equal("Database", ex.ParamName);
+    }
+
     [Fact]
     public void Register_WhenSameChannelRegisteredTwice_LastRegistrationWins()
     {

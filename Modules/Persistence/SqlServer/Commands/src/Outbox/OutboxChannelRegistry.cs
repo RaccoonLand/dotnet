@@ -25,10 +25,7 @@ public sealed class OutboxChannelRegistry : IOutboxChannelRegistry
                 nameof(channelType));
         }
 
-        if (string.IsNullOrWhiteSpace(options.Table))
-        {
-            throw new ArgumentException("Outbox table name is required.", nameof(options));
-        }
+        options.EnsureValid();
 
         _channels[channelType] = options;
     }

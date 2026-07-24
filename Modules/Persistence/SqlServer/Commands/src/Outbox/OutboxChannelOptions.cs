@@ -17,8 +17,28 @@ public sealed class OutboxChannelOptions
 
     public string Table { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Validates <see cref="Schema"/>, <see cref="Table"/>, and (when set) <see cref="Database"/> as
+    /// single-part T-SQL identifiers. Called by
+    /// <see cref="OutboxChannelRegistry.Register(Type, OutboxChannelOptions)"/> so misconfiguration fails at
+    /// registration instead of producing an opaque SQL error on the first save.
+    /// </summary>
+    /// <exception cref="ArgumentException">
+    /// Any of the fields is null / empty / whitespace or not a valid single-part identifier
+    /// (see <see cref="SqlServerIdentifier"/>).
+    /// </exception>
+    public void EnsureValid()
+    {
+        SqlServerIdentifier.Validate(Schema, nameof(Schema));
+        SqlServerIdentifier.Validate(Table, nameof(Table));
+        if (Database is not null)
+        {
+            SqlServerIdentifier.Validate(Database, nameof(Database));
+        }
+    }
+
     /// <summary>Builds the fully-qualified, bracket-quoted table name used in INSERT statements.</summary>
     public string QualifiedTableName => string.IsNullOrWhiteSpace(Database)
-        ? $"[{Schema}].[{Table}]"
-        : $"[{Database}].[{Schema}].[{Table}]";
+        ? $"{SqlServerIdentifier.QuotePart(Schema)}.{SqlServerIdentifier.QuotePart(Table)}"
+        : $"{SqlServerIdentifier.QuotePart(Database!)}.{SqlServerIdentifier.QuotePart(Schema)}.{SqlServerIdentifier.QuotePart(Table)}";
 }
