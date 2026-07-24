@@ -24,31 +24,54 @@ public enum RequestKind
 /// </summary>
 public sealed class PipelineContext
 {
-    /// <summary>Creates a context for a single request flowing through a pipeline.</summary>
+    /// <summary>
+    /// Creates a context for a single request flowing through a pipeline. The <paramref name="metadata"/>
+    /// is normally supplied by the dispatcher from its pre-built endpoint registry; tests and late-bound
+    /// callers may build one on the fly with <see cref="RequestMetadata.For(Type, RequestKind)"/>.
+    /// </summary>
     /// <param name="request">The command or query object being processed.</param>
-    /// <param name="kind">Whether this is a command or a query.</param>
     /// <param name="requestServices">The scoped service provider for this request.</param>
+    /// <param name="metadata">Immutable structural facts about the request (type, response type, kind).</param>
     /// <param name="cancellationToken">A token tied to the request lifetime.</param>
     public PipelineContext(
         IRequestBase request,
-        RequestKind kind,
         IServiceProvider requestServices,
+        RequestMetadata metadata,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(requestServices);
+        ArgumentNullException.ThrowIfNull(metadata);
+
+        if (!metadata.RequestType.IsInstanceOfType(request))
+        {
+            throw new ArgumentException(
+                $"Metadata is for '{metadata.RequestType.FullName}' but the request instance is " +
+                $"'{request.GetType().FullName}'. Metadata must describe the actual request type.",
+                nameof(metadata));
+        }
 
         Request = request;
-        Kind = kind;
         RequestServices = requestServices;
+        Metadata = metadata;
         CancellationToken = cancellationToken;
     }
 
     /// <summary>The command or query object being processed.</summary>
     public IRequestBase Request { get; }
 
-    /// <summary>Whether the current request flows through the command or the query pipeline.</summary>
-    public RequestKind Kind { get; }
+    /// <summary>
+    /// Immutable structural facts about the current request: its CLR type, the optional response type from
+    /// <see cref="Cqrs.IRequest{TResponse}"/>, and the pipeline <see cref="RequestKind"/>. Middleware should
+    /// read this instead of re-inspecting <see cref="Request"/>'s interfaces at request time.
+    /// </summary>
+    public RequestMetadata Metadata { get; }
+
+    /// <summary>
+    /// Whether the current request flows through the command or the query pipeline. Delegates to
+    /// <see cref="Metadata"/>.
+    /// </summary>
+    public RequestKind Kind => Metadata.Kind;
 
     /// <summary>
     /// The response envelope for this request. The terminal handler sets it by wrapping its result; middleware

@@ -63,5 +63,8 @@ public sealed class PipelineBuilderOrderingTests
     }
 
     private static PipelineContext CreateContext()
-        => new(new DoSomethingCommand(), RequestKind.Command, new ServiceCollection().BuildServiceProvider());
+        => new(
+            new DoSomethingCommand(),
+            new ServiceCollection().BuildServiceProvider(),
+            RequestMetadata.For(typeof(DoSomethingCommand), RequestKind.Command));
 }

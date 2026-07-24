@@ -20,8 +20,8 @@ public sealed class EndpointInvokerRegistryTests
 
         var context = new PipelineContext(
             new DoSomethingCommand(),
-            RequestKind.Command,
-            scope.ServiceProvider);
+            scope.ServiceProvider,
+            RequestMetadata.For(typeof(DoSomethingCommand), RequestKind.Command));
 
         await registry.Resolve(typeof(DoSomethingCommand))(context);
 
@@ -48,8 +48,8 @@ public sealed class EndpointInvokerRegistryTests
 
         var context = new PipelineContext(
             new GetSomethingQuery(),
-            RequestKind.Query,
-            scope.ServiceProvider);
+            scope.ServiceProvider,
+            RequestMetadata.For(typeof(GetSomethingQuery), RequestKind.Query));
 
         await registry.Resolve(typeof(GetSomethingQuery))(context);
 
@@ -71,8 +71,8 @@ public sealed class EndpointInvokerRegistryTests
 
         var context = new PipelineContext(
             new FailSomethingCommand(),
-            RequestKind.Command,
-            scope.ServiceProvider);
+            scope.ServiceProvider,
+            RequestMetadata.For(typeof(FailSomethingCommand), RequestKind.Command));
 
         await registry.Resolve(typeof(FailSomethingCommand))(context);
 
@@ -159,6 +159,63 @@ public sealed class EndpointInvokerRegistryTests
 
         Assert.Contains(nameof(DoSomethingEndpoint), ex.Message);
         Assert.Contains("IEndpoint", ex.Message);
+    }
+
+    [Fact]
+    public void ResolveMetadata_ForVoidEndpoint_ReturnsNullResponseTypeAndCorrectKind()
+    {
+        var registry = new EndpointInvokerRegistry();
+        registry.RegisterVoid(typeof(DoSomethingCommand), typeof(DoSomethingEndpoint), RequestKind.Command);
+
+        var metadata = registry.ResolveMetadata(typeof(DoSomethingCommand));
+
+        Assert.Equal(typeof(DoSomethingCommand), metadata.RequestType);
+        Assert.Null(metadata.ResponseType);
+        Assert.Equal(RequestKind.Command, metadata.Kind);
+        Assert.False(metadata.HasTypedResponse);
+    }
+
+    [Fact]
+    public void ResolveMetadata_ForResponseEndpoint_ReturnsResponseTypeCapturedAtScanTime()
+    {
+        var registry = new EndpointInvokerRegistry();
+        registry.RegisterResponse(
+            typeof(GetSomethingQuery),
+            typeof(string),
+            typeof(GetSomethingEndpoint),
+            RequestKind.Query);
+
+        var metadata = registry.ResolveMetadata(typeof(GetSomethingQuery));
+
+        Assert.Equal(typeof(GetSomethingQuery), metadata.RequestType);
+        Assert.Equal(typeof(string), metadata.ResponseType);
+        Assert.Equal(RequestKind.Query, metadata.Kind);
+        Assert.True(metadata.HasTypedResponse);
+    }
+
+    [Fact]
+    public void ResolveMetadata_Throws_WhenRequestTypeIsNotRegistered()
+    {
+        var registry = new EndpointInvokerRegistry();
+
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+            registry.ResolveMetadata(typeof(DoSomethingCommand)));
+        Assert.Contains(typeof(DoSomethingCommand).FullName!, ex.Message);
+    }
+
+    [Fact]
+    public void ResolveKind_DelegatesToResolveMetadata_AndAgreesWithIt()
+    {
+        var registry = new EndpointInvokerRegistry();
+        registry.RegisterResponse(
+            typeof(GetSomethingQuery),
+            typeof(string),
+            typeof(GetSomethingEndpoint),
+            RequestKind.Query);
+
+        Assert.Equal(
+            registry.ResolveMetadata(typeof(GetSomethingQuery)).Kind,
+            registry.ResolveKind(typeof(GetSomethingQuery)));
     }
 
     [Fact]

@@ -90,7 +90,10 @@ public sealed class PipelineBuilderExtensionsUseMiddlewareTests
     }
 
     private static PipelineContext CreateContext(IServiceProvider services)
-        => new(new SampleRequest(), RequestKind.Command, services);
+        => new(
+            new SampleRequest(),
+            services,
+            RequestMetadata.For(typeof(SampleRequest), RequestKind.Command));
 
     private class RecordingMiddleware : IPipelineMiddleware
     {

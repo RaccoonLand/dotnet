@@ -33,11 +33,10 @@ public sealed class RequestDispatcher : IRequestDispatcher
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(requestServices);
 
-        var requestType = request.GetType();
-        var kind = _registry.ResolveKind(requestType);
-        var pipeline = kind == RequestKind.Query ? _pipelines.Query : _pipelines.Command;
+        var metadata = _registry.ResolveMetadata(request.GetType());
+        var pipeline = metadata.Kind == RequestKind.Query ? _pipelines.Query : _pipelines.Command;
 
-        var context = new PipelineContext(request, kind, requestServices, cancellationToken);
+        var context = new PipelineContext(request, requestServices, metadata, cancellationToken);
         await pipeline(context);
         return context.Response;
     }

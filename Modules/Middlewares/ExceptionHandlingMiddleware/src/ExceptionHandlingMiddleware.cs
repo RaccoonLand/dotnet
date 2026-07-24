@@ -9,8 +9,9 @@ namespace RaccoonLand.Modules.Middlewares.ExceptionHandlingMiddleware;
 
 /// <summary>
 /// Pipeline middleware that turns request-level exceptions into a <see cref="PipelineResponse"/> error envelope.
-/// Resolution order: developer-registered handlers, then <see cref="DomainException"/> (localized message when
-/// <see cref="IMessageLocalization"/> is available). Any other exception is rethrown.
+/// Resolution order: cooperative cancellation is always rethrown untouched, then developer-registered handlers
+/// run, then <see cref="DomainException"/> (localized message when <see cref="IMessageLocalization"/> is
+/// available). Any other exception is rethrown.
 /// </summary>
 public sealed class ExceptionHandlingMiddleware(IOptions<ExceptionHandlingOptions> options) : IPipelineMiddleware
 {
@@ -24,6 +25,14 @@ public sealed class ExceptionHandlingMiddleware(IOptions<ExceptionHandlingOption
         }
         catch (Exception exception)
         {
+            // Cooperative cancellation is never a "handleable" pipeline error: rethrow before custom handlers
+            // so a broadly-typed On<Exception> registration cannot silently swallow client disconnects or
+            // shutdown-driven aborts.
+            if (exception is OperationCanceledException && context.CancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+
             if (await TryHandleWithCustomAsync(context, exception))
             {
                 return;

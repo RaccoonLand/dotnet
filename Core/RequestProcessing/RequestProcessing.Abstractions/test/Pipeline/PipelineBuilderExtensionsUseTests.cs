@@ -85,5 +85,8 @@ public sealed class PipelineBuilderExtensionsUseTests
     }
 
     private static PipelineContext CreateContext()
-        => new(new SampleRequest(), RequestKind.Command, new ServiceCollection().BuildServiceProvider());
+        => new(
+            new SampleRequest(),
+            new ServiceCollection().BuildServiceProvider(),
+            RequestMetadata.For(typeof(SampleRequest), RequestKind.Command));
 }

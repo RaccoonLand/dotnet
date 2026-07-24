@@ -135,4 +135,60 @@ public sealed class ExceptionHandlingMiddlewareHandlerTests
         Assert.Equal("CODE", context.Response.Errors[0].Code);
         Assert.Equal("TEMPLATE_KEY", context.Response.Errors[0].Message);
     }
+
+    [Fact]
+    public async Task InvokeAsync_WhenTokenCanceled_RethrowsBeforeInvokingCustomHandlers()
+    {
+        using var cts = new CancellationTokenSource();
+        await cts.CancelAsync();
+
+        var handlerCalled = false;
+        var options = new ExceptionHandlingOptions();
+        // A broadly-typed handler that would happily swallow anything — it MUST not run for cooperative
+        // cancellation, otherwise clients/hosts lose the signal that the request was aborted.
+        options.On<Exception>((ctx, _) =>
+        {
+            handlerCalled = true;
+            ctx.Response = new PipelineResponse
+            {
+                Errors = [new PipelineMessage("SWALLOWED", "should-not-happen")],
+            };
+            return Task.FromResult(true);
+        });
+
+        var middleware = ExceptionHandlingTestHelpers.CreateMiddleware(options);
+        var context = ExceptionHandlingTestHelpers.CreateContext(cancellationToken: cts.Token);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            middleware.InvokeAsync(context, _ => throw new OperationCanceledException(cts.Token)));
+
+        Assert.False(handlerCalled);
+        Assert.Null(context.Response);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_WhenTokenNotCanceled_OperationCanceledExceptionFlowsThroughHandlers()
+    {
+        // When cancellation was NOT requested, an OperationCanceledException is a plain error (e.g. an
+        // internal timeout) and MAY be handled by custom handlers just like any other exception.
+        var handlerCalled = false;
+        var options = new ExceptionHandlingOptions();
+        options.On<OperationCanceledException>((ctx, _) =>
+        {
+            handlerCalled = true;
+            ctx.Response = new PipelineResponse
+            {
+                Errors = [new PipelineMessage("TIMEOUT", "internal-timeout")],
+            };
+            return Task.FromResult(true);
+        });
+
+        var middleware = ExceptionHandlingTestHelpers.CreateMiddleware(options);
+        var context = ExceptionHandlingTestHelpers.CreateContext();
+
+        await middleware.InvokeAsync(context, _ => throw new OperationCanceledException("internal timeout"));
+
+        Assert.True(handlerCalled);
+        Assert.Equal("TIMEOUT", context.Response!.Errors[0].Code);
+    }
 }

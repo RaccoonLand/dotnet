@@ -23,8 +23,8 @@ internal static class RequestCachingTestHelpers
     {
         return new PipelineContext(
             request,
-            RequestKind.Query,
             new ServiceCollection().BuildServiceProvider(),
+            RequestMetadata.For(request.GetType(), RequestKind.Query),
             cancellationToken);
     }
 }

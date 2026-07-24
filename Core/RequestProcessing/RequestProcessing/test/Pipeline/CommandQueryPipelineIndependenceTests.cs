@@ -80,15 +80,15 @@ public sealed class CommandQueryPipelineIndependenceTests
 
         var commandContext = new PipelineContext(
             new DoSomethingCommand(),
-            RequestKind.Command,
-            scope.ServiceProvider);
+            scope.ServiceProvider,
+            RequestMetadata.For(typeof(DoSomethingCommand), RequestKind.Command));
         await commandPipeline(commandContext);
         Assert.NotNull(commandContext.Response);
 
         var queryContext = new PipelineContext(
             new GetSomethingQuery(),
-            RequestKind.Query,
-            scope.ServiceProvider);
+            scope.ServiceProvider,
+            RequestMetadata.For(typeof(GetSomethingQuery), RequestKind.Query));
         await queryPipeline(queryContext);
         Assert.Equal("value", queryContext.Response!.Result);
     }

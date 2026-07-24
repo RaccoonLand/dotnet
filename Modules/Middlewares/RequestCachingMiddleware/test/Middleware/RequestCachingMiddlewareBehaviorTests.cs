@@ -1,5 +1,7 @@
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.DependencyInjection;
+using RaccoonLand.Core.RequestProcessing.Abstractions.Pipeline;
 using RaccoonLand.Core.RequestProcessing.Abstractions.Responses;
 using RaccoonLand.Modules.Middlewares.RequestCachingMiddleware.Tests.Support;
 
@@ -143,20 +145,15 @@ public sealed class RequestCachingMiddlewareBehaviorTests
     }
 
     [Fact]
-    public async Task InvokeAsync_RoundTripsFullSuccessfulPipelineResponse()
+    public async Task InvokeAsync_RoundTripsFullSuccessfulPipelineResponse_PreservesTypedResult()
     {
         var cache = new FakeDistributedCache();
         var middleware = RequestCachingTestHelpers.CreateMiddleware(cache);
-        var request = new CacheableQuery { CacheKey = "round-trip" };
+        var request = new CacheableWidgetQuery { CacheKey = "round-trip" };
 
         var original = new PipelineResponse
         {
-            Result = new Dictionary<string, object?>
-            {
-                ["id"] = 42,
-                ["name"] = "widget",
-                ["note"] = null,
-            },
+            Result = new WidgetResponse(42, "widget", null),
             Errors = [],
             Warnings =
             [
@@ -175,7 +172,7 @@ public sealed class RequestCachingMiddlewareBehaviorTests
 
         Assert.Equal(1, cache.SetCount);
 
-        var hitContext = RequestCachingTestHelpers.CreateContext(new CacheableQuery { CacheKey = "round-trip" });
+        var hitContext = RequestCachingTestHelpers.CreateContext(new CacheableWidgetQuery { CacheKey = "round-trip" });
         var nextCalled = false;
         await middleware.InvokeAsync(hitContext, _ =>
         {
@@ -191,9 +188,109 @@ public sealed class RequestCachingMiddlewareBehaviorTests
         Assert.Equal(new PipelineMessage("W1", "first-warning"), hitContext.Response.Warnings[0]);
         Assert.Equal(new PipelineMessage("W2", "second-warning"), hitContext.Response.Warnings[1]);
 
-        using var resultDoc = JsonDocument.Parse(JsonSerializer.Serialize(hitContext.Response.Result));
-        Assert.Equal(42, resultDoc.RootElement.GetProperty("id").GetInt32());
-        Assert.Equal("widget", resultDoc.RootElement.GetProperty("name").GetString());
-        Assert.Equal(JsonValueKind.Null, resultDoc.RootElement.GetProperty("note").ValueKind);
+        // Regression: the cached Result MUST come back as the request's TResponse (WidgetResponse),
+        // not an untyped JsonElement. Consuming code relies on this shape.
+        var typedResult = Assert.IsType<WidgetResponse>(hitContext.Response.Result);
+        Assert.Equal(new WidgetResponse(42, "widget", null), typedResult);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_OnCacheHit_RehydratesPrimitiveResultAsOriginalType()
+    {
+        var cache = new FakeDistributedCache();
+        var middleware = RequestCachingTestHelpers.CreateMiddleware(cache);
+        var request = new CacheableIntQuery { CacheKey = "int-result" };
+
+        var missContext = RequestCachingTestHelpers.CreateContext(request);
+        await middleware.InvokeAsync(missContext, ctx =>
+        {
+            ctx.Response = new PipelineResponse { Result = 42 };
+            return Task.CompletedTask;
+        });
+
+        var hitContext = RequestCachingTestHelpers.CreateContext(new CacheableIntQuery { CacheKey = "int-result" });
+        await middleware.InvokeAsync(hitContext, _ => Task.CompletedTask);
+
+        Assert.NotNull(hitContext.Response);
+        var typedResult = Assert.IsType<int>(hitContext.Response.Result);
+        Assert.Equal(42, typedResult);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_UsesResponseTypeFromMetadata_NotFromInterfaceReflection()
+    {
+        // Guardrail: the middleware must read TResponse from PipelineContext.Metadata (populated once at
+        // startup by the dispatcher) and must NOT re-inspect the request's interfaces at request time.
+        // We prove this by hand-building a context whose Metadata claims a WRONG response type; the
+        // middleware should honor the metadata and (on a miss) still cache and (on a hit) rehydrate under
+        // that declared type. A real production context always carries metadata that matches the request.
+        var cache = new FakeDistributedCache();
+        var middleware = RequestCachingTestHelpers.CreateMiddleware(cache);
+        var request = new CacheableIntQuery { CacheKey = "metadata-driven" };
+
+        // Bypass the helper (which uses RequestMetadata.For, i.e. the correct interface walk) and build
+        // Metadata by hand with a lying ResponseType so a difference from IRequest<int> is observable.
+        var metadata = new RequestMetadata(typeof(CacheableIntQuery), typeof(long), RequestKind.Query);
+        var missContext = new PipelineContext(
+            request,
+            new ServiceCollection().BuildServiceProvider(),
+            metadata);
+
+        await middleware.InvokeAsync(missContext, ctx =>
+        {
+            ctx.Response = new PipelineResponse { Result = 7L };
+            return Task.CompletedTask;
+        });
+
+        Assert.Equal(1, cache.SetCount);
+
+        var hitContext = new PipelineContext(
+            new CacheableIntQuery { CacheKey = "metadata-driven" },
+            new ServiceCollection().BuildServiceProvider(),
+            metadata);
+        var nextCalled = false;
+        await middleware.InvokeAsync(hitContext, _ =>
+        {
+            nextCalled = true;
+            return Task.CompletedTask;
+        });
+
+        Assert.False(nextCalled);
+        Assert.NotNull(hitContext.Response);
+        // Rehydrated under the metadata's claimed type, not IRequest<int>.
+        Assert.IsType<long>(hitContext.Response.Result);
+        Assert.Equal(7L, (long)hitContext.Response.Result!);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_OnCacheHit_WhenResultIsNull_LeavesResultNull()
+    {
+        var cache = new FakeDistributedCache();
+        var middleware = RequestCachingTestHelpers.CreateMiddleware(cache);
+        var request = new CacheableWidgetQuery { CacheKey = "null-result" };
+
+        var missContext = RequestCachingTestHelpers.CreateContext(request);
+        await middleware.InvokeAsync(missContext, ctx =>
+        {
+            ctx.Response = new PipelineResponse
+            {
+                Result = null,
+                Warnings = [new PipelineMessage("W", "n/a")],
+            };
+            return Task.CompletedTask;
+        });
+
+        var hitContext = RequestCachingTestHelpers.CreateContext(new CacheableWidgetQuery { CacheKey = "null-result" });
+        var nextCalled = false;
+        await middleware.InvokeAsync(hitContext, _ =>
+        {
+            nextCalled = true;
+            return Task.CompletedTask;
+        });
+
+        Assert.False(nextCalled);
+        Assert.NotNull(hitContext.Response);
+        Assert.Null(hitContext.Response.Result);
+        Assert.Single(hitContext.Response.Warnings);
     }
 }

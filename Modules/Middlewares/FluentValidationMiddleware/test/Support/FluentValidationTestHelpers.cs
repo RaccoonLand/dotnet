@@ -54,8 +54,8 @@ internal static class FluentValidationTestHelpers
         CancellationToken cancellationToken = default)
         => new(
             request ?? new SampleRequest(),
-            RequestKind.Command,
             services,
+            RequestMetadata.For(typeof(SampleRequest), RequestKind.Command),
             cancellationToken);
 
     public static IServiceProvider ServicesWithValidators(params IValidator<SampleRequest>[] validators)

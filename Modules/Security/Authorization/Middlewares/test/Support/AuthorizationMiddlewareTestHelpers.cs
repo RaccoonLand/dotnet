@@ -24,10 +24,11 @@ internal static class AuthorizationMiddlewareTestHelpers
             services.AddSingleton(localizer);
         }
 
+        var effectiveRequest = request ?? new SampleRequest();
         return new PipelineContext(
-            request ?? new SampleRequest(),
-            RequestKind.Command,
+            effectiveRequest,
             services.BuildServiceProvider(),
+            RequestMetadata.For(effectiveRequest.GetType(), RequestKind.Command),
             cancellationToken);
     }
 }

@@ -25,7 +25,13 @@ internal static class InstrumentationTestHelpers
         IServiceProvider? services = null,
         IRequestBase? request = null,
         RequestKind kind = RequestKind.Command)
-        => new(request ?? new SampleCommand(), kind, services ?? EmptyServiceProvider.Instance);
+    {
+        var effectiveRequest = request ?? new SampleCommand();
+        return new PipelineContext(
+            effectiveRequest,
+            services ?? EmptyServiceProvider.Instance,
+            RequestMetadata.For(effectiveRequest.GetType(), kind));
+    }
 
     /// <summary>A terminal delegate that sets a (possibly failing) response.</summary>
     public static PipelineDelegate Next(PipelineResponse? response = null)

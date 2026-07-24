@@ -16,3 +16,19 @@ internal sealed class CacheableQuery : IRequest<string>, ICacheableRequest
 
     public string GetCacheKey() => CacheKey;
 }
+
+internal sealed record WidgetResponse(int Id, string Name, string? Note);
+
+internal sealed class CacheableWidgetQuery : IRequest<WidgetResponse>, ICacheableRequest
+{
+    public required string CacheKey { get; init; }
+
+    public string GetCacheKey() => CacheKey;
+}
+
+internal sealed class CacheableIntQuery : IRequest<int>, ICacheableRequest
+{
+    public required string CacheKey { get; init; }
+
+    public string GetCacheKey() => CacheKey;
+}

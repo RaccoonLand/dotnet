@@ -13,10 +13,10 @@ namespace RaccoonLand.Core.RequestProcessing.Dispatch;
 /// </summary>
 public sealed class EndpointInvokerRegistry
 {
-    private sealed class Entry(PipelineDelegate invoker, RequestKind kind)
+    private sealed class Entry(PipelineDelegate invoker, RequestMetadata metadata)
     {
         public PipelineDelegate Invoker { get; } = invoker;
-        public RequestKind Kind { get; } = kind;
+        public RequestMetadata Metadata { get; } = metadata;
     }
 
     private readonly Dictionary<Type, Entry> _entries = [];
@@ -39,7 +39,8 @@ public sealed class EndpointInvokerRegistry
             .MakeGenericMethod(requestType, responseType)
             .Invoke(null, [endpointType])!;
 
-        _entries[requestType] = new Entry(invoker, kind);
+        var metadata = new RequestMetadata(requestType, responseType, kind);
+        _entries[requestType] = new Entry(invoker, metadata);
     }
 
     public void RegisterVoid(Type requestType, Type endpointType, RequestKind kind)
@@ -59,7 +60,8 @@ public sealed class EndpointInvokerRegistry
             .MakeGenericMethod(requestType)
             .Invoke(null, [endpointType])!;
 
-        _entries[requestType] = new Entry(invoker, kind);
+        var metadata = new RequestMetadata(requestType, responseType: null, kind);
+        _entries[requestType] = new Entry(invoker, metadata);
     }
 
     public PipelineDelegate Resolve(Type requestType)
@@ -68,9 +70,21 @@ public sealed class EndpointInvokerRegistry
             : throw new InvalidOperationException(
                 $"No endpoint is registered for request type '{requestType.FullName}'.");
 
+    /// <summary>
+    /// Returns the recorded pipeline kind for a request type. Prefer <see cref="ResolveMetadata"/> when the
+    /// caller also needs the response type; this overload exists for callers that only care about kind.
+    /// </summary>
     public RequestKind ResolveKind(Type requestType)
+        => ResolveMetadata(requestType).Kind;
+
+    /// <summary>
+    /// Returns the pre-built <see cref="RequestMetadata"/> captured at scan time, so the dispatcher and any
+    /// consumer can obtain the request's structural facts (type, response type, kind) with a single
+    /// dictionary lookup and zero runtime reflection.
+    /// </summary>
+    public RequestMetadata ResolveMetadata(Type requestType)
         => TryGetEntry(requestType, out var entry)
-            ? entry.Kind
+            ? entry.Metadata
             : throw new InvalidOperationException(
                 $"No endpoint is registered for request type '{requestType.FullName}'.");
 

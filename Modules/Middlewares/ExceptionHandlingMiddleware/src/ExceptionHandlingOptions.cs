@@ -11,8 +11,11 @@ public sealed class ExceptionHandlingOptions
 {
     private readonly List<ExceptionHandlerRegistration> _handlers = [];
 
-    /// <summary>The registered custom handlers, in registration order.</summary>
-    public IReadOnlyList<ExceptionHandlerRegistration> Handlers => _handlers;
+    /// <summary>
+    /// The registered custom handlers, in registration order. Returned as a read-only view so callers cannot
+    /// mutate the underlying list (which would bypass <see cref="On{TException}"/>).
+    /// </summary>
+    public IReadOnlyList<ExceptionHandlerRegistration> Handlers => _handlers.AsReadOnly();
 
     /// <summary>
     /// Registers a handler for <typeparamref name="TException"/> (and derived types). The handler shapes

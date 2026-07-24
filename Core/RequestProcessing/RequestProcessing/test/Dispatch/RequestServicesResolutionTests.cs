@@ -22,10 +22,11 @@ public sealed class RequestServicesResolutionTests
         using var scope = requestProvider.CreateScope();
 
         var expectedMarker = scope.ServiceProvider.GetRequiredService<ScopedMarker>();
+        var metadata = RequestMetadata.For(typeof(MarkerAwareCommand), RequestKind.Command);
         var context = new PipelineContext(
             new MarkerAwareCommand(),
-            RequestKind.Command,
-            scope.ServiceProvider);
+            scope.ServiceProvider,
+            metadata);
 
         await registry.Resolve(typeof(MarkerAwareCommand))(context);
 
@@ -35,8 +36,8 @@ public sealed class RequestServicesResolutionTests
 
         var rootContext = new PipelineContext(
             new MarkerAwareCommand(),
-            RequestKind.Command,
-            root);
+            root,
+            metadata);
 
         await Assert.ThrowsAsync<InvalidOperationException>(
             () => registry.Resolve(typeof(MarkerAwareCommand))(rootContext));

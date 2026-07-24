@@ -2,7 +2,6 @@ using System.Text.Json;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using RaccoonLand.Core.RequestProcessing.Abstractions.Cqrs;
 using RaccoonLand.Core.RequestProcessing.Abstractions.Pipeline;
 using RaccoonLand.Core.RequestProcessing.Abstractions.Responses;
 using RaccoonLand.Modules.Middlewares.RequestCaching.Abstraction;
@@ -42,18 +41,21 @@ public sealed class RequestCachingMiddleware(
             return;
         }
 
-        var requestType = context.Request.GetType();
+        var metadata = context.Metadata;
 
         // No typed response means there is nothing meaningful to cache (e.g. a void command).
-        if (!HasTypedResponse(requestType))
+        // Metadata is captured at startup by the endpoint scan, so this is a single field read — no
+        // per-request reflection walk over the request's interfaces.
+        if (metadata.ResponseType is not { } responseType)
         {
             await next(context);
             return;
         }
 
+        var requestType = metadata.RequestType;
         var key = BuildKey(requestType, cacheable.GetCacheKey());
 
-        var hit = await TryGetFromCacheAsync(key, context.CancellationToken);
+        var hit = await TryGetFromCacheAsync(key, responseType, context.CancellationToken);
         if (hit.Found)
         {
             context.Response = hit.Value;
@@ -68,7 +70,10 @@ public sealed class RequestCachingMiddleware(
         }
     }
 
-    private async Task<CacheReadResult> TryGetFromCacheAsync(string key, CancellationToken cancellationToken)
+    private async Task<CacheReadResult> TryGetFromCacheAsync(
+        string key,
+        Type responseType,
+        CancellationToken cancellationToken)
     {
         try
         {
@@ -78,8 +83,22 @@ public sealed class RequestCachingMiddleware(
                 return CacheReadResult.Miss;
             }
 
-            var value = JsonSerializer.Deserialize<PipelineResponse>(bytes);
-            if (value is null)
+            CachedEnvelope? envelope;
+            try
+            {
+                envelope = JsonSerializer.Deserialize<CachedEnvelope>(bytes);
+            }
+            catch (JsonException jsonException)
+            {
+                _logger.LogWarning(
+                    jsonException,
+                    "Cached entry for key {CacheKey} is not valid JSON; treating as a cache miss and removing the entry.",
+                    key);
+                await TryRemoveCorruptEntryAsync(key, cancellationToken);
+                return CacheReadResult.Miss;
+            }
+
+            if (envelope is null)
             {
                 _logger.LogWarning(
                     "Cached entry for key {CacheKey} deserialized to null; treating as a cache miss and removing the entry.",
@@ -88,7 +107,34 @@ public sealed class RequestCachingMiddleware(
                 return CacheReadResult.Miss;
             }
 
-            return new CacheReadResult(true, value);
+            object? typedResult = null;
+            if (envelope.Result is JsonElement element && element.ValueKind != JsonValueKind.Null)
+            {
+                try
+                {
+                    typedResult = element.Deserialize(responseType);
+                }
+                catch (JsonException jsonException)
+                {
+                    _logger.LogWarning(
+                        jsonException,
+                        "Cached entry for key {CacheKey} has a Result that cannot be rehydrated to {ResponseType}; treating as a cache miss and removing the entry.",
+                        key,
+                        responseType);
+                    await TryRemoveCorruptEntryAsync(key, cancellationToken);
+                    return CacheReadResult.Miss;
+                }
+            }
+
+            var response = new PipelineResponse
+            {
+                Result = typedResult,
+                Errors = envelope.Errors ?? [],
+                Warnings = envelope.Warnings ?? [],
+                StatusHint = envelope.StatusHint,
+            };
+
+            return new CacheReadResult(true, response);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -192,16 +238,20 @@ public sealed class RequestCachingMiddleware(
         public static CacheReadResult Miss => new(false, null);
     }
 
-    private static bool HasTypedResponse(Type requestType)
+    /// <summary>
+    /// Wire format for cached envelopes. We store <see cref="PipelineResponse.Result"/> as a raw
+    /// <see cref="JsonElement"/> so it can be re-hydrated back into the caller's <c>TResponse</c> on read;
+    /// deserializing straight into <see cref="PipelineResponse"/> would leave <c>Result</c> as an untyped
+    /// <see cref="JsonElement"/> and silently break typed consumers.
+    /// </summary>
+    private sealed record CachedEnvelope
     {
-        foreach (var @interface in requestType.GetInterfaces())
-        {
-            if (@interface.IsGenericType && @interface.GetGenericTypeDefinition() == typeof(IRequest<>))
-            {
-                return true;
-            }
-        }
+        public JsonElement? Result { get; init; }
 
-        return false;
+        public IReadOnlyList<PipelineMessage>? Errors { get; init; }
+
+        public IReadOnlyList<PipelineMessage>? Warnings { get; init; }
+
+        public int? StatusHint { get; init; }
     }
 }
