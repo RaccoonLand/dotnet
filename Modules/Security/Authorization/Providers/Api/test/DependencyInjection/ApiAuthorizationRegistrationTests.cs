@@ -112,6 +112,26 @@ public sealed class ApiAuthorizationRegistrationTests
     }
 
     [Fact]
+    public void AddRaccoonLandApiAuthorization_WhenPathHasServicePlaceholderWithoutValue_FailsValidation()
+    {
+        var services = new ServiceCollection();
+        services.AddRaccoonLandApiAuthorization(options =>
+        {
+            options.BaseAddress = new Uri("https://policy.internal/api/");
+            options.AnonymousRequestsPath = "services/{serviceName}/anonymous-requests";
+        });
+
+        using var provider = services.BuildServiceProvider();
+        var options = provider.GetRequiredService<IOptions<ApiAuthorizationOptions>>();
+
+        var ex = Assert.Throws<OptionsValidationException>(() => _ = options.Value);
+        Assert.Contains(
+            ex.Failures,
+            f => f.Contains(nameof(ApiAuthorizationOptions.ServiceName), StringComparison.Ordinal)
+                 && f.Contains("{serviceName}", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void AddRaccoonLandApiAuthorization_ConfigurationOverload_BindsOptions()
     {
         var configuration = new ConfigurationBuilder()

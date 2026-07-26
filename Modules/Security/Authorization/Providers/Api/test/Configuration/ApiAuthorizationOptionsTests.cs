@@ -11,6 +11,8 @@ public sealed class ApiAuthorizationOptionsTests
 
         Assert.Equal("Authorization:Api", ApiAuthorizationOptions.SectionName);
         Assert.Null(options.BaseAddress);
+        Assert.Equal(string.Empty, options.ServiceName);
+        Assert.Equal(string.Empty, options.ApplicationName);
         Assert.Equal("anonymous-requests", options.AnonymousRequestsPath);
         Assert.Equal("users/{userId}/allowed-requests", options.AllowedRequestsPath);
         Assert.Equal(30, options.TimeoutSeconds);

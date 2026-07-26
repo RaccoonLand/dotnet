@@ -23,6 +23,8 @@ public enum AuthorizationApiAuthenticationMode
 /// "Authorization": {
 ///   "Api": {
 ///     "BaseAddress": "https://policy.internal/api/",
+///     "ServiceName": "Ordering",
+///     "ApplicationName": "Ordering.Api",
 ///     "AnonymousRequestsPath": "anonymous-requests",
 ///     "AllowedRequestsPath": "users/{userId}/allowed-requests",
 ///     "AuthenticationMode": "ApiKey",
@@ -46,14 +48,31 @@ public sealed class ApiAuthorizationOptions
     public Uri? BaseAddress { get; set; }
 
     /// <summary>
+    /// Optional name of the current microservice. When non-empty it is sent to the authorization API
+    /// (path placeholders <c>{serviceName}</c> or, when absent, as a <c>serviceName</c> query parameter)
+    /// and included in cache keys so a shared policy service / distributed cache stays isolated across
+    /// services. Leave empty (default) for unscoped deployments.
+    /// </summary>
+    public string ServiceName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Optional name of the current application within the service. Same semantics as
+    /// <see cref="ServiceName"/> (path placeholder <c>{applicationName}</c> or <c>applicationName</c>
+    /// query parameter). Prefer setting both together when sharing a central policy API.
+    /// </summary>
+    public string ApplicationName { get; set; } = string.Empty;
+
+    /// <summary>
     /// Relative path of the endpoint returning the anonymous request names. Defaults to
-    /// <c>anonymous-requests</c>. The response body is <c>{ "requests": [ … ] }</c>.
+    /// <c>anonymous-requests</c>. Optional placeholders: <c>{serviceName}</c>, <c>{applicationName}</c>.
+    /// The response body is <c>{ "requests": [ … ] }</c>.
     /// </summary>
     public string AnonymousRequestsPath { get; set; } = "anonymous-requests";
 
     /// <summary>
     /// Relative path of the endpoint returning the request names allowed for a user. Must contain the
-    /// <c>{userId}</c> placeholder, which is replaced (URL-escaped) with the current user id. Defaults to
+    /// <c>{userId}</c> placeholder, which is replaced (URL-escaped) with the current user id. Optional
+    /// placeholders: <c>{serviceName}</c>, <c>{applicationName}</c>. Defaults to
     /// <c>users/{userId}/allowed-requests</c>. The response body is <c>{ "requests": [ … ] }</c>.
     /// </summary>
     public string AllowedRequestsPath { get; set; } = "users/{userId}/allowed-requests";

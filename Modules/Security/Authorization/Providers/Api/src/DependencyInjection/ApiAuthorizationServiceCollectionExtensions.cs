@@ -100,8 +100,20 @@ public static class ApiAuthorizationServiceCollectionExtensions
                     || o.AllowedRequestsPath.Contains("{userId}", StringComparison.Ordinal),
                 $"{ApiAuthorizationOptions.SectionName}.{nameof(ApiAuthorizationOptions.AllowedRequestsPath)} must contain the {{userId}} placeholder.")
             .Validate(
+                static o => !PathRequiresPlaceholder(o.AnonymousRequestsPath, o.AllowedRequestsPath, "{serviceName}")
+                    || !string.IsNullOrWhiteSpace(o.ServiceName),
+                $"{ApiAuthorizationOptions.SectionName}.{nameof(ApiAuthorizationOptions.ServiceName)} is required when a path contains the {{serviceName}} placeholder.")
+            .Validate(
+                static o => !PathRequiresPlaceholder(o.AnonymousRequestsPath, o.AllowedRequestsPath, "{applicationName}")
+                    || !string.IsNullOrWhiteSpace(o.ApplicationName),
+                $"{ApiAuthorizationOptions.SectionName}.{nameof(ApiAuthorizationOptions.ApplicationName)} is required when a path contains the {{applicationName}} placeholder.")
+            .Validate(
                 static o => o.TimeoutSeconds > 0,
                 $"{ApiAuthorizationOptions.SectionName}.{nameof(ApiAuthorizationOptions.TimeoutSeconds)} must be greater than zero.")
             .ValidateOnStart();
     }
+
+    private static bool PathRequiresPlaceholder(string anonymousPath, string allowedPath, string placeholder)
+        => (!string.IsNullOrEmpty(anonymousPath) && anonymousPath.Contains(placeholder, StringComparison.Ordinal))
+           || (!string.IsNullOrEmpty(allowedPath) && allowedPath.Contains(placeholder, StringComparison.Ordinal));
 }

@@ -79,17 +79,36 @@ public sealed class SqlAuthorizationProvider : IAuthorizationProvider
 
     private Task<IReadOnlyCollection<string>> GetAnonymousRequestsAsync(CancellationToken cancellationToken)
         => GetOrLoadAsync(
-            _options.CacheKeyPrefix + "anon",
+            BuildCacheKey("anon"),
             _options.AnonymousCacheDuration,
             static (repository, ct) => repository.GetAnonymousRequestsAsync(ct),
             cancellationToken);
 
     private Task<IReadOnlyCollection<string>> GetAllowedRequestsAsync(string userId, CancellationToken cancellationToken)
         => GetOrLoadAsync(
-            _options.CacheKeyPrefix + "user:" + userId,
+            BuildCacheKey("user:" + userId),
             _options.UserCacheDuration,
             (repository, ct) => repository.GetAllowedRequestsAsync(userId, ct),
             cancellationToken);
+
+    /// <summary>
+    /// Builds a cache key that includes the optional service/application scope so shared Redis entries from
+    /// different microservices cannot collide.
+    /// </summary>
+    private string BuildCacheKey(string suffix)
+    {
+        var hasService = !string.IsNullOrWhiteSpace(_options.ServiceName);
+        var hasApplication = !string.IsNullOrWhiteSpace(_options.ApplicationName);
+        if (!hasService && !hasApplication)
+        {
+            return _options.CacheKeyPrefix + suffix;
+        }
+
+        return _options.CacheKeyPrefix
+               + "svc:" + (hasService ? _options.ServiceName.Trim() : string.Empty)
+               + "|app:" + (hasApplication ? _options.ApplicationName.Trim() : string.Empty)
+               + ":" + suffix;
+    }
 
     private async Task<IReadOnlyCollection<string>> GetOrLoadAsync(
         string cacheKey,

@@ -11,9 +11,13 @@ public sealed class SqlAuthorizationOptionsTests
 
         Assert.Equal("Authorization:SqlServer", SqlAuthorizationOptions.SectionName);
         Assert.Equal(string.Empty, options.ConnectionString);
+        Assert.Equal(string.Empty, options.ServiceName);
+        Assert.Equal(string.Empty, options.ApplicationName);
         Assert.Equal(string.Empty, options.AnonymousRequestsProcedure);
         Assert.Equal(string.Empty, options.AllowedRequestsProcedure);
         Assert.Equal("UserId", options.UserIdParameterName);
+        Assert.Equal("ServiceName", options.ServiceNameParameterName);
+        Assert.Equal("ApplicationName", options.ApplicationNameParameterName);
         Assert.Equal(30, options.CommandTimeoutSeconds);
         Assert.False(options.EnableCache);
         Assert.Equal("raccoonland:authz:", options.CacheKeyPrefix);

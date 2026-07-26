@@ -21,8 +21,12 @@ public sealed class SqlAuthorizationRepository(IOptions<SqlAuthorizationOptions>
     {
         await using var connection = new SqlConnection(_options.ConnectionString);
 
+        var parameters = new DynamicParameters();
+        AddScopeParameters(parameters);
+
         var names = await connection.QueryAsync<string?>(new CommandDefinition(
             _options.AnonymousRequestsProcedure,
+            parameters,
             commandType: CommandType.StoredProcedure,
             commandTimeout: _options.CommandTimeoutSeconds,
             cancellationToken: cancellationToken));
@@ -40,6 +44,7 @@ public sealed class SqlAuthorizationRepository(IOptions<SqlAuthorizationOptions>
 
         var parameters = new DynamicParameters();
         parameters.Add(_options.UserIdParameterName, userId);
+        AddScopeParameters(parameters);
 
         var names = await connection.QueryAsync<string?>(new CommandDefinition(
             _options.AllowedRequestsProcedure,
@@ -49,6 +54,19 @@ public sealed class SqlAuthorizationRepository(IOptions<SqlAuthorizationOptions>
             cancellationToken: cancellationToken));
 
         return ToSet(names);
+    }
+
+    private void AddScopeParameters(DynamicParameters parameters)
+    {
+        if (!string.IsNullOrWhiteSpace(_options.ServiceName))
+        {
+            parameters.Add(_options.ServiceNameParameterName, _options.ServiceName);
+        }
+
+        if (!string.IsNullOrWhiteSpace(_options.ApplicationName))
+        {
+            parameters.Add(_options.ApplicationNameParameterName, _options.ApplicationName);
+        }
     }
 
     private static HashSet<string> ToSet(IEnumerable<string?> names)

@@ -75,6 +75,12 @@ public static class SqlAuthorizationServiceCollectionExtensions
                 static o => !string.IsNullOrWhiteSpace(o.UserIdParameterName),
                 $"{SqlAuthorizationOptions.SectionName}.{nameof(SqlAuthorizationOptions.UserIdParameterName)} is required.")
             .Validate(
+                static o => !string.IsNullOrWhiteSpace(o.ServiceNameParameterName),
+                $"{SqlAuthorizationOptions.SectionName}.{nameof(SqlAuthorizationOptions.ServiceNameParameterName)} is required.")
+            .Validate(
+                static o => !string.IsNullOrWhiteSpace(o.ApplicationNameParameterName),
+                $"{SqlAuthorizationOptions.SectionName}.{nameof(SqlAuthorizationOptions.ApplicationNameParameterName)} is required.")
+            .Validate(
                 static o => o.CommandTimeoutSeconds > 0,
                 $"{SqlAuthorizationOptions.SectionName}.{nameof(SqlAuthorizationOptions.CommandTimeoutSeconds)} must be greater than zero.")
             .ValidateOnStart();
