@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using RaccoonLand.Modules.MessageLocalization.SQLServer.Hosting;
@@ -269,6 +270,45 @@ public sealed class MessageLocalizationRefreshServiceTests
         Assert.Equal("snapshot", kept);
 
         var requeued = missingKeys.Drain();
-        Assert.Contains(requeued, k => k.Key == "RetryMe");
+        Assert.Contains(requeued.Keys, k => k.Key == "RetryMe");
+    }
+
+    [Fact]
+    public async Task RefreshCycle_WhenTrackerDroppedReports_LogsWarningWithDropCount()
+    {
+        var repository = new FakeMessageLocalizationRepository();
+        var store = new MessageLocalizationStore();
+        var missingKeys = new MissingKeyTracker(capacity: 1);
+        var logger = new ListLogger<MessageLocalizationRefreshService>();
+
+        // Fill the tracker beyond capacity so the next drain reports a drop.
+        missingKeys.Report("en-US", "First");
+        missingKeys.Report("en-US", "Second"); // dropped
+        missingKeys.Report("en-US", "Third");  // dropped
+
+        var service = LocalizationTestHelpers.CreateRefreshService(
+            repository,
+            store,
+            missingKeys,
+            LocalizationTestHelpers.ValidOptions(o => o.RefreshInterval = TimeSpan.FromMilliseconds(20)),
+            logger);
+
+        await service.StartAsync(CancellationToken.None);
+
+        var deadline = DateTime.UtcNow.AddSeconds(2);
+        while (DateTime.UtcNow < deadline
+               && !logger.Entries.Any(e => e.Level == LogLevel.Warning
+                                           && e.Message.Contains("dropped", StringComparison.OrdinalIgnoreCase)))
+        {
+            await Task.Delay(20);
+        }
+
+        await service.StopAsync(CancellationToken.None);
+
+        Assert.Contains(
+            logger.Entries,
+            e => e.Level == LogLevel.Warning
+                 && e.Message.Contains("dropped", StringComparison.OrdinalIgnoreCase)
+                 && e.Message.Contains("2", StringComparison.Ordinal));
     }
 }

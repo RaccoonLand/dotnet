@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace RaccoonLand.Modules.MessageLocalization.SQLServer.Configuration;
 
 /// <summary>
@@ -15,7 +13,8 @@ namespace RaccoonLand.Modules.MessageLocalization.SQLServer.Configuration;
 ///   "DefaultCulture": "en-US",
 ///   "RefreshInterval": "00:05:00",
 ///   "AutoRegisterApplication": true,
-///   "AutoInsertMissingKeys": true
+///   "AutoInsertMissingKeys": true,
+///   "MaxPendingMissingKeys": 10000
 /// }
 /// </code>
 /// </example>
@@ -24,21 +23,19 @@ public sealed class MessageLocalizationSqlServerOptions
     /// <summary>Default root configuration section name (<c>MessageLocalization</c>).</summary>
     public const string SectionName = "MessageLocalization";
 
-    /// <summary>Connection string to the shared localization database.</summary>
-    [Required]
+    /// <summary>Connection string to the shared localization database. Required.</summary>
     public string ConnectionString { get; set; } = string.Empty;
 
-    /// <summary>Name of the current microservice (a row in <c>Localization.Services</c>).</summary>
-    [Required]
+    /// <summary>Name of the current microservice (a row in <c>Localization.Services</c>). Required.</summary>
     public string ServiceName { get; set; } = string.Empty;
 
-    /// <summary>Name of the current application within the service (a row in <c>Localization.Applications</c>).</summary>
-    [Required]
+    /// <summary>Name of the current application within the service (a row in <c>Localization.Applications</c>). Required.</summary>
     public string ApplicationName { get; set; } = string.Empty;
 
     /// <summary>
     /// Culture used when neither the caller nor the registered <c>ICurrentCultureProvider</c> specifies one.
-    /// Defaults to <c>en-US</c>.
+    /// Defaults to <c>en-US</c>. If the value is not a valid culture name a warning is logged and the
+    /// implementation falls back to <see cref="System.Globalization.CultureInfo.InvariantCulture"/>.
     /// </summary>
     public string DefaultCulture { get; set; } = "en-US";
 
@@ -75,4 +72,14 @@ public sealed class MessageLocalizationSqlServerOptions
     /// <c>RequiresTranslation = 1</c>) so an admin can later provide the real translation.
     /// </summary>
     public bool AutoInsertMissingKeys { get; set; } = true;
+
+    /// <summary>
+    /// Upper bound on the number of unique missing keys buffered in memory between refresh cycles. The
+    /// missing-key tracker is meant to help developers spot templates that were never added to the database;
+    /// this cap is a safety net so that a caller which mistakenly passes non-constant strings as message keys
+    /// cannot grow the buffer without bound. Extra reports past the cap are dropped and a single warning is
+    /// logged on the next refresh summarising the drop count. Defaults to
+    /// <see cref="Storage.MissingKeyTracker.DefaultCapacity"/> (10 000).
+    /// </summary>
+    public int MaxPendingMissingKeys { get; set; } = Storage.MissingKeyTracker.DefaultCapacity;
 }

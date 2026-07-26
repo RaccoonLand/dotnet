@@ -106,21 +106,31 @@ internal sealed class MessageLocalizationRefreshService(
 
     private async Task PersistMissingKeysAsync(CancellationToken cancellationToken)
     {
-        var pending = _missingKeys.Drain();
-        if (pending.Count == 0)
+        var drain = _missingKeys.Drain();
+
+        if (drain.DroppedSinceLastDrain > 0)
+        {
+            _logger.LogWarning(
+                "MissingKeyTracker dropped {DroppedCount} missing-key report(s) since the previous refresh because the buffer capacity ({Capacity}) was reached. " +
+                "This usually indicates non-constant strings are being passed as message keys.",
+                drain.DroppedSinceLastDrain,
+                _missingKeys.Capacity);
+        }
+
+        if (drain.Keys.Count == 0)
         {
             return;
         }
 
         try
         {
-            await _repository.InsertMissingAsync(_applicationId, pending, cancellationToken);
-            _logger.LogInformation("Persisted {Count} missing localization key(s) for admin review.", pending.Count);
+            await _repository.InsertMissingAsync(_applicationId, drain.Keys, cancellationToken);
+            _logger.LogInformation("Persisted {Count} missing localization key(s) for admin review.", drain.Keys.Count);
         }
         catch
         {
             // Drain already removed these keys; put them back so the next cycle can retry.
-            _missingKeys.Requeue(pending);
+            _missingKeys.Requeue(drain.Keys);
             throw;
         }
     }

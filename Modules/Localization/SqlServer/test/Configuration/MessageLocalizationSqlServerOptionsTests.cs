@@ -1,4 +1,5 @@
 using RaccoonLand.Modules.MessageLocalization.SQLServer.Configuration;
+using RaccoonLand.Modules.MessageLocalization.SQLServer.Storage;
 
 namespace RaccoonLand.Modules.MessageLocalization.SQLServer.Tests.Configuration;
 
@@ -21,6 +22,7 @@ public sealed class MessageLocalizationSqlServerOptionsTests
         Assert.Equal(TimeSpan.FromMinutes(5), options.RefreshInterval);
         Assert.True(options.AutoRegisterApplication);
         Assert.True(options.AutoInsertMissingKeys);
+        Assert.Equal(MissingKeyTracker.DefaultCapacity, options.MaxPendingMissingKeys);
         Assert.Equal("MessageLocalization", MessageLocalizationSqlServerOptions.SectionName);
     }
 }

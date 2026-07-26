@@ -1,5 +1,7 @@
 using System.Globalization;
+using Microsoft.Extensions.Logging;
 using RaccoonLand.Modules.MessageLocalization.Abstraction;
+using RaccoonLand.Modules.MessageLocalization.SQLServer;
 using RaccoonLand.Modules.MessageLocalization.SQLServer.Storage;
 using RaccoonLand.Modules.MessageLocalization.SQLServer.Tests.Support;
 using static RaccoonLand.Modules.MessageLocalization.Abstraction.RawValue;
@@ -142,8 +144,9 @@ public sealed class SqlServerMessageLocalizationTests
         var result = localizer.Get("MISSING_KEY");
 
         Assert.Equal("MISSING_KEY", result);
-        var pending = tracker.Drain();
-        Assert.Contains(pending, k => k.Key == "MISSING_KEY" && k.Culture == "en-US");
+        var drain = tracker.Drain();
+        Assert.Contains(drain.Keys, k => k.Key == "MISSING_KEY" && k.Culture == "en-US");
+        Assert.Equal(0, drain.DroppedSinceLastDrain);
     }
 
     [Fact]
@@ -166,5 +169,36 @@ public sealed class SqlServerMessageLocalizationTests
 
         Assert.Equal("store-value", localizer.Get("FromStore"));
         Assert.Equal("unknown", localizer.Get("unknown"));
+    }
+
+    [Fact]
+    public void Constructor_WhenDefaultCultureInvalid_LogsWarningAndFallsBackToInvariant()
+    {
+        var logger = new ListLogger<SqlServerMessageLocalization>();
+
+        // Construction must succeed even with a bogus culture name.
+        _ = LocalizationTestHelpers.CreateLocalizer(
+            new MessageLocalizationStore(),
+            options: LocalizationTestHelpers.ValidOptions(o => o.DefaultCulture = "xx-BOGUS"),
+            logger: logger);
+
+        Assert.Contains(
+            logger.Entries,
+            e => e.Level == LogLevel.Warning
+                 && e.Message.Contains("xx-BOGUS", StringComparison.Ordinal)
+                 && e.Message.Contains("InvariantCulture", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Constructor_WhenDefaultCultureValid_DoesNotLogWarning()
+    {
+        var logger = new ListLogger<SqlServerMessageLocalization>();
+
+        _ = LocalizationTestHelpers.CreateLocalizer(
+            new MessageLocalizationStore(),
+            options: LocalizationTestHelpers.ValidOptions(o => o.DefaultCulture = "en-US"),
+            logger: logger);
+
+        Assert.DoesNotContain(logger.Entries, e => e.Level == LogLevel.Warning);
     }
 }

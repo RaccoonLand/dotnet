@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using RaccoonLand.Modules.MessageLocalization.Abstraction;
@@ -27,27 +28,30 @@ internal static class LocalizationTestHelpers
         MessageLocalizationStore store,
         MissingKeyTracker? missingKeys = null,
         ICurrentCultureProvider? cultureProvider = null,
-        MessageLocalizationSqlServerOptions? options = null)
+        MessageLocalizationSqlServerOptions? options = null,
+        ILogger<SqlServerMessageLocalization>? logger = null)
     {
         return new SqlServerMessageLocalization(
             store,
             missingKeys ?? new MissingKeyTracker(),
             cultureProvider ?? NullCurrentCultureProvider.Instance,
-            Options.Create(options ?? ValidOptions()));
+            Options.Create(options ?? ValidOptions()),
+            logger ?? NullLogger<SqlServerMessageLocalization>.Instance);
     }
 
     public static MessageLocalizationRefreshService CreateRefreshService(
         FakeMessageLocalizationRepository repository,
         MessageLocalizationStore? store = null,
         MissingKeyTracker? missingKeys = null,
-        MessageLocalizationSqlServerOptions? options = null)
+        MessageLocalizationSqlServerOptions? options = null,
+        ILogger<MessageLocalizationRefreshService>? logger = null)
     {
         return new MessageLocalizationRefreshService(
             repository,
             store ?? new MessageLocalizationStore(),
             missingKeys ?? new MissingKeyTracker(),
             Options.Create(options ?? ValidOptions()),
-            NullLogger<MessageLocalizationRefreshService>.Instance);
+            logger ?? NullLogger<MessageLocalizationRefreshService>.Instance);
     }
 
     public static MessageLocalizationRepository CreateRepository(

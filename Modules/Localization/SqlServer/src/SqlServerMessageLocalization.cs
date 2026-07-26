@@ -1,4 +1,5 @@
 using System.Globalization;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RaccoonLand.Modules.MessageLocalization.Abstraction;
 using RaccoonLand.Modules.MessageLocalization.SQLServer.Configuration;
@@ -11,17 +12,33 @@ namespace RaccoonLand.Modules.MessageLocalization.SQLServer;
 /// SQL Server. Resolution never touches the database: lookups hit the snapshot and misses are recorded for
 /// the background worker to persist.
 /// </summary>
-internal sealed class SqlServerMessageLocalization(
-    MessageLocalizationStore store,
-    MissingKeyTracker missingKeys,
-    ICurrentCultureProvider cultureProvider,
-    IOptions<MessageLocalizationSqlServerOptions> options) : IMessageLocalization
+internal sealed class SqlServerMessageLocalization : IMessageLocalization
 {
-    private readonly MessageLocalizationStore _store = store;
-    private readonly MissingKeyTracker _missingKeys = missingKeys;
-    private readonly ICurrentCultureProvider _cultureProvider = cultureProvider;
-    private readonly MessageLocalizationSqlServerOptions _options = options.Value;
-    private readonly CultureInfo _defaultCulture = ResolveDefaultCulture(options.Value.DefaultCulture);
+    private readonly MessageLocalizationStore _store;
+    private readonly MissingKeyTracker _missingKeys;
+    private readonly ICurrentCultureProvider _cultureProvider;
+    private readonly MessageLocalizationSqlServerOptions _options;
+    private readonly CultureInfo _defaultCulture;
+
+    public SqlServerMessageLocalization(
+        MessageLocalizationStore store,
+        MissingKeyTracker missingKeys,
+        ICurrentCultureProvider cultureProvider,
+        IOptions<MessageLocalizationSqlServerOptions> options,
+        ILogger<SqlServerMessageLocalization> logger)
+    {
+        ArgumentNullException.ThrowIfNull(store);
+        ArgumentNullException.ThrowIfNull(missingKeys);
+        ArgumentNullException.ThrowIfNull(cultureProvider);
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(logger);
+
+        _store = store;
+        _missingKeys = missingKeys;
+        _cultureProvider = cultureProvider;
+        _options = options.Value;
+        _defaultCulture = ResolveDefaultCulture(options.Value.DefaultCulture, logger);
+    }
 
     /// <inheritdoc />
     public string Get(string messageTemplate, params object?[] parameters)
@@ -118,7 +135,7 @@ internal sealed class SqlServerMessageLocalization(
     private CultureInfo ResolveCurrentCulture()
         => _cultureProvider.GetCurrentCulture() ?? _defaultCulture;
 
-    private static CultureInfo ResolveDefaultCulture(string name)
+    private static CultureInfo ResolveDefaultCulture(string name, ILogger<SqlServerMessageLocalization> logger)
     {
         try
         {
@@ -126,6 +143,10 @@ internal sealed class SqlServerMessageLocalization(
         }
         catch (CultureNotFoundException)
         {
+            logger.LogWarning(
+                "MessageLocalization DefaultCulture '{DefaultCulture}' is not a valid culture name; falling back to InvariantCulture. " +
+                "Fix the option value so the intended fallback culture is used.",
+                name);
             return CultureInfo.InvariantCulture;
         }
     }

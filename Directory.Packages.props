@@ -56,7 +56,7 @@
     <PackageVersion Include="RaccoonLand.Core.RequestProcessing.Abstractions" Version="1.0.2" />
     <PackageVersion Include="RaccoonLand.Core.Hosting.AspNetCore" Version="1.0.2" />
     <PackageVersion Include="RaccoonLand.Modules.MessageLocalization.Abstraction" Version="1.0.0" />
-    <PackageVersion Include="RaccoonLand.Modules.MessageLocalization.SQLServer" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.MessageLocalization.SQLServer" Version="1.0.1" />
     <PackageVersion Include="RaccoonLand.Modules.Messaging.Abstractions" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.Messaging.OutboxRelay" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.Messaging.RabbitMQ" Version="1.0.0" />

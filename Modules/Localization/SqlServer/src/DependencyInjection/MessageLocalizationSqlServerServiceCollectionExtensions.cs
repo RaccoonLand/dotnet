@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using RaccoonLand.Modules.MessageLocalization.Abstraction;
 using RaccoonLand.Modules.MessageLocalization.SQLServer;
 using RaccoonLand.Modules.MessageLocalization.SQLServer.Configuration;
@@ -23,9 +24,9 @@ public static class MessageLocalizationSqlServerServiceCollectionExtensions
         IConfiguration configuration,
         string sectionName = MessageLocalizationSqlServerOptions.SectionName)
     {
-        services.AddOptions<MessageLocalizationSqlServerOptions>()
-            .Bind(configuration.GetSection(sectionName))
-            .Validate(static options => Validate(options));
+        AttachValidation(
+            services.AddOptions<MessageLocalizationSqlServerOptions>()
+                .Bind(configuration.GetSection(sectionName)));
 
         return services.AddCore();
     }
@@ -37,9 +38,9 @@ public static class MessageLocalizationSqlServerServiceCollectionExtensions
         this IServiceCollection services,
         Action<MessageLocalizationSqlServerOptions> configure)
     {
-        services.AddOptions<MessageLocalizationSqlServerOptions>()
-            .Configure(configure)
-            .Validate(static options => Validate(options));
+        AttachValidation(
+            services.AddOptions<MessageLocalizationSqlServerOptions>()
+                .Configure(configure));
 
         return services.AddCore();
     }
@@ -47,7 +48,11 @@ public static class MessageLocalizationSqlServerServiceCollectionExtensions
     private static IServiceCollection AddCore(this IServiceCollection services)
     {
         services.TryAddSingleton<MessageLocalizationStore>();
-        services.TryAddSingleton<MissingKeyTracker>();
+        services.TryAddSingleton(sp =>
+        {
+            var options = sp.GetRequiredService<IOptions<MessageLocalizationSqlServerOptions>>().Value;
+            return new MissingKeyTracker(options.MaxPendingMissingKeys);
+        });
         services.TryAddSingleton<MessageLocalizationRepository>();
         services.TryAddSingleton<IMessageLocalizationRepository>(sp =>
             sp.GetRequiredService<MessageLocalizationRepository>());
@@ -59,8 +64,21 @@ public static class MessageLocalizationSqlServerServiceCollectionExtensions
         return services;
     }
 
-    private static bool Validate(MessageLocalizationSqlServerOptions options)
-        => !string.IsNullOrWhiteSpace(options.ConnectionString)
-           && !string.IsNullOrWhiteSpace(options.ServiceName)
-           && !string.IsNullOrWhiteSpace(options.ApplicationName);
+    private static void AttachValidation(OptionsBuilder<MessageLocalizationSqlServerOptions> builder)
+    {
+        builder
+            .Validate(
+                static o => !string.IsNullOrWhiteSpace(o.ConnectionString),
+                $"{MessageLocalizationSqlServerOptions.SectionName}.{nameof(MessageLocalizationSqlServerOptions.ConnectionString)} is required.")
+            .Validate(
+                static o => !string.IsNullOrWhiteSpace(o.ServiceName),
+                $"{MessageLocalizationSqlServerOptions.SectionName}.{nameof(MessageLocalizationSqlServerOptions.ServiceName)} is required.")
+            .Validate(
+                static o => !string.IsNullOrWhiteSpace(o.ApplicationName),
+                $"{MessageLocalizationSqlServerOptions.SectionName}.{nameof(MessageLocalizationSqlServerOptions.ApplicationName)} is required.")
+            .Validate(
+                static o => o.MaxPendingMissingKeys > 0,
+                $"{MessageLocalizationSqlServerOptions.SectionName}.{nameof(MessageLocalizationSqlServerOptions.MaxPendingMissingKeys)} must be greater than zero.")
+            .ValidateOnStart();
+    }
 }

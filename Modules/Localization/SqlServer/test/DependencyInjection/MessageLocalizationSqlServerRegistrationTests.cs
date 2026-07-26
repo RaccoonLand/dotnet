@@ -1,5 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using RaccoonLand.Modules.MessageLocalization.Abstraction;
 using RaccoonLand.Modules.MessageLocalization.SQLServer.Configuration;
@@ -23,6 +25,8 @@ public sealed class MessageLocalizationSqlServerRegistrationTests
         });
 
         var services = new ServiceCollection();
+        services.AddSingleton<ILoggerFactory>(NullLoggerFactory.Instance);
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
         services.AddRaccoonLandMessageLocalizationSqlServer(configuration);
 
         Assert.Contains(services, d => d.ServiceType == typeof(IMessageLocalization));
@@ -83,6 +87,105 @@ public sealed class MessageLocalizationSqlServerRegistrationTests
         Assert.Throws<OptionsValidationException>(
             () => services.BuildServiceProvider()
                 .GetRequiredService<IOptions<MessageLocalizationSqlServerOptions>>().Value);
+    }
+
+    [Fact]
+    public void Add_WhenConnectionStringMissing_ErrorMessageNamesTheField()
+    {
+        var services = new ServiceCollection();
+        services.AddRaccoonLandMessageLocalizationSqlServer(o =>
+        {
+            o.ConnectionString = string.Empty;
+            o.ServiceName = "svc";
+            o.ApplicationName = "app";
+        });
+
+        var ex = Assert.Throws<OptionsValidationException>(
+            () => services.BuildServiceProvider()
+                .GetRequiredService<IOptions<MessageLocalizationSqlServerOptions>>().Value);
+
+        Assert.Contains(
+            ex.Failures,
+            f => f.Contains(nameof(MessageLocalizationSqlServerOptions.ConnectionString), StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Add_WhenServiceNameMissing_ErrorMessageNamesTheField()
+    {
+        var services = new ServiceCollection();
+        services.AddRaccoonLandMessageLocalizationSqlServer(o =>
+        {
+            o.ConnectionString = "cs";
+            o.ServiceName = string.Empty;
+            o.ApplicationName = "app";
+        });
+
+        var ex = Assert.Throws<OptionsValidationException>(
+            () => services.BuildServiceProvider()
+                .GetRequiredService<IOptions<MessageLocalizationSqlServerOptions>>().Value);
+
+        Assert.Contains(
+            ex.Failures,
+            f => f.Contains(nameof(MessageLocalizationSqlServerOptions.ServiceName), StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Add_WhenApplicationNameMissing_ErrorMessageNamesTheField()
+    {
+        var services = new ServiceCollection();
+        services.AddRaccoonLandMessageLocalizationSqlServer(o =>
+        {
+            o.ConnectionString = "cs";
+            o.ServiceName = "svc";
+            o.ApplicationName = string.Empty;
+        });
+
+        var ex = Assert.Throws<OptionsValidationException>(
+            () => services.BuildServiceProvider()
+                .GetRequiredService<IOptions<MessageLocalizationSqlServerOptions>>().Value);
+
+        Assert.Contains(
+            ex.Failures,
+            f => f.Contains(nameof(MessageLocalizationSqlServerOptions.ApplicationName), StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void Add_WhenMaxPendingMissingKeysNonPositive_FailsValidationWithNamedField(int value)
+    {
+        var services = new ServiceCollection();
+        services.AddRaccoonLandMessageLocalizationSqlServer(o =>
+        {
+            o.ConnectionString = "cs";
+            o.ServiceName = "svc";
+            o.ApplicationName = "app";
+            o.MaxPendingMissingKeys = value;
+        });
+
+        var ex = Assert.Throws<OptionsValidationException>(
+            () => services.BuildServiceProvider()
+                .GetRequiredService<IOptions<MessageLocalizationSqlServerOptions>>().Value);
+
+        Assert.Contains(
+            ex.Failures,
+            f => f.Contains(nameof(MessageLocalizationSqlServerOptions.MaxPendingMissingKeys), StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Add_ConfiguredMaxPendingMissingKeys_FlowsIntoMissingKeyTracker()
+    {
+        var services = new ServiceCollection();
+        services.AddRaccoonLandMessageLocalizationSqlServer(o =>
+        {
+            o.ConnectionString = "cs";
+            o.ServiceName = "svc";
+            o.ApplicationName = "app";
+            o.MaxPendingMissingKeys = 42;
+        });
+
+        var tracker = services.BuildServiceProvider().GetRequiredService<MissingKeyTracker>();
+        Assert.Equal(42, tracker.Capacity);
     }
 
     [Fact]
