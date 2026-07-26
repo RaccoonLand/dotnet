@@ -23,11 +23,13 @@ internal sealed class S3ObjectClient
         string? contentType,
         IReadOnlyDictionary<string, string>? metadata,
         long? contentLength,
+        long? maxUploadBytes,
         bool createOnly,
         string storageKey,
         CancellationToken cancellationToken)
     {
         var length = ResolveRequiredContentLength(content, contentLength, "S3 put");
+        FileStorageGuards.EnsureContentLengthWithinLimit(length, maxUploadBytes);
         var requestUri = BuildObjectUri(objectKey);
         using var request = new HttpRequestMessage(HttpMethod.Put, requestUri)
         {
@@ -112,7 +114,12 @@ internal sealed class S3ObjectClient
         }
     }
 
-    public Uri CreatePresignedUrl(string method, string objectKey, string? contentType, TimeSpan expiry)
+    public Uri CreatePresignedUrl(
+        string method,
+        string objectKey,
+        string? contentType,
+        long? contentLength,
+        TimeSpan expiry)
     {
         var requestUri = BuildObjectUri(objectKey);
         var headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -120,6 +127,11 @@ internal sealed class S3ObjectClient
         if (!string.IsNullOrWhiteSpace(contentType))
         {
             headers["content-type"] = contentType;
+        }
+
+        if (contentLength is long length)
+        {
+            headers["content-length"] = length.ToString(System.Globalization.CultureInfo.InvariantCulture);
         }
 
         return S3SigV4Signer.CreatePresignedUrl(
@@ -162,9 +174,11 @@ internal sealed class S3ObjectClient
         int partNumber,
         Stream content,
         long? contentLength,
+        long? maxUploadBytes,
         CancellationToken cancellationToken)
     {
         var length = ResolveRequiredContentLength(content, contentLength, "S3 multipart part upload");
+        FileStorageGuards.EnsureContentLengthWithinLimit(length, maxUploadBytes);
         var requestUri = BuildObjectUri(objectKey, query: $"partNumber={partNumber}&uploadId={Uri.EscapeDataString(uploadId)}");
         using var request = new HttpRequestMessage(HttpMethod.Put, requestUri)
         {

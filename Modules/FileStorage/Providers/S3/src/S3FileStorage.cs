@@ -27,6 +27,9 @@ internal sealed class S3FileStorage : IFileStorage
 
         var key = StorageKey.NormalizeOrGenerate(request.Key);
         var objectKey = _settings.ToObjectKey(key);
+        var maxUploadBytes = FileStorageGuards.ResolveEffectiveMaxUploadBytes(
+            request.MaxUploadBytes,
+            _sharedOptions.MaxUploadBytes);
 
         var metadata = await _client.PutObjectAsync(
             objectKey,
@@ -34,6 +37,7 @@ internal sealed class S3FileStorage : IFileStorage
             request.ContentType,
             request.Metadata,
             request.ContentLength,
+            maxUploadBytes,
             createOnly: request.Mode is PutMode.CreateOnly,
             storageKey: key,
             cancellationToken);

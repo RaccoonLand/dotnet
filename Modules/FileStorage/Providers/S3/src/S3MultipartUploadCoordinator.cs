@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Microsoft.Extensions.Options;
 using RaccoonLand.Modules.FileStorage.Abstractions;
 using RaccoonLand.Modules.FileStorage.S3.Configuration;
@@ -10,6 +11,7 @@ internal sealed class S3MultipartUploadCoordinator : IMultipartUploadCoordinator
     private readonly S3ObjectClient _client;
     private readonly S3ConnectionSettings _settings;
     private readonly FileStorageOptions _sharedOptions;
+    private readonly ConcurrentDictionary<string, MultipartUploadBudget> _budgets = new(StringComparer.Ordinal);
 
     public S3MultipartUploadCoordinator(
         S3ObjectClient client,
@@ -28,11 +30,17 @@ internal sealed class S3MultipartUploadCoordinator : IMultipartUploadCoordinator
         FileStorageGuards.ValidateMultipartInitRequest(request, _sharedOptions);
 
         var key = StorageKey.NormalizeOrGenerate(request.Key);
+        var maxUploadBytes = FileStorageGuards.ResolveEffectiveMaxUploadBytes(
+            request.MaxUploadBytes,
+            _sharedOptions.MaxUploadBytes);
+
         var uploadId = await _client.InitiateMultipartUploadAsync(
             _settings.ToObjectKey(key),
             request.ContentType,
             request.Metadata,
             cancellationToken);
+
+        _budgets[uploadId] = new MultipartUploadBudget(maxUploadBytes);
 
         return new MultipartUploadSession(key, uploadId);
     }
@@ -46,15 +54,34 @@ internal sealed class S3MultipartUploadCoordinator : IMultipartUploadCoordinator
             throw new FileStorageValidationException("Part number must be greater than zero.");
         }
 
-        var etag = await _client.UploadPartAsync(
-            _settings.ToObjectKey(StorageKey.Normalize(request.Key)),
-            request.UploadId,
-            request.PartNumber,
-            request.Content,
-            request.ContentLength,
-            cancellationToken);
+        if (!_budgets.TryGetValue(request.UploadId, out var budget))
+        {
+            // Session may have been started in another process; still enforce global max on this part.
+            budget = new MultipartUploadBudget(_sharedOptions.MaxUploadBytes);
+        }
 
-        return new UploadPartResult(request.PartNumber, etag);
+        var length = ResolvePartLength(request);
+        FileStorageGuards.EnsureContentLengthWithinLimit(length, budget.MaxUploadBytes);
+        budget.AddBytesOrThrow(length);
+
+        try
+        {
+            var etag = await _client.UploadPartAsync(
+                _settings.ToObjectKey(StorageKey.Normalize(request.Key)),
+                request.UploadId,
+                request.PartNumber,
+                request.Content,
+                length,
+                budget.MaxUploadBytes,
+                cancellationToken);
+
+            return new UploadPartResult(request.PartNumber, etag);
+        }
+        catch
+        {
+            budget.AddBytes(-length);
+            throw;
+        }
     }
 
     public async Task<FileRef> CompleteAsync(
@@ -66,6 +93,8 @@ internal sealed class S3MultipartUploadCoordinator : IMultipartUploadCoordinator
             request.UploadId,
             request.Parts.Select(x => (x.PartNumber, x.ETag)).ToList(),
             cancellationToken);
+
+        _budgets.TryRemove(request.UploadId, out _);
 
         // ContentType/Length are not returned by S3 Complete; MIME is locked at Initiate.
         // Callers should use app session state from Initiate or GetMetadataAsync.
@@ -83,5 +112,64 @@ internal sealed class S3MultipartUploadCoordinator : IMultipartUploadCoordinator
             _settings.ToObjectKey(StorageKey.Normalize(request.Key)),
             request.UploadId,
             cancellationToken);
+
+        _budgets.TryRemove(request.UploadId, out _);
+    }
+
+    private static long ResolvePartLength(UploadPartRequest request)
+    {
+        if (request.ContentLength is long declared)
+        {
+            if (declared < 0)
+            {
+                throw new FileStorageValidationException("Content length cannot be negative.");
+            }
+
+            return declared;
+        }
+
+        if (request.Content.CanSeek)
+        {
+            var remaining = request.Content.Length - request.Content.Position;
+            if (remaining < 0)
+            {
+                throw new FileStorageValidationException(
+                    "S3 multipart part upload cannot proceed because the stream position is beyond the stream length.");
+            }
+
+            return remaining;
+        }
+
+        throw new FileStorageValidationException(
+            "S3 multipart part upload requires a known content length. " +
+            "Set ContentLength on the request, or provide a seekable stream.");
+    }
+
+    private sealed class MultipartUploadBudget(long? maxUploadBytes)
+    {
+        private long _uploadedBytes;
+
+        public long? MaxUploadBytes { get; } = maxUploadBytes;
+
+        public void AddBytesOrThrow(long length)
+        {
+            while (true)
+            {
+                var current = Interlocked.Read(ref _uploadedBytes);
+                var next = current + length;
+                if (MaxUploadBytes is long maxBytes && next > maxBytes)
+                {
+                    throw new FileStorageValidationException(
+                        $"Multipart upload exceeds the configured limit of {maxBytes} bytes.");
+                }
+
+                if (Interlocked.CompareExchange(ref _uploadedBytes, next, current) == current)
+                {
+                    return;
+                }
+            }
+        }
+
+        public void AddBytes(long length) => Interlocked.Add(ref _uploadedBytes, length);
     }
 }

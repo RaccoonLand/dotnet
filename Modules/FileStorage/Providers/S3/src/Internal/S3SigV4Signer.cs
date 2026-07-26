@@ -22,7 +22,7 @@ internal static class S3SigV4Signer
         var amzDate = timestamp.ToString("yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture);
         var dateStamp = timestamp.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
         var signedHeaders = headers
-            .Append(new KeyValuePair<string, string>("host", requestUri.Host))
+            .Append(new KeyValuePair<string, string>("host", GetHostHeaderValue(requestUri)))
             .Append(new KeyValuePair<string, string>(PayloadHashHeader, payloadHash))
             .Append(new KeyValuePair<string, string>("x-amz-date", amzDate))
             .Where(x => !string.IsNullOrWhiteSpace(x.Value))
@@ -76,7 +76,8 @@ internal static class S3SigV4Signer
         query["X-Amz-Credential"] = $"{settings.AccessKeyId}/{credentialScope}";
         query["X-Amz-Date"] = amzDate;
         query["X-Amz-Expires"] = ((int)expiry.TotalSeconds).ToString(CultureInfo.InvariantCulture);
-        query["X-Amz-SignedHeaders"] = BuildSignedHeaderNames(headers, requestUri.Host);
+        var host = GetHostHeaderValue(requestUri);
+        query["X-Amz-SignedHeaders"] = BuildSignedHeaderNames(headers, host);
 
         if (!string.IsNullOrWhiteSpace(settings.SessionToken))
         {
@@ -84,7 +85,7 @@ internal static class S3SigV4Signer
         }
 
         var signedHeaders = headers
-            .Append(new KeyValuePair<string, string>("host", requestUri.Host))
+            .Append(new KeyValuePair<string, string>("host", host))
             .GroupBy(x => x.Key.ToLowerInvariant())
             .ToDictionary(group => group.Key, group => group.Last().Value.Trim(), StringComparer.Ordinal);
 
@@ -116,6 +117,14 @@ internal static class S3SigV4Signer
         var names = headers.Keys.Select(x => x.ToLowerInvariant()).Append("host").Distinct().OrderBy(x => x);
         return string.Join(';', names);
     }
+
+    /// <summary>
+    /// SigV4 Host must include the port when it is non-default (for example MinIO on :9000).
+    /// </summary>
+    internal static string GetHostHeaderValue(Uri requestUri)
+        => requestUri.IsDefaultPort
+            ? requestUri.Host
+            : $"{requestUri.Host}:{requestUri.Port}";
 
     private static Dictionary<string, string> ParseQuery(string? query)
     {

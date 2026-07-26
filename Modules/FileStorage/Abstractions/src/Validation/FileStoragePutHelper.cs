@@ -67,7 +67,8 @@ public static class FileStoragePutHelper
         string? key = null,
         TimeSpan? expiry = null,
         long? maxSizeBytes = null,
-        FileStorageOptions? options = null)
+        FileStorageOptions? options = null,
+        long? contentLength = null)
     {
         ArgumentNullException.ThrowIfNull(constraints);
 
@@ -80,11 +81,17 @@ public static class FileStoragePutHelper
             FileStorageGuards.ValidateMaxUploadBytesLimit(maxSizeBytes, options.MaxUploadBytes);
         }
 
+        if (contentLength is long length)
+        {
+            FileStorageGuards.EnsureContentLengthWithinLimit(length, effectiveMaxBytes);
+        }
+
         return new SignedWriteUrlRequest
         {
             Key = key,
             ContentType = normalizedContentType,
             Expiry = expiry,
+            ContentLength = contentLength,
             MaxUploadBytes = constraints.MaxUploadBytes,
             MaxSizeBytes = maxSizeBytes ?? effectiveMaxBytes,
             AllowedContentTypes = constraints.AllowedContentTypes,

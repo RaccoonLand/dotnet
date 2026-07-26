@@ -38,8 +38,22 @@ public static class FileStorageGuards
             throw new FileStorageValidationException("Max upload bytes cannot be negative.");
         }
 
+        if (request.ContentLength is < 0)
+        {
+            throw new FileStorageValidationException("Content length cannot be negative.");
+        }
+
         ValidateMaxUploadBytesLimit(request.MaxSizeBytes, options.MaxUploadBytes);
         ValidateMaxUploadBytesLimit(request.MaxUploadBytes, options.MaxUploadBytes);
+
+        var effectiveMax = ResolveEffectiveMaxUploadBytes(
+            ResolveEffectiveMaxUploadBytes(request.MaxUploadBytes, request.MaxSizeBytes),
+            options.MaxUploadBytes);
+
+        if (request.ContentLength is long contentLength)
+        {
+            EnsureContentLengthWithinLimit(contentLength, effectiveMax);
+        }
     }
 
     public static void ValidateMultipartInitRequest(InitiateMultipartUploadRequest request, FileStorageOptions options)
@@ -95,6 +109,35 @@ public static class FileStorageGuards
             (null, long optionsMax) => optionsMax,
             (long requestMax, long optionsMax) => Math.Min(requestMax, optionsMax),
         };
+
+    /// <summary>
+    /// Throws when <paramref name="contentLength"/> exceeds the effective upload cap.
+    /// </summary>
+    public static void EnsureContentLengthWithinLimit(long contentLength, long? effectiveMaxUploadBytes)
+    {
+        if (contentLength < 0)
+        {
+            throw new FileStorageValidationException("Content length cannot be negative.");
+        }
+
+        if (effectiveMaxUploadBytes is long maxBytes && contentLength > maxBytes)
+        {
+            throw new FileStorageValidationException($"Upload exceeds the allowed limit of {maxBytes} bytes.");
+        }
+    }
+
+    /// <summary>
+    /// Wraps <paramref name="content"/> with <see cref="MaxUploadLimitStream"/> when an effective max is set.
+    /// </summary>
+    public static Stream ApplyUploadLimit(Stream content, long? requestMaxUploadBytes, long? optionsMaxUploadBytes)
+    {
+        ArgumentNullException.ThrowIfNull(content);
+
+        var effectiveMaxBytes = ResolveEffectiveMaxUploadBytes(requestMaxUploadBytes, optionsMaxUploadBytes);
+        return effectiveMaxBytes is long maxBytes
+            ? new MaxUploadLimitStream(content, maxBytes)
+            : content;
+    }
 
     private static bool IsAllowedContentType(string contentType, IReadOnlySet<string> allowedContentTypes)
     {

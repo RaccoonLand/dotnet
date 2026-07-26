@@ -28,16 +28,16 @@ internal sealed class FileSystemFileStorage : IFileStorage
         var targetPath = _paths.GetObjectPath(key);
         var metadataPath = _paths.GetMetadataPath(key);
 
-        var writeResult = await FileSystemAtomicFileWriter.WriteToTempAsync(
+        // Enforce MaxUploadBytes while streaming to temp (not after a full write).
+        var limitedContent = FileStorageGuards.ApplyUploadLimit(
             request.Content,
+            request.MaxUploadBytes,
+            _sharedOptions.MaxUploadBytes);
+
+        var writeResult = await FileSystemAtomicFileWriter.WriteToTempAsync(
+            limitedContent,
             targetPath,
             cancellationToken);
-
-        if (_sharedOptions.MaxUploadBytes is long maxBytes && writeResult.Length > maxBytes)
-        {
-            FileSystemAtomicFileWriter.Discard(writeResult.TempPath);
-            throw new FileStorageValidationException($"Upload exceeds the configured limit of {maxBytes} bytes.");
-        }
 
         var storedMetadata = new StoredMetadata
         {

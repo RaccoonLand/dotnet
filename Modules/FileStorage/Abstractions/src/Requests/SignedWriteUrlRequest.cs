@@ -9,6 +9,12 @@ public sealed class SignedWriteUrlRequest
 
     public long? MaxSizeBytes { get; init; }
 
+    /// <summary>
+    /// Exact byte length the client will send on the signed PUT. Required by the S3 signer when a size
+    /// limit is configured so <c>Content-Length</c> can be included in the signature.
+    /// </summary>
+    public long? ContentLength { get; init; }
+
     public TimeSpan? Expiry { get; init; }
 
     /// <summary>

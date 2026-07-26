@@ -28,7 +28,12 @@ internal sealed class S3FileUrlSigner : IFileUrlSigner
 
         // Do not sign Content-Type on GET. Browsers and typical download clients omit that request header,
         // which would otherwise produce SignatureDoesNotMatch (403). Write URLs still sign Content-Type.
-        var url = _client.CreatePresignedUrl("GET", _settings.ToObjectKey(key), contentType: null, expiry);
+        var url = _client.CreatePresignedUrl(
+            "GET",
+            _settings.ToObjectKey(key),
+            contentType: null,
+            contentLength: null,
+            expiry);
 
         return Task.FromResult(new SignedUrlResult(
             url,
@@ -42,11 +47,35 @@ internal sealed class S3FileUrlSigner : IFileUrlSigner
 
         var key = StorageKey.NormalizeOrGenerate(request.Key);
         var expiry = FileStorageGuards.ResolveExpiry(request.Expiry, _sharedOptions);
-        var url = _client.CreatePresignedUrl("PUT", _settings.ToObjectKey(key), request.ContentType, expiry);
+        var effectiveMax = FileStorageGuards.ResolveEffectiveMaxUploadBytes(
+            FileStorageGuards.ResolveEffectiveMaxUploadBytes(request.MaxUploadBytes, request.MaxSizeBytes),
+            _sharedOptions.MaxUploadBytes);
+
+        // When a size ceiling is configured, Content-Length must be known and signed so S3 rejects
+        // bodies that do not match the signed length (and generation rejects lengths above the cap).
+        long? contentLength = request.ContentLength;
+        if (effectiveMax is not null)
+        {
+            if (contentLength is null)
+            {
+                throw new FileStorageValidationException(
+                    "Signed S3 write URLs require ContentLength when a MaxUploadBytes/MaxSizeBytes limit is configured, " +
+                    "so Content-Length can be included in the signature.");
+            }
+
+            FileStorageGuards.EnsureContentLengthWithinLimit(contentLength.Value, effectiveMax);
+        }
+
+        var url = _client.CreatePresignedUrl(
+            "PUT",
+            _settings.ToObjectKey(key),
+            request.ContentType,
+            contentLength,
+            expiry);
 
         return Task.FromResult(new SignedUrlResult(
             url,
             DateTimeOffset.UtcNow.Add(expiry),
-            new FileRef { Key = key, ContentType = request.ContentType }));
+            new FileRef { Key = key, ContentType = request.ContentType, Length = contentLength }));
     }
 }

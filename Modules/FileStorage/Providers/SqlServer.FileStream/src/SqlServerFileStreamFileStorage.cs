@@ -168,15 +168,10 @@ internal sealed partial class SqlServerFileStreamFileStorage : IFileStorage
     }
 
     private Stream CreateLimitedUploadStream(PutFileRequest request)
-    {
-        var effectiveMaxBytes = FileStorageGuards.ResolveEffectiveMaxUploadBytes(
+        => FileStorageGuards.ApplyUploadLimit(
+            request.Content,
             request.MaxUploadBytes,
             _sharedOptions.MaxUploadBytes);
-
-        return effectiveMaxBytes is long maxBytes
-            ? new MaxUploadLimitStream(request.Content, maxBytes)
-            : request.Content;
-    }
 
     public async Task DeleteAsync(DeleteFileRequest request, CancellationToken cancellationToken = default)
     {
@@ -448,7 +443,7 @@ internal sealed partial class SqlServerFileStreamFileStorage : IFileStorage
             $"""
              SELECT TOP 1
                  [{_options.ContentColumnName}].PathName(),
-                 GET_FILESTREAM(),
+                 GET_FILESTREAM_TRANSACTION_CONTEXT(),
                  [ContentType],
                  [Length],
                  [ChecksumSha256],
