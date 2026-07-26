@@ -209,6 +209,13 @@ public static class RabbitMqServiceEventServiceCollectionExtensions
                 $"{section}: when {nameof(RabbitMqServiceEventConsumerOptions.MaxDeliveryAttempts)} > 0 a dead-letter exchange is required " +
                 $"(set {nameof(RabbitMqServiceEventConsumerOptions.EnableDeadLetterTopology)}=true or provide {nameof(RabbitMqServiceEventConsumerOptions.DeadLetterExchangeName)}).")
             .Validate(
+                static o => o.MaxDeliveryAttempts > 0 || !o.RequeueOnFailure,
+                $"{section}: {nameof(RabbitMqServiceEventConsumerOptions.MaxDeliveryAttempts)} = 0 combined with " +
+                $"{nameof(RabbitMqServiceEventConsumerOptions.RequeueOnFailure)} = true requeues a failed delivery immediately with no " +
+                $"backoff or ceiling, so a poison (or unmappable) message hot-loops. Set " +
+                $"{nameof(RabbitMqServiceEventConsumerOptions.MaxDeliveryAttempts)} > 0 for bounded retries + dead-letter, or set " +
+                $"{nameof(RabbitMqServiceEventConsumerOptions.RequeueOnFailure)} = false to drop/dead-letter on failure.")
+            .Validate(
                 static o => IsValidAmqpConnection(o.Uri, o.HostName, o.Port, o.UserName, o.VirtualHost),
                 $"{section} requires either a valid amqp(s) Uri or a full set of HostName/Port/UserName/VirtualHost.")
             .ValidateOnStart();

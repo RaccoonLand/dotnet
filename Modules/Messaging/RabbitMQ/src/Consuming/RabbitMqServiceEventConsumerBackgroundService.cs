@@ -482,6 +482,14 @@ public sealed class RabbitMqServiceEventConsumerBackgroundService : BackgroundSe
             throw new InvalidOperationException(
                 "When MaxDeliveryAttempts > 0, EnableDeadLetterTopology must be true or DeadLetterExchangeName must be set.");
         }
+
+        if (options.MaxDeliveryAttempts == 0 && options.RequeueOnFailure)
+        {
+            throw new InvalidOperationException(
+                "RabbitMqServiceEventConsumerOptions.MaxDeliveryAttempts = 0 with RequeueOnFailure = true requeues a failed " +
+                "delivery immediately with no backoff or ceiling (poison messages hot-loop). Set MaxDeliveryAttempts > 0 for " +
+                "bounded retries + dead-letter, or set RequeueOnFailure = false to drop/dead-letter on failure.");
+        }
     }
 
     private static ConnectionFactory CreateConnectionFactory(RabbitMqServiceEventConsumerOptions snapshot)

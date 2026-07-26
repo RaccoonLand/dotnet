@@ -11,5 +11,7 @@
   <Folder Name="/src/">
     <Project Path="src/RaccoonLand.Modules.Messaging.RabbitMQ.csproj" />
   </Folder>
-  <Folder Name="/test/" />
+  <Folder Name="/test/">
+    <Project Path="test/RaccoonLand.Modules.Messaging.RabbitMQ.Tests.csproj" />
+  </Folder>
 </Solution>

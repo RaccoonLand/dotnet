@@ -12,5 +12,7 @@
   <Folder Name="/src/">
     <Project Path="src/RaccoonLand.Modules.Messaging.Abstractions.csproj" />
   </Folder>
-  <Folder Name="/test/" />
+  <Folder Name="/test/">
+    <Project Path="test/RaccoonLand.Modules.Messaging.Abstractions.Tests.csproj" />
+  </Folder>
 </Solution>

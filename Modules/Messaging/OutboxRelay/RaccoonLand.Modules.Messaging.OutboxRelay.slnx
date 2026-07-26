@@ -7,5 +7,7 @@
   <Folder Name="/src/">
     <Project Path="src/RaccoonLand.Modules.Messaging.OutboxRelay.csproj" />
   </Folder>
-  <Folder Name="/test/" />
+  <Folder Name="/test/">
+    <Project Path="test/RaccoonLand.Modules.Messaging.OutboxRelay.Tests.csproj" />
+  </Folder>
 </Solution>
