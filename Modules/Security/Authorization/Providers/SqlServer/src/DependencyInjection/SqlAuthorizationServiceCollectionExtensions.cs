@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using RaccoonLand.Modules.Security.Authorization.Abstractions;
 using RaccoonLand.Modules.Security.Authorization.SqlServer.Configuration;
 using RaccoonLand.Modules.Security.Authorization.SqlServer.Data;
@@ -28,9 +29,9 @@ public static class SqlAuthorizationServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
-        services.AddOptions<SqlAuthorizationOptions>()
-            .Bind(configuration.GetSection(sectionName))
-            .Validate(Validate, ValidationMessage);
+        AttachValidation(
+            services.AddOptions<SqlAuthorizationOptions>()
+                .Bind(configuration.GetSection(sectionName)));
 
         return services.AddCore();
     }
@@ -43,9 +44,9 @@ public static class SqlAuthorizationServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configure);
 
-        services.AddOptions<SqlAuthorizationOptions>()
-            .Configure(configure)
-            .Validate(Validate, ValidationMessage);
+        AttachValidation(
+            services.AddOptions<SqlAuthorizationOptions>()
+                .Configure(configure));
 
         return services.AddCore();
     }
@@ -58,11 +59,24 @@ public static class SqlAuthorizationServiceCollectionExtensions
         return services;
     }
 
-    private static bool Validate(SqlAuthorizationOptions options)
-        => !string.IsNullOrWhiteSpace(options.ConnectionString)
-           && !string.IsNullOrWhiteSpace(options.AnonymousRequestsProcedure)
-           && !string.IsNullOrWhiteSpace(options.AllowedRequestsProcedure);
-
-    private const string ValidationMessage =
-        "SqlAuthorizationOptions requires ConnectionString, AnonymousRequestsProcedure and AllowedRequestsProcedure.";
+    private static void AttachValidation(OptionsBuilder<SqlAuthorizationOptions> builder)
+    {
+        builder
+            .Validate(
+                static o => !string.IsNullOrWhiteSpace(o.ConnectionString),
+                $"{SqlAuthorizationOptions.SectionName}.{nameof(SqlAuthorizationOptions.ConnectionString)} is required.")
+            .Validate(
+                static o => !string.IsNullOrWhiteSpace(o.AnonymousRequestsProcedure),
+                $"{SqlAuthorizationOptions.SectionName}.{nameof(SqlAuthorizationOptions.AnonymousRequestsProcedure)} is required.")
+            .Validate(
+                static o => !string.IsNullOrWhiteSpace(o.AllowedRequestsProcedure),
+                $"{SqlAuthorizationOptions.SectionName}.{nameof(SqlAuthorizationOptions.AllowedRequestsProcedure)} is required.")
+            .Validate(
+                static o => !string.IsNullOrWhiteSpace(o.UserIdParameterName),
+                $"{SqlAuthorizationOptions.SectionName}.{nameof(SqlAuthorizationOptions.UserIdParameterName)} is required.")
+            .Validate(
+                static o => o.CommandTimeoutSeconds > 0,
+                $"{SqlAuthorizationOptions.SectionName}.{nameof(SqlAuthorizationOptions.CommandTimeoutSeconds)} must be greater than zero.")
+            .ValidateOnStart();
+    }
 }

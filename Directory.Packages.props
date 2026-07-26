@@ -58,9 +58,9 @@
     <PackageVersion Include="RaccoonLand.Modules.MessageLocalization.Abstraction" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.MessageLocalization.SQLServer" Version="1.0.1" />
     <PackageVersion Include="RaccoonLand.Modules.Messaging.Abstractions" Version="1.0.0" />
-    <PackageVersion Include="RaccoonLand.Modules.Messaging.OutboxRelay" Version="1.0.0" />
-    <PackageVersion Include="RaccoonLand.Modules.Messaging.RabbitMQ" Version="1.0.0" />
-    <PackageVersion Include="RaccoonLand.Modules.Messaging.SqlServer" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.Messaging.OutboxRelay" Version="1.0.1" />
+    <PackageVersion Include="RaccoonLand.Modules.Messaging.RabbitMQ" Version="1.0.1" />
+    <PackageVersion Include="RaccoonLand.Modules.Messaging.SqlServer" Version="1.0.1" />
     <PackageVersion Include="RaccoonLand.Modules.Middlewares.ExceptionHandlingMiddleware" Version="1.0.1" />
     <PackageVersion Include="RaccoonLand.Modules.Middlewares.FluentValidationMiddleware" Version="1.0.1" />
     <PackageVersion Include="RaccoonLand.Modules.Middlewares.RequestCaching.Abstraction" Version="1.0.0" />
@@ -80,9 +80,9 @@
     <PackageVersion Include="RaccoonLand.Modules.DependencyInjection.MicrosoftDI" Version="1.0.1" />
     <PackageVersion Include="RaccoonLand.Modules.FileStorage.Abstractions" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.FileStorage.AspNetCore" Version="1.0.0" />
-    <PackageVersion Include="RaccoonLand.Modules.FileStorage.FileSystem" Version="1.0.0" />
-    <PackageVersion Include="RaccoonLand.Modules.FileStorage.SqlServer" Version="1.0.0" />
-    <PackageVersion Include="RaccoonLand.Modules.FileStorage.SqlServer.FileStream" Version="1.0.0" />
-    <PackageVersion Include="RaccoonLand.Modules.FileStorage.S3" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.FileStorage.FileSystem" Version="1.0.1" />
+    <PackageVersion Include="RaccoonLand.Modules.FileStorage.SqlServer" Version="1.0.1" />
+    <PackageVersion Include="RaccoonLand.Modules.FileStorage.SqlServer.FileStream" Version="1.0.1" />
+    <PackageVersion Include="RaccoonLand.Modules.FileStorage.S3" Version="1.0.1" />
   </ItemGroup>
 </Project>

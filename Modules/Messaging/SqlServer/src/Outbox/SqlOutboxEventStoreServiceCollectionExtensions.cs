@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using RaccoonLand.Modules.Messaging.Abstractions;
 
 namespace RaccoonLand.Modules.Messaging.SqlServer;
@@ -33,11 +34,7 @@ public static class SqlOutboxEventStoreServiceCollectionExtensions
             store.Configure(configureStore);
         }
 
-        store.Validate(
-                options => SqlIdentifier.IsValid(options.Schema) && SqlIdentifier.IsValid(options.Table)
-                    && (options.Database is null || SqlIdentifier.IsValid(options.Database)),
-                "OutboxEventStore Database/Schema/Table must be simple SQL identifiers.")
-            .ValidateOnStart();
+        AttachStoreValidation(store);
 
         var sql = services.AddOptions<SqlOutboxEventStoreOptions>().Bind(section);
         if (configureSql is not null)
@@ -45,10 +42,7 @@ public static class SqlOutboxEventStoreServiceCollectionExtensions
             sql.Configure(configureSql);
         }
 
-        sql.Validate(
-                options => !string.IsNullOrWhiteSpace(options.ConnectionString),
-                "OutboxEventStore ConnectionString is required.")
-            .ValidateOnStart();
+        AttachSqlValidation(sql);
 
         services.TryAddSingleton<SqlOutboxEventStoreConnectionFactory>();
         services.TryAddSingleton<IOutboxEventStore, SqlOutboxEventStore>();
@@ -68,24 +62,39 @@ public static class SqlOutboxEventStoreServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(configureStore);
         ArgumentNullException.ThrowIfNull(configureSql);
 
-        services.AddOptions<OutboxEventStoreOptions>()
-            .Configure(configureStore)
-            .Validate(
-                options => SqlIdentifier.IsValid(options.Schema) && SqlIdentifier.IsValid(options.Table)
-                    && (options.Database is null || SqlIdentifier.IsValid(options.Database)),
-                "OutboxEventStore Database/Schema/Table must be simple SQL identifiers.")
-            .ValidateOnStart();
+        AttachStoreValidation(
+            services.AddOptions<OutboxEventStoreOptions>().Configure(configureStore));
 
-        services.AddOptions<SqlOutboxEventStoreOptions>()
-            .Configure(configureSql)
-            .Validate(
-                options => !string.IsNullOrWhiteSpace(options.ConnectionString),
-                "OutboxEventStore ConnectionString is required.")
-            .ValidateOnStart();
+        AttachSqlValidation(
+            services.AddOptions<SqlOutboxEventStoreOptions>().Configure(configureSql));
 
         services.TryAddSingleton<SqlOutboxEventStoreConnectionFactory>();
         services.TryAddSingleton<IOutboxEventStore, SqlOutboxEventStore>();
 
         return services;
+    }
+
+    private static void AttachStoreValidation(OptionsBuilder<OutboxEventStoreOptions> builder)
+    {
+        builder
+            .Validate(
+                static o => SqlIdentifier.IsValid(o.Schema),
+                $"{OutboxEventStoreOptions.SectionName}.{nameof(OutboxEventStoreOptions.Schema)} must be a simple SQL identifier.")
+            .Validate(
+                static o => SqlIdentifier.IsValid(o.Table),
+                $"{OutboxEventStoreOptions.SectionName}.{nameof(OutboxEventStoreOptions.Table)} must be a simple SQL identifier.")
+            .Validate(
+                static o => o.Database is null || SqlIdentifier.IsValid(o.Database),
+                $"{OutboxEventStoreOptions.SectionName}.{nameof(OutboxEventStoreOptions.Database)} must be null or a simple SQL identifier.")
+            .ValidateOnStart();
+    }
+
+    private static void AttachSqlValidation(OptionsBuilder<SqlOutboxEventStoreOptions> builder)
+    {
+        builder
+            .Validate(
+                static o => !string.IsNullOrWhiteSpace(o.ConnectionString),
+                $"{OutboxEventStoreOptions.SectionName}.{nameof(SqlOutboxEventStoreOptions.ConnectionString)} is required.")
+            .ValidateOnStart();
     }
 }

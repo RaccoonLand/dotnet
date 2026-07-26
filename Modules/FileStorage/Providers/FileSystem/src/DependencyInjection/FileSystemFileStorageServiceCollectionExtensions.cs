@@ -23,7 +23,10 @@ public static class FileSystemFileStorageServiceCollectionExtensions
         services.AddSharedOptions(configuration, sharedSectionName);
         services.AddOptions<FileSystemStorageOptions>()
             .Bind(configuration.GetSection(sectionName))
-            .Validate(options => !string.IsNullOrWhiteSpace(options.RootPath), "RootPath is required.");
+            .Validate(
+                static options => !string.IsNullOrWhiteSpace(options.RootPath),
+                $"{FileSystemStorageOptions.SectionName}.{nameof(FileSystemStorageOptions.RootPath)} is required.")
+            .ValidateOnStart();
 
         return services.AddCore();
     }
@@ -43,7 +46,10 @@ public static class FileSystemFileStorageServiceCollectionExtensions
         services.AddOptions<FileSystemStorageOptions>()
             .Bind(configuration.GetSection(sectionName))
             .Configure(configure)
-            .Validate(options => !string.IsNullOrWhiteSpace(options.RootPath), "RootPath is required.");
+            .Validate(
+                static options => !string.IsNullOrWhiteSpace(options.RootPath),
+                $"{FileSystemStorageOptions.SectionName}.{nameof(FileSystemStorageOptions.RootPath)} is required.")
+            .ValidateOnStart();
 
         return services.AddCore();
     }

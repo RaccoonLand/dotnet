@@ -47,7 +47,10 @@ public sealed class ApiAuthorizationRegistrationTests
         using var provider = services.BuildServiceProvider();
         var options = provider.GetRequiredService<IOptions<ApiAuthorizationOptions>>();
 
-        Assert.Throws<OptionsValidationException>(() => _ = options.Value);
+        var ex = Assert.Throws<OptionsValidationException>(() => _ = options.Value);
+        Assert.Contains(
+            ex.Failures,
+            f => f.Contains(nameof(ApiAuthorizationOptions.BaseAddress), StringComparison.Ordinal));
     }
 
     [Fact]
@@ -63,7 +66,49 @@ public sealed class ApiAuthorizationRegistrationTests
         using var provider = services.BuildServiceProvider();
         var options = provider.GetRequiredService<IOptions<ApiAuthorizationOptions>>();
 
-        Assert.Throws<OptionsValidationException>(() => _ = options.Value);
+        var ex = Assert.Throws<OptionsValidationException>(() => _ = options.Value);
+        Assert.Contains(
+            ex.Failures,
+            f => f.Contains(nameof(ApiAuthorizationOptions.AllowedRequestsPath), StringComparison.Ordinal)
+                 && f.Contains("{userId}", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void AddRaccoonLandApiAuthorization_WhenAnonymousPathBlank_FailsValidationWithNamedField()
+    {
+        var services = new ServiceCollection();
+        services.AddRaccoonLandApiAuthorization(options =>
+        {
+            options.BaseAddress = new Uri("https://policy.internal/api/");
+            options.AnonymousRequestsPath = string.Empty;
+        });
+
+        using var provider = services.BuildServiceProvider();
+        var options = provider.GetRequiredService<IOptions<ApiAuthorizationOptions>>();
+
+        var ex = Assert.Throws<OptionsValidationException>(() => _ = options.Value);
+        Assert.Contains(
+            ex.Failures,
+            f => f.Contains(nameof(ApiAuthorizationOptions.AnonymousRequestsPath), StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void AddRaccoonLandApiAuthorization_WhenTimeoutSecondsNonPositive_FailsValidationWithNamedField()
+    {
+        var services = new ServiceCollection();
+        services.AddRaccoonLandApiAuthorization(options =>
+        {
+            options.BaseAddress = new Uri("https://policy.internal/api/");
+            options.TimeoutSeconds = 0;
+        });
+
+        using var provider = services.BuildServiceProvider();
+        var options = provider.GetRequiredService<IOptions<ApiAuthorizationOptions>>();
+
+        var ex = Assert.Throws<OptionsValidationException>(() => _ = options.Value);
+        Assert.Contains(
+            ex.Failures,
+            f => f.Contains(nameof(ApiAuthorizationOptions.TimeoutSeconds), StringComparison.Ordinal));
     }
 
     [Fact]

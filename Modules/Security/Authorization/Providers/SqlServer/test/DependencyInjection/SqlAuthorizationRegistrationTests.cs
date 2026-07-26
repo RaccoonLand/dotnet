@@ -55,7 +55,10 @@ public sealed class SqlAuthorizationRegistrationTests
         using var provider = services.BuildServiceProvider();
         var options = provider.GetRequiredService<IOptions<SqlAuthorizationOptions>>();
 
-        Assert.Throws<OptionsValidationException>(() => _ = options.Value);
+        var ex = Assert.Throws<OptionsValidationException>(() => _ = options.Value);
+        Assert.Contains(
+            ex.Failures,
+            f => f.Contains(nameof(SqlAuthorizationOptions.ConnectionString), StringComparison.Ordinal));
     }
 
     [Fact]
@@ -68,7 +71,34 @@ public sealed class SqlAuthorizationRegistrationTests
         using var provider = services.BuildServiceProvider();
         var options = provider.GetRequiredService<IOptions<SqlAuthorizationOptions>>();
 
-        Assert.Throws<OptionsValidationException>(() => _ = options.Value);
+        var ex = Assert.Throws<OptionsValidationException>(() => _ = options.Value);
+        Assert.Contains(
+            ex.Failures,
+            f => f.Contains(nameof(SqlAuthorizationOptions.AnonymousRequestsProcedure), StringComparison.Ordinal));
+        Assert.Contains(
+            ex.Failures,
+            f => f.Contains(nameof(SqlAuthorizationOptions.AllowedRequestsProcedure), StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void AddRaccoonLandSqlServerAuthorization_WhenCommandTimeoutNonPositive_FailsValidationWithNamedField()
+    {
+        var services = new ServiceCollection();
+        services.AddRaccoonLandSqlServerAuthorization(options =>
+        {
+            options.ConnectionString = "Server=.;Database=Security;Trusted_Connection=True";
+            options.AnonymousRequestsProcedure = "dbo.Anon";
+            options.AllowedRequestsProcedure = "dbo.Allowed";
+            options.CommandTimeoutSeconds = 0;
+        });
+
+        using var provider = services.BuildServiceProvider();
+        var options = provider.GetRequiredService<IOptions<SqlAuthorizationOptions>>();
+
+        var ex = Assert.Throws<OptionsValidationException>(() => _ = options.Value);
+        Assert.Contains(
+            ex.Failures,
+            f => f.Contains(nameof(SqlAuthorizationOptions.CommandTimeoutSeconds), StringComparison.Ordinal));
     }
 
     [Fact]

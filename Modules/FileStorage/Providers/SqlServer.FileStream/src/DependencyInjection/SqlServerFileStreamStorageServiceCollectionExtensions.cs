@@ -24,8 +24,9 @@ public static class SqlServerFileStreamStorageServiceCollectionExtensions
         services.AddOptions<SqlServerFileStreamStorageOptions>()
             .Bind(configuration.GetSection(sectionName))
             .Validate(
-                options => !string.IsNullOrWhiteSpace(options.ConnectionString),
-                "ConnectionString is required.");
+                static options => !string.IsNullOrWhiteSpace(options.ConnectionString),
+                $"{SqlServerFileStreamStorageOptions.SectionName}.{nameof(SqlServerFileStreamStorageOptions.ConnectionString)} is required.")
+            .ValidateOnStart();
 
         return services.AddCore();
     }
@@ -46,8 +47,9 @@ public static class SqlServerFileStreamStorageServiceCollectionExtensions
             .Bind(configuration.GetSection(sectionName))
             .Configure(configure)
             .Validate(
-                options => !string.IsNullOrWhiteSpace(options.ConnectionString),
-                "ConnectionString is required.");
+                static options => !string.IsNullOrWhiteSpace(options.ConnectionString),
+                $"{SqlServerFileStreamStorageOptions.SectionName}.{nameof(SqlServerFileStreamStorageOptions.ConnectionString)} is required.")
+            .ValidateOnStart();
 
         return services.AddCore();
     }

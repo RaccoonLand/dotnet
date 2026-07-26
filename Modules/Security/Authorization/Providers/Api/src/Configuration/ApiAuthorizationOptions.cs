@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace RaccoonLand.Modules.Security.Authorization.Api.Configuration;
 
 /// <summary>How the provider authenticates its service-to-service calls to the authorization API.</summary>
@@ -42,10 +40,9 @@ public sealed class ApiAuthorizationOptions
     public const string SectionName = "Authorization:Api";
 
     /// <summary>
-    /// Base address of the authorization API. Should end with a trailing <c>/</c> so the relative paths below
-    /// resolve correctly (for example <c>https://policy.internal/api/</c>).
+    /// Base address of the authorization API. Required. Should end with a trailing <c>/</c> so the relative
+    /// paths below resolve correctly (for example <c>https://policy.internal/api/</c>).
     /// </summary>
-    [Required]
     public Uri? BaseAddress { get; set; }
 
     /// <summary>

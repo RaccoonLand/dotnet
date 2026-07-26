@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using RaccoonLand.Modules.Messaging.Abstractions;
 
 namespace RaccoonLand.Modules.Messaging.SqlServer;
@@ -33,11 +34,7 @@ public static class SqlInboxStoreServiceCollectionExtensions
             store.Configure(configureStore);
         }
 
-        store.Validate(
-                options => SqlIdentifier.IsValid(options.Schema) && SqlIdentifier.IsValid(options.Table)
-                    && (options.Database is null || SqlIdentifier.IsValid(options.Database)),
-                "InboxStore Database/Schema/Table must be simple SQL identifiers.")
-            .ValidateOnStart();
+        AttachStoreValidation(store);
 
         var sql = services.AddOptions<SqlInboxStoreOptions>().Bind(section);
         if (configureSql is not null)
@@ -45,10 +42,7 @@ public static class SqlInboxStoreServiceCollectionExtensions
             sql.Configure(configureSql);
         }
 
-        sql.Validate(
-                options => !string.IsNullOrWhiteSpace(options.ConnectionString),
-                "InboxStore ConnectionString is required.")
-            .ValidateOnStart();
+        AttachSqlValidation(sql);
 
         services.TryAddSingleton<SqlInboxStoreConnectionFactory>();
         services.TryAddSingleton<IInboxStore, SqlInboxStore>();
@@ -68,24 +62,39 @@ public static class SqlInboxStoreServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(configureStore);
         ArgumentNullException.ThrowIfNull(configureSql);
 
-        services.AddOptions<InboxStoreOptions>()
-            .Configure(configureStore)
-            .Validate(
-                options => SqlIdentifier.IsValid(options.Schema) && SqlIdentifier.IsValid(options.Table)
-                    && (options.Database is null || SqlIdentifier.IsValid(options.Database)),
-                "InboxStore Database/Schema/Table must be simple SQL identifiers.")
-            .ValidateOnStart();
+        AttachStoreValidation(
+            services.AddOptions<InboxStoreOptions>().Configure(configureStore));
 
-        services.AddOptions<SqlInboxStoreOptions>()
-            .Configure(configureSql)
-            .Validate(
-                options => !string.IsNullOrWhiteSpace(options.ConnectionString),
-                "InboxStore ConnectionString is required.")
-            .ValidateOnStart();
+        AttachSqlValidation(
+            services.AddOptions<SqlInboxStoreOptions>().Configure(configureSql));
 
         services.TryAddSingleton<SqlInboxStoreConnectionFactory>();
         services.TryAddSingleton<IInboxStore, SqlInboxStore>();
 
         return services;
+    }
+
+    private static void AttachStoreValidation(OptionsBuilder<InboxStoreOptions> builder)
+    {
+        builder
+            .Validate(
+                static o => SqlIdentifier.IsValid(o.Schema),
+                $"{InboxStoreOptions.SectionName}.{nameof(InboxStoreOptions.Schema)} must be a simple SQL identifier.")
+            .Validate(
+                static o => SqlIdentifier.IsValid(o.Table),
+                $"{InboxStoreOptions.SectionName}.{nameof(InboxStoreOptions.Table)} must be a simple SQL identifier.")
+            .Validate(
+                static o => o.Database is null || SqlIdentifier.IsValid(o.Database),
+                $"{InboxStoreOptions.SectionName}.{nameof(InboxStoreOptions.Database)} must be null or a simple SQL identifier.")
+            .ValidateOnStart();
+    }
+
+    private static void AttachSqlValidation(OptionsBuilder<SqlInboxStoreOptions> builder)
+    {
+        builder
+            .Validate(
+                static o => !string.IsNullOrWhiteSpace(o.ConnectionString),
+                $"{InboxStoreOptions.SectionName}.{nameof(SqlInboxStoreOptions.ConnectionString)} is required.")
+            .ValidateOnStart();
     }
 }

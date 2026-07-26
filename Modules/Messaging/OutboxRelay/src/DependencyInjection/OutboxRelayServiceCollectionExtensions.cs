@@ -108,11 +108,16 @@ public static class OutboxRelayServiceCollectionExtensions
 
     private static void ValidateRelayOptions(OptionsBuilder<OutboxRelayOptions> builder)
     {
-        builder.Validate(
-                options => options.BatchSize > 0
-                    && options.PollInterval >= TimeSpan.Zero
-                    && options.ClaimLease >= TimeSpan.FromSeconds(1),
-                "OutboxRelay BatchSize must be > 0, PollInterval must be >= 0, and ClaimLease must be >= 00:00:01.")
+        builder
+            .Validate(
+                static options => options.BatchSize > 0,
+                $"{OutboxRelayOptions.SectionName}.{nameof(OutboxRelayOptions.BatchSize)} must be greater than zero.")
+            .Validate(
+                static options => options.PollInterval >= TimeSpan.Zero,
+                $"{OutboxRelayOptions.SectionName}.{nameof(OutboxRelayOptions.PollInterval)} must be greater than or equal to 00:00:00.")
+            .Validate(
+                static options => options.ClaimLease >= TimeSpan.FromSeconds(1),
+                $"{OutboxRelayOptions.SectionName}.{nameof(OutboxRelayOptions.ClaimLease)} must be greater than or equal to 00:00:01.")
             .ValidateOnStart();
     }
 

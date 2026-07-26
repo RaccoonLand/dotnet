@@ -33,9 +33,9 @@ public static class ApiAuthorizationServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
-        services.AddOptions<ApiAuthorizationOptions>()
-            .Bind(configuration.GetSection(sectionName))
-            .Validate(Validate, ValidationMessage);
+        AttachValidation(
+            services.AddOptions<ApiAuthorizationOptions>()
+                .Bind(configuration.GetSection(sectionName)));
 
         return services.AddCore(configureClient);
     }
@@ -49,9 +49,9 @@ public static class ApiAuthorizationServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configure);
 
-        services.AddOptions<ApiAuthorizationOptions>()
-            .Configure(configure)
-            .Validate(Validate, ValidationMessage);
+        AttachValidation(
+            services.AddOptions<ApiAuthorizationOptions>()
+                .Configure(configure));
 
         return services.AddCore(configureClient);
     }
@@ -83,12 +83,25 @@ public static class ApiAuthorizationServiceCollectionExtensions
         client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
     }
 
-    private static bool Validate(ApiAuthorizationOptions options)
-        => options.BaseAddress is not null
-           && !string.IsNullOrWhiteSpace(options.AnonymousRequestsPath)
-           && !string.IsNullOrWhiteSpace(options.AllowedRequestsPath)
-           && options.AllowedRequestsPath.Contains("{userId}", StringComparison.Ordinal);
-
-    private const string ValidationMessage =
-        "ApiAuthorizationOptions requires BaseAddress, AnonymousRequestsPath and AllowedRequestsPath (which must contain the {userId} placeholder).";
+    private static void AttachValidation(OptionsBuilder<ApiAuthorizationOptions> builder)
+    {
+        builder
+            .Validate(
+                static o => o.BaseAddress is not null,
+                $"{ApiAuthorizationOptions.SectionName}.{nameof(ApiAuthorizationOptions.BaseAddress)} is required.")
+            .Validate(
+                static o => !string.IsNullOrWhiteSpace(o.AnonymousRequestsPath),
+                $"{ApiAuthorizationOptions.SectionName}.{nameof(ApiAuthorizationOptions.AnonymousRequestsPath)} is required.")
+            .Validate(
+                static o => !string.IsNullOrWhiteSpace(o.AllowedRequestsPath),
+                $"{ApiAuthorizationOptions.SectionName}.{nameof(ApiAuthorizationOptions.AllowedRequestsPath)} is required.")
+            .Validate(
+                static o => string.IsNullOrEmpty(o.AllowedRequestsPath)
+                    || o.AllowedRequestsPath.Contains("{userId}", StringComparison.Ordinal),
+                $"{ApiAuthorizationOptions.SectionName}.{nameof(ApiAuthorizationOptions.AllowedRequestsPath)} must contain the {{userId}} placeholder.")
+            .Validate(
+                static o => o.TimeoutSeconds > 0,
+                $"{ApiAuthorizationOptions.SectionName}.{nameof(ApiAuthorizationOptions.TimeoutSeconds)} must be greater than zero.")
+            .ValidateOnStart();
+    }
 }

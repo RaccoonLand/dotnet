@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace RaccoonLand.Modules.Security.Authorization.SqlServer.Configuration;
 
 /// <summary>
@@ -27,22 +25,20 @@ public sealed class SqlAuthorizationOptions
     /// <summary>Default configuration section name (<c>Authorization:SqlServer</c>).</summary>
     public const string SectionName = "Authorization:SqlServer";
 
-    /// <summary>Connection string to the database that hosts the authorization stored procedures.</summary>
-    [Required]
+    /// <summary>Connection string to the database that hosts the authorization stored procedures. Required.</summary>
     public string ConnectionString { get; set; } = string.Empty;
 
     /// <summary>
     /// Name of the stored procedure that returns the publicly accessible (anonymous) request names. It takes
-    /// no required parameters and returns a single column of request full-names.
+    /// no required parameters and returns a single column of request full-names. Required.
     /// </summary>
-    [Required]
     public string AnonymousRequestsProcedure { get; set; } = string.Empty;
 
     /// <summary>
     /// Name of the stored procedure that returns the request names the current user may execute. It receives
     /// the user id (see <see cref="UserIdParameterName"/>) and returns a single column of request full-names.
+    /// Required.
     /// </summary>
-    [Required]
     public string AllowedRequestsProcedure { get; set; } = string.Empty;
 
     /// <summary>

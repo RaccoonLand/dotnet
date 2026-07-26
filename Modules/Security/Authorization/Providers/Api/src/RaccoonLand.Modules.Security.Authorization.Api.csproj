@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <PackageId>RaccoonLand.Modules.Security.Authorization.Api</PackageId>
+    <Version>1.0.1</Version>
     <Description>RaccoonLand API authorization provider: an IAuthorizationProvider that decides access (status only) by calling an external authorization (policy) API over a typed HttpClient — one endpoint returning the publicly anonymous request names, the other returning the request names allowed for the current user (resolved from ICurrentExecutionContext). Set-based and deny-by-default, with pluggable service-to-service authentication (None/ApiKey/Bearer plus a hook for custom handlers) and optional IDistributedCache caching. One of the RaccoonLand.Modules.Security.Authorization providers.</Description>
   </PropertyGroup>
 

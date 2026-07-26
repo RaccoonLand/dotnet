@@ -157,69 +157,75 @@ public static class RabbitMqServiceEventServiceCollectionExtensions
 
     private static void ValidatePublisherOptions(OptionsBuilder<RabbitMqServiceEventOptions> builder)
     {
-        builder.Validate(static options =>
-            {
-                if (string.IsNullOrWhiteSpace(options.ExchangeName)
-                    || string.IsNullOrWhiteSpace(options.ExchangeType)
-                    || string.IsNullOrWhiteSpace(options.RoutingKeyFormat))
-                {
-                    return false;
-                }
-
-                if (!string.IsNullOrWhiteSpace(options.Uri))
-                {
-                    return Uri.TryCreate(options.Uri, UriKind.Absolute, out var uri)
-                        && (uri.Scheme == "amqp" || uri.Scheme == "amqps");
-                }
-
-                return !string.IsNullOrWhiteSpace(options.HostName)
-                    && options.Port > 0
-                    && !string.IsNullOrWhiteSpace(options.UserName)
-                    && !string.IsNullOrWhiteSpace(options.VirtualHost);
-            },
-            "RabbitMqServiceEvents requires ExchangeName/ExchangeType/RoutingKeyFormat, and either a valid amqp(s) Uri or HostName/Port/UserName/VirtualHost.")
+        const string section = RabbitMqServiceEventOptions.SectionName;
+        builder
+            .Validate(
+                static o => !string.IsNullOrWhiteSpace(o.ExchangeName),
+                $"{section}.{nameof(RabbitMqServiceEventOptions.ExchangeName)} is required.")
+            .Validate(
+                static o => !string.IsNullOrWhiteSpace(o.ExchangeType),
+                $"{section}.{nameof(RabbitMqServiceEventOptions.ExchangeType)} is required.")
+            .Validate(
+                static o => !string.IsNullOrWhiteSpace(o.RoutingKeyFormat),
+                $"{section}.{nameof(RabbitMqServiceEventOptions.RoutingKeyFormat)} is required.")
+            .Validate(
+                static o => IsValidAmqpConnection(o.Uri, o.HostName, o.Port, o.UserName, o.VirtualHost),
+                $"{section} requires either a valid amqp(s) Uri or a full set of HostName/Port/UserName/VirtualHost.")
             .ValidateOnStart();
     }
 
     private static void ValidateConsumerOptions(OptionsBuilder<RabbitMqServiceEventConsumerOptions> builder)
     {
-        builder.Validate(static options =>
-            {
-                if (string.IsNullOrWhiteSpace(options.ExchangeName)
-                    || string.IsNullOrWhiteSpace(options.ExchangeType)
-                    || string.IsNullOrWhiteSpace(options.QueueName)
-                    || options.BindingKeys is null
-                    || options.BindingKeys.Length == 0
-                    || options.PrefetchCount == 0
-                    || options.InboxClaimLease < TimeSpan.FromSeconds(1)
-                    || options.ClaimHeldByOtherRequeueDelay < TimeSpan.Zero
-                    || options.MaxDeliveryAttempts < 0)
-                {
-                    return false;
-                }
-
-                if (options.MaxDeliveryAttempts > 0
-                    && !options.EnableDeadLetterTopology
-                    && string.IsNullOrWhiteSpace(options.DeadLetterExchangeName))
-                {
-                    return false;
-                }
-
-                if (!string.IsNullOrWhiteSpace(options.Uri))
-                {
-                    return Uri.TryCreate(options.Uri, UriKind.Absolute, out var uri)
-                        && (uri.Scheme == "amqp" || uri.Scheme == "amqps");
-                }
-
-                return !string.IsNullOrWhiteSpace(options.HostName)
-                    && options.Port > 0
-                    && !string.IsNullOrWhiteSpace(options.UserName)
-                    && !string.IsNullOrWhiteSpace(options.VirtualHost);
-            },
-            "RabbitMqServiceEventConsumer requires QueueName, BindingKeys, PrefetchCount > 0, InboxClaimLease >= 00:00:01, " +
-            "ClaimHeldByOtherRequeueDelay >= 0, and when MaxDeliveryAttempts > 0 a dead-letter exchange " +
-            "(EnableDeadLetterTopology or DeadLetterExchangeName), plus exchange settings and Uri or host credentials.")
+        const string section = RabbitMqServiceEventConsumerOptions.SectionName;
+        builder
+            .Validate(
+                static o => !string.IsNullOrWhiteSpace(o.ExchangeName),
+                $"{section}.{nameof(RabbitMqServiceEventConsumerOptions.ExchangeName)} is required.")
+            .Validate(
+                static o => !string.IsNullOrWhiteSpace(o.ExchangeType),
+                $"{section}.{nameof(RabbitMqServiceEventConsumerOptions.ExchangeType)} is required.")
+            .Validate(
+                static o => !string.IsNullOrWhiteSpace(o.QueueName),
+                $"{section}.{nameof(RabbitMqServiceEventConsumerOptions.QueueName)} is required.")
+            .Validate(
+                static o => o.BindingKeys is not null && o.BindingKeys.Length > 0,
+                $"{section}.{nameof(RabbitMqServiceEventConsumerOptions.BindingKeys)} must contain at least one entry.")
+            .Validate(
+                static o => o.PrefetchCount > 0,
+                $"{section}.{nameof(RabbitMqServiceEventConsumerOptions.PrefetchCount)} must be greater than zero.")
+            .Validate(
+                static o => o.InboxClaimLease >= TimeSpan.FromSeconds(1),
+                $"{section}.{nameof(RabbitMqServiceEventConsumerOptions.InboxClaimLease)} must be greater than or equal to 00:00:01.")
+            .Validate(
+                static o => o.ClaimHeldByOtherRequeueDelay >= TimeSpan.Zero,
+                $"{section}.{nameof(RabbitMqServiceEventConsumerOptions.ClaimHeldByOtherRequeueDelay)} must be greater than or equal to 00:00:00.")
+            .Validate(
+                static o => o.MaxDeliveryAttempts >= 0,
+                $"{section}.{nameof(RabbitMqServiceEventConsumerOptions.MaxDeliveryAttempts)} must be greater than or equal to zero.")
+            .Validate(
+                static o => o.MaxDeliveryAttempts == 0
+                    || o.EnableDeadLetterTopology
+                    || !string.IsNullOrWhiteSpace(o.DeadLetterExchangeName),
+                $"{section}: when {nameof(RabbitMqServiceEventConsumerOptions.MaxDeliveryAttempts)} > 0 a dead-letter exchange is required " +
+                $"(set {nameof(RabbitMqServiceEventConsumerOptions.EnableDeadLetterTopology)}=true or provide {nameof(RabbitMqServiceEventConsumerOptions.DeadLetterExchangeName)}).")
+            .Validate(
+                static o => IsValidAmqpConnection(o.Uri, o.HostName, o.Port, o.UserName, o.VirtualHost),
+                $"{section} requires either a valid amqp(s) Uri or a full set of HostName/Port/UserName/VirtualHost.")
             .ValidateOnStart();
+    }
+
+    private static bool IsValidAmqpConnection(string? uri, string hostName, int port, string userName, string virtualHost)
+    {
+        if (!string.IsNullOrWhiteSpace(uri))
+        {
+            return System.Uri.TryCreate(uri, UriKind.Absolute, out var parsed)
+                && (parsed.Scheme == "amqp" || parsed.Scheme == "amqps");
+        }
+
+        return !string.IsNullOrWhiteSpace(hostName)
+            && port > 0
+            && !string.IsNullOrWhiteSpace(userName)
+            && !string.IsNullOrWhiteSpace(virtualHost);
     }
 
     private static string ResolveEventType<TEvent>()
