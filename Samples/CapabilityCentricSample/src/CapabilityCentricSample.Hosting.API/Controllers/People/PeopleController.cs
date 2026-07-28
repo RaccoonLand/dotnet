@@ -1,3 +1,4 @@
+using CapabilityCentricSample.Hosting.API.Controllers.People.Models;
 using CapabilityCentricSample.People.Endpoints.Commands.CreatePerson;
 using CapabilityCentricSample.People.Endpoints.Commands.DeletePerson;
 using CapabilityCentricSample.People.Endpoints.Commands.SetPersonPhoto;
@@ -23,7 +24,7 @@ public sealed class PeopleController : RaccoonLandController
     [Consumes("multipart/form-data")]
     [RequestSizeLimit(30 * 1024 * 1024)]
     public async Task<IActionResult> Create(
-        [FromForm] CreatePersonCommand command,
+        [FromForm] CreatePersonRequest request,
         IFormFile photo,
         IFormFile resume,
         CancellationToken cancellationToken)
@@ -34,13 +35,13 @@ public sealed class PeopleController : RaccoonLandController
         return await DispatchAsync(
             new CreatePersonCommand
             {
-                EmployeeCode = command.EmployeeCode,
-                FirstName = command.FirstName,
-                LastName = command.LastName,
-                NationalCode = command.NationalCode,
-                Email = command.Email,
-                MobileNumber = command.MobileNumber,
-                EmploymentDate = command.EmploymentDate,
+                EmployeeCode = request.EmployeeCode,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                NationalCode = request.NationalCode,
+                Email = request.Email,
+                MobileNumber = request.MobileNumber,
+                EmploymentDate = request.EmploymentDate,
                 PhotoContent = photoUpload.Content,
                 PhotoContentType = photoUpload.ContentType,
                 PhotoContentLength = photoUpload.ContentLength,

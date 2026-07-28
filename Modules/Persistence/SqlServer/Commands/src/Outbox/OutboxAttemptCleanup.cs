@@ -17,6 +17,11 @@ internal static class OutboxAttemptCleanup
         ArgumentNullException.ThrowIfNull(context);
 
         OutboxSaveChangesInterceptor.ResetAttemptState(context);
-        context.GetService<OutboxWriter>()?.RestoreFlushedOnRollback();
+
+        // Message outbox (IOutboxWriter) is optional. EF Core's typed GetService<T>() throws when T is
+        // unregistered; use the underlying IServiceProvider.GetService so domain/service-event-only
+        // hosts (Sample/Template) do not fail on every SaveChangesAsync.
+        var writer = (OutboxWriter?)context.GetInfrastructure().GetService(typeof(OutboxWriter));
+        writer?.RestoreFlushedOnRollback();
     }
 }

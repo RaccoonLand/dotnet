@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using RaccoonLand.Core.Domain.Abstractions;
 using RaccoonLand.Core.Domain.Events;
 using RaccoonLand.Modules.Persistence.SqlServer.Commands.Tests.Support;
@@ -13,6 +14,34 @@ public sealed class BaseCommandDbContextTests
         using var context = PersistenceTestHelpers.CreateCommandContext();
 
         Assert.Throws<NotSupportedException>(() => context.SaveChanges());
+    }
+
+    [Fact]
+    public void ResetForRetry_WhenOutboxWriterNotRegistered_DoesNotThrow()
+    {
+        // Sample/Template hosts register only the domain/service event outbox. Retry cleanup must
+        // treat OutboxWriter as optional (EF typed GetService throws when unregistered).
+        using var context = PersistenceTestHelpers.CreateCommandContext();
+
+        OutboxAttemptCleanup.ResetForRetry(context);
+    }
+
+    [Fact]
+    public async Task SaveChangesAsync_WithoutMessageOutboxWriter_Succeeds()
+    {
+        // Owned-transaction path calls ResetForRetry before BeginTransaction; InMemory needs the
+        // transaction-ignored warning suppressed so the save can complete.
+        var options = new DbContextOptionsBuilder<TestCommandDbContext>()
+            .UseInMemoryDatabase($"command-no-writer-{Guid.NewGuid():N}")
+            .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+            .Options;
+
+        await using var context = new TestCommandDbContext(options);
+        context.Aggregates.Add(new TestAggregate { Name = "without-message-outbox" });
+
+        var affected = await context.SaveChangesAsync();
+
+        Assert.Equal(1, affected);
     }
 
     [Fact]
