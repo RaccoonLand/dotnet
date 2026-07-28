@@ -1,7 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>1.0.2</Version>
     <Description>RaccoonLand RequestProcessing abstractions: host-independent contracts for authoring CQRS requests/endpoints and request pipelines with custom middleware (IRequestBase/IRequest/ICommand/IQuery, IEndpoint, IRequestDispatcher, PipelineContext, RequestMetadata, IPipelineMiddleware, IPipelineBuilder, PipelineResponse). No dependency on ASP.NET Core, so the same pipeline works in an API or a worker. Reference this from custom-middleware packages.</Description>
   </PropertyGroup>
 

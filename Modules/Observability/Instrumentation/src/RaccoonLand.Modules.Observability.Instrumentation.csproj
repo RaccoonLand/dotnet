@@ -1,8 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <PackageId>RaccoonLand.Modules.Observability.Instrumentation</PackageId>
-    <Version>1.0.1</Version>
     <Description>RaccoonLand pipeline instrumentation: a single host-independent IPipelineMiddleware that emits distributed traces (System.Diagnostics.ActivitySource), metrics (System.Diagnostics.Metrics.Meter) and structured logs (ILogger) for every CQRS command/query, enriched from ICurrentExecutionContext (user/tenant/correlation) and the current Activity (trace id). Exporter-agnostic: it produces telemetry through BCL primitives only; the host installs the OpenTelemetry SDK/exporters and registers the well-known ActivitySource and Meter names from RaccoonLandTelemetry.</Description>
   </PropertyGroup>
 

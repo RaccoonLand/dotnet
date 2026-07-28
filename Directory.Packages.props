@@ -1,4 +1,4 @@
-<Project>
+﻿<Project>
   <!-- Central Package Management (CPM) for the whole repository.
        Individual projects reference packages WITHOUT a Version attribute; the single
        source of truth for every version lives here. This keeps versions consistent,
@@ -50,22 +50,22 @@
   <!-- RaccoonLand inter-package references. All packages ship as 1.0.0 and are resolved
        from the local feed (see nuget.config packageSourceMapping). -->
   <ItemGroup>
-    <PackageVersion Include="RaccoonLand.Core.Domain" Version="1.0.1" />
+    <PackageVersion Include="RaccoonLand.Core.Domain" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Core.ExecutionContext.Abstractions" Version="1.0.0" />
-    <PackageVersion Include="RaccoonLand.Core.RequestProcessing" Version="1.0.4" />
-    <PackageVersion Include="RaccoonLand.Core.RequestProcessing.Abstractions" Version="1.0.2" />
-    <PackageVersion Include="RaccoonLand.Core.Hosting.AspNetCore" Version="1.0.2" />
+    <PackageVersion Include="RaccoonLand.Core.RequestProcessing" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Core.RequestProcessing.Abstractions" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Core.Hosting.AspNetCore" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.MessageLocalization.Abstraction" Version="1.0.0" />
-    <PackageVersion Include="RaccoonLand.Modules.MessageLocalization.SQLServer" Version="1.0.1" />
+    <PackageVersion Include="RaccoonLand.Modules.MessageLocalization.SQLServer" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.Messaging.Abstractions" Version="1.0.0" />
-    <PackageVersion Include="RaccoonLand.Modules.Messaging.OutboxRelay" Version="1.0.1" />
-    <PackageVersion Include="RaccoonLand.Modules.Messaging.RabbitMQ" Version="1.0.2" />
-    <PackageVersion Include="RaccoonLand.Modules.Messaging.SqlServer" Version="1.0.1" />
-    <PackageVersion Include="RaccoonLand.Modules.Middlewares.ExceptionHandlingMiddleware" Version="1.0.1" />
-    <PackageVersion Include="RaccoonLand.Modules.Middlewares.FluentValidationMiddleware" Version="1.0.1" />
+    <PackageVersion Include="RaccoonLand.Modules.Messaging.OutboxRelay" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.Messaging.RabbitMQ" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.Messaging.SqlServer" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.Middlewares.ExceptionHandlingMiddleware" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.Middlewares.FluentValidationMiddleware" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.Middlewares.RequestCaching.Abstraction" Version="1.0.0" />
-    <PackageVersion Include="RaccoonLand.Modules.Middlewares.RequestCachingMiddleware" Version="1.0.2" />
-    <PackageVersion Include="RaccoonLand.Modules.Observability.Instrumentation" Version="1.0.1" />
+    <PackageVersion Include="RaccoonLand.Modules.Middlewares.RequestCachingMiddleware" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.Observability.Instrumentation" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.Observability.Logging.Serilog" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.OpenApi" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.OpenApi.Abstractions" Version="1.0.0" />
@@ -73,16 +73,16 @@
     <PackageVersion Include="RaccoonLand.Modules.OpenApi.Swagger" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.Persistence.EntityFrameworkCore" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.Persistence.Outbox.Abstraction" Version="1.0.0" />
-    <PackageVersion Include="RaccoonLand.Modules.Persistence.SqlServer.Commands" Version="1.0.5" />
+    <PackageVersion Include="RaccoonLand.Modules.Persistence.SqlServer.Commands" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.Persistence.SqlServer.Queries" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.Security.Authorization.Abstractions" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.DependencyInjection.Abstractions" Version="1.0.0" />
-    <PackageVersion Include="RaccoonLand.Modules.DependencyInjection.MicrosoftDI" Version="1.0.1" />
-    <PackageVersion Include="RaccoonLand.Modules.FileStorage.Abstractions" Version="1.0.1" />
+    <PackageVersion Include="RaccoonLand.Modules.DependencyInjection.MicrosoftDI" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.FileStorage.Abstractions" Version="1.0.0" />
     <PackageVersion Include="RaccoonLand.Modules.FileStorage.AspNetCore" Version="1.0.0" />
-    <PackageVersion Include="RaccoonLand.Modules.FileStorage.FileSystem" Version="1.0.2" />
-    <PackageVersion Include="RaccoonLand.Modules.FileStorage.SqlServer" Version="1.0.1" />
-    <PackageVersion Include="RaccoonLand.Modules.FileStorage.SqlServer.FileStream" Version="1.0.2" />
-    <PackageVersion Include="RaccoonLand.Modules.FileStorage.S3" Version="1.0.2" />
+    <PackageVersion Include="RaccoonLand.Modules.FileStorage.FileSystem" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.FileStorage.SqlServer" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.FileStorage.SqlServer.FileStream" Version="1.0.0" />
+    <PackageVersion Include="RaccoonLand.Modules.FileStorage.S3" Version="1.0.0" />
   </ItemGroup>
 </Project>

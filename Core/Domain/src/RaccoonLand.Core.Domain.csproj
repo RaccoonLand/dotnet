@@ -1,7 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>1.0.1</Version>
     <Description>RaccoonLand core domain building blocks: Entity, AggregateRoot, ValueObject, domain/service events, domain errors and domain exceptions.</Description>
   </PropertyGroup>
 

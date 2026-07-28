@@ -1,7 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>1.0.1</Version>
     <Description>RaccoonLand pipeline middleware that turns DomainException and developer-registered exception types into a PipelineResponse error envelope with optional message localization. Host-independent — no dependency on ASP.NET Core; works in an API or a worker via IPipelineMiddleware. Middleware is registered as a singleton (stateless; scoped services via PipelineContext.RequestServices).</Description>
   </PropertyGroup>
 

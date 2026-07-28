@@ -1,7 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>1.0.2</Version>
     <Description>RaccoonLand pipeline middleware that adds read-through caching for requests implementing ICacheableRequest, backed by IDistributedCache, with per-category (namespace + request name) lifetimes. Host-independent — works in an API or a worker via IPipelineMiddleware.</Description>
   </PropertyGroup>
 
